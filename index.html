@@ -3,14 +3,16 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Thejeshwaar Sathishkumar</title>
-<meta name="description" content="Machine learning research on non-stationary biosignals — wearable neurology, sensor intelligence, and models that survive the second patient." />
+<title>Thejeshwaar Sathishkumar — models for measurements that drift</title>
+<meta name="description" content="Machine learning research on non-stationary biosignals. Wearable neurology, multimodal fusion, domain generalisation — and evaluation held to a deployment bar rather than a leaderboard." />
 <meta name="theme-color" content="#0a0908" />
+<meta name="color-scheme" content="dark" />
 <link rel="canonical" href="https://beyondinfinity1610.github.io/" />
-<meta property="og:type" content="website" />
+<meta property="og:type" content="profile" />
 <meta property="og:title" content="Thejeshwaar Sathishkumar" />
-<meta property="og:description" content="Machine learning research on non-stationary biosignals — wearable neurology, sensor intelligence, and models that survive the second patient." />
+<meta property="og:description" content="I build models for measurements that drift — brain, heart, muscle, motion." />
 <meta property="og:url" content="https://beyondinfinity1610.github.io/" />
+<meta name="twitter:card" content="summary" />
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0908'/%3E%3Cpath d='M3 17h6l2-6 3 11 3-8 2 4 2-2h8' fill='none' stroke='%23c69a5e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <link rel="preload" href="vendor/fonts/instrument-serif.woff2" as="font" type="font/woff2" crossorigin />
@@ -26,50 +28,56 @@
   "url": "https://beyondinfinity1610.github.io/",
   "email": "mailto:thejeshwaarsathishkumar@gmail.com",
   "sameAs": ["https://github.com/Beyondinfinity1610"],
-  "knowsAbout": ["Biosignal processing", "Multimodal deep learning", "Graph neural networks", "Domain adaptation", "Embedded sensing"]
+  "alumniOf": { "@type": "CollegeOrUniversity", "name": "Vellore Institute of Technology, Chennai" },
+  "address": { "@type": "PostalAddress", "addressLocality": "Chennai", "addressCountry": "IN" },
+  "knowsAbout": ["Biosignal processing", "Non-stationary time series", "Multimodal deep learning", "Graph neural networks", "Domain adaptation", "Embedded sensing"]
 }
 </script>
 </head>
 
 <body>
 
-<canvas id="trace" aria-hidden="true"></canvas>
+<a class="skip" href="#work">Skip to work</a>
+
+<canvas id="montage" aria-hidden="true"></canvas>
+<canvas id="rail" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
 
 <nav class="nav" id="nav">
-  <a class="nav-name" href="#top">Thejeshwaar&nbsp;Sathishkumar</a>
+  <a class="nav-name" href="#top">Thejeshwaar <span>Sathishkumar</span></a>
   <div class="nav-right">
     <div class="nav-sec">
       <a href="#work">Work</a>
-      <a href="#approach">Approach</a>
+      <a href="#method">Method</a>
       <a href="#about">About</a>
     </div>
-    <a href="#contact">Contact</a>
+    <a class="nav-cta" href="#contact">Contact</a>
   </div>
 </nav>
 
-<main class="shell" id="top">
+<main id="top">
 
-<!-- ───────────────────────────── HERO ───────────────────────────── -->
+<!-- ─────────────────────────────── HERO ─────────────────────────────── -->
 <section id="hero">
   <div class="hero-inner">
-    <p class="label" id="hero-label">Machine learning research — Chennai, India</p>
+    <p class="label hero-label" data-r>Machine learning research · Chennai, India</p>
 
-    <h1 class="display hero-title reveal-pen" id="hero-title">
-      Signals that <em>refuse</em> to sit still.
+    <h1 class="display hero-title">
+      <span class="ln"><span>I build models for</span></span>
+      <span class="ln"><span>measurements that <em>drift</em>.</span></span>
     </h1>
 
-    <p class="hero-sub" data-r>
-      I build models for measurements that drift — brain, heart, muscle, motion.
-      <strong>The interesting failure is never the architecture.</strong> It is that the sensor
-      was never telling the truth in the first place, and almost nothing in the literature is
-      built for that.
+    <p class="hero-sub" data-r data-delay="1">
+      Brain, heart, muscle, motion. The interesting failure is almost never the architecture —
+      it is that the instrument was never telling the truth in the first place, and very little
+      in the literature is built for that.
     </p>
   </div>
 
-  <div class="hero-foot" data-r>
+  <div class="hero-foot" data-r data-delay="2">
     <div class="hero-meta">
       <span class="label">Wearable neurology</span>
-      <span class="label">Sensor intelligence</span>
+      <span class="label">Multimodal fusion</span>
       <span class="label">Domain generalisation</span>
     </div>
     <a class="link" href="#work">
@@ -77,329 +85,437 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
     </a>
   </div>
+
+  <div class="scroll-cue" aria-hidden="true"><span></span></div>
 </section>
 
-<!-- ───────────────────────────── STATEMENT ───────────────────────────── -->
-<section id="statement">
-  <div class="wrap statement">
-    <h2 class="h2" data-r>Most published accuracy does not survive the <em>second recording site</em>.</h2>
-    <div class="statement-body" data-r>
-      <p class="body">
-        A model learns the drift instead of the event. It learns the patient instead of the
-        condition. It calls a jaw clench a seizure because one sensor genuinely cannot tell the
-        difference. None of these show up in a validation score computed the usual way — which is
-        precisely why so much of this field fails to replicate.
-      </p>
-      <p class="body">
-        My work sits on that fault line. Decomposition before learning, so the network is handed
-        separated structure rather than a sum. Architectures penalised for encoding identity.
-        Evaluation on the full continuous stream, split by subject, scored the way a practitioner
-        would score it.
-      </p>
-      <p class="body">
-        It makes every number smaller and every result slower to arrive. It is the only version of
-        the work worth doing.
-      </p>
+<!-- ─────────────────────────── THE CONVICTION ─────────────────────────── -->
+<section id="conviction">
+  <div class="wrap">
+    <p class="label label--brass" data-r>The conviction</p>
+    <h2 class="h1 lead" data-r>Every instrument is <em>lying</em>.</h2>
+
+    <div class="two-col">
+      <div data-r>
+        <p class="body">
+          I came to signal processing sideways, through cars. What held my attention was that an
+          engine controller makes hundreds of decisions a second from sensors that are all, quietly,
+          wrong. A knock sensor drifts as it heats. An oxygen sensor ages and its response curve
+          moves. A wheel-speed reading is honest until the tyre pressure changes. Nothing is broken.
+          The instruments are measuring a moving world through hardware that is itself moving — and
+          the controller still has to decide, right now, whether that vibration is detonation or a
+          bad road surface.
+        </p>
+      </div>
+      <div data-r data-delay="1">
+        <p class="body">
+          An electrode is the same object. Impedance drifts with sweat. Skull thickness and cortical
+          folding differ between people. The sensor is re-seated at a slightly different angle every
+          morning. And the model still has to decide whether a burst of rhythm is a seizure or
+          someone chewing.
+        </p>
+        <p class="body">
+          I did not move from cars to neuroscience. I found the same problem wearing different
+          clothes, with higher stakes and worse data. Everything below is one idea applied four
+          ways: <em>assume the instrument is lying, and design for it.</em>
+        </p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ───────────────────────────── WORK ───────────────────────────── -->
+<!-- ───────────────────────────── SELECTED WORK ───────────────────────────── -->
 <section id="work">
   <div class="wrap">
     <div class="head" data-r>
       <p class="label label--brass">Selected work</p>
-      <h2 class="h2">Five that matter.</h2>
+      <h2 class="h2">Weighted, not catalogued.</h2>
     </div>
 
-    <div class="work">
+    <article class="entry entry--lead" data-r>
+      <div class="entry-rule"><span class="entry-n">01</span></div>
+      <div class="entry-main">
+        <h3 class="h3">Wearable focal-seizure detection</h3>
+        <div class="entry-meta">
+          <span class="stat">Lead researcher</span>
+          <span>SeizeIT2 · 125 patients · 2,912 recording-hours</span>
+          <span>Manuscript in preparation</span>
+        </div>
+        <p class="body">
+          Detecting focal seizures from two EEG channels worn behind the ear, on people who walk,
+          eat, talk and sleep while wearing the device. Seizures occupy well under one percent of
+          the recording. Chewing, speaking and walking produce high-amplitude rhythmic activity that
+          is, spectrally, not distinguishable from an ictal discharge. The clinically useful bar is
+          under two false alarms a day, and published human expert readers reach roughly 59%
+          sensitivity on this modality — which is what the ceiling actually looks like.
+        </p>
+        <p class="body">
+          My contribution is as much diagnostic as architectural: establishing what this class of
+          model is genuinely doing, which of its components carry information and which are
+          decoration, and where the limit of the modality itself sits. Evaluated end to end on the
+          continuous stream, split by patient, against the dataset's own published baselines rather
+          than a kinder split of my own.
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
 
-      <article class="entry" data-r>
-        <span class="entry-n">01</span>
-        <div class="entry-head">
-          <h3 class="h3">Wearable seizure detection</h3>
-          <div class="entry-meta">
-            <span class="stat">Lead researcher</span>
-            <span>SeizeIT2 · 125 patients · 2,912 hours</span>
-            <span>Manuscript in preparation</span>
-          </div>
-        </div>
-        <div class="entry-body">
-          <p class="body">
-            Detecting focal seizures from a two-channel sensor worn behind the ear, on people who
-            are walking, eating and sleeping while wearing it. Seizures occupy well under one
-            percent of the recording, and the signal that indicates one is frequently
-            indistinguishable from ordinary movement.
-          </p>
-          <p class="body">
-            My contribution is as much diagnostic as architectural: establishing what this class of
-            model is actually doing, which of its components genuinely carry information, and where
-            the ceiling of the modality itself lies. Evaluated end to end on the continuous stream
-            against the dataset's published baselines.
-          </p>
-          <p class="body" style="color:var(--fg-3)">
-            Method and results are held back pending review. I am glad to walk through them in
-            conversation.
-          </p>
-        </div>
-      </article>
+<!-- ──────────────────────── THE REDACTED ARCHITECTURE ──────────────────────── -->
+<section id="redaction" aria-labelledby="redaction-h">
+  <div class="redaction-stage">
+    <canvas id="redact-canvas"></canvas>
 
-      <article class="entry" data-r>
-        <span class="entry-n">02</span>
-        <div class="entry-head">
-          <h3 class="h3">Band-wise graph networks for EEG</h3>
-          <div class="entry-meta">
-            <span class="stat">Lead researcher</span>
-            <span>121 subjects</span>
-            <span>In preparation</span>
-          </div>
-        </div>
-        <div class="entry-body">
-          <p class="body">
-            Treating the brain as a network rather than a stack of channels: phase-based
-            connectivity, graph attention over the resulting topology, and an adversarial branch
-            whose entire job is to stop the encoder recognising the person it is looking at.
-          </p>
-          <p class="body">
-            The premise is that different frequency bands carry different — sometimes opposing —
-            structure, and collapsing them early destroys the thing you came to measure.
-          </p>
-          <div class="entry-links">
-            <a class="link" href="https://github.com/Beyondinfinity1610/ADHD-CLASSFiCATION-EEG" target="_blank" rel="noopener">
-              Repository
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
-            </a>
-          </div>
-        </div>
-      </article>
-
-      <article class="entry" data-r>
-        <span class="entry-n">03</span>
-        <div class="entry-head">
-          <h3 class="h3">Self-healing sensor architecture</h3>
-          <div class="entry-meta">
-            <span class="stat">Patent 202541081235</span>
-            <span>Published</span>
-            <span>Embedded ML</span>
-          </div>
-        </div>
-        <div class="entry-body">
-          <p class="body">
-            A fault-detection and recovery layer that sits beneath the application: the fault is
-            identified and correction triggered before the next control-loop tick, so downstream
-            logic never sees the bad reading. On-device learning performs the recalibration, which
-            removes the technician from deployments that never had one.
-          </p>
-          <p class="body">
-            Different domain, same conviction as the research — assume the instrument is wrong and
-            design for it.
-          </p>
-        </div>
-      </article>
-
-      <article class="entry" data-r>
-        <span class="entry-n">04</span>
-        <div class="entry-head">
-          <h3 class="h3">Synthetic population engine</h3>
-          <div class="entry-meta">
-            <span class="stat">KYFR</span>
-            <span>Applied ML</span>
-            <span>Shipped</span>
-          </div>
-        </div>
-        <div class="entry-body">
-          <p class="body">
-            A generator for privacy-safe synthetic populations and multi-year, event-labelled
-            financial histories — built for training systems where the real data is regulated and
-            the situations that matter are, by definition, rare.
-          </p>
-          <p class="body">
-            The discipline is the interesting part. The same seed reproduces the dataset byte for
-            byte, and the output has to survive an adversarial audit and a change-point detector
-            recovering the injected events before it is allowed to certify as usable at all. A
-            generator you cannot falsify is not a generator.
-          </p>
-        </div>
-      </article>
-
-      <article class="entry" data-r>
-        <span class="entry-n">05</span>
-        <div class="entry-head">
-          <h3 class="h3">Quantum-Hilbert signal encoding</h3>
-          <div class="entry-meta">
-            <span class="stat">Lead research intern</span>
-            <span>CADS, VIT</span>
-            <span>Under review</span>
-          </div>
-        </div>
-        <div class="entry-body">
-          <p class="body">
-            An encoding framework built from first principles, targeting the actual mathematical
-            structure of a physiological signal — phase-coherent, amplitude-modulated,
-            multi-oscillatory — rather than a picture of its spectrogram.
-          </p>
-          <p class="body">
-            It preserves the instantaneous phase and envelope information that a magnitude
-            transform discards, and carries them into a variational quantum latent space.
-          </p>
-        </div>
-      </article>
-
+    <div class="redaction-fallback" id="redact-fallback" aria-hidden="true">
+      <div class="fb-row"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="fb-row"><i class="w"></i></div>
+      <div class="fb-row"><i class="m"></i><i class="m"></i></div>
+      <div class="fb-row"><i class="s"></i><i class="s"></i></div>
     </div>
+
+    <div class="redaction-ui">
+      <div class="ru-top">
+        <p class="label label--brass" id="redaction-h">The system, withheld</p>
+        <p class="ru-lede">
+          You can see how many stages there are, how the signal moves through them, and where it
+          splits. Nothing else — not until the reviewers have seen it first.
+        </p>
+      </div>
+
+      <div class="ru-bottom">
+        <div class="ru-status">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="mono">WITHHELD PENDING PEER REVIEW</span>
+        </div>
+        <p class="ru-role mono" id="ru-role" aria-live="polite">Two manuscripts in preparation</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap redaction-note">
+    <div class="two-col">
+      <div data-r>
+        <p class="body">
+          The only legible block is the input, because the input is not mine — it is a public
+          dataset, and its properties are published. Everything downstream of it constitutes the
+          novelty claims of a manuscript under preparation, so it appears here as shape and flow
+          with the labels struck out.
+        </p>
+      </div>
+      <div data-r data-delay="1">
+        <p class="body">
+          This is not coyness. Method, ablations and results are the contribution, and putting them
+          on a personal website before review would be a poor way to treat co-authors and
+          reviewers. I am glad to walk through all of it in conversation, under an NDA if your
+          organisation prefers one.
+        </p>
+        <p class="body dim">
+          On acceptance, this section becomes a link to the paper.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────── WORK, CONTINUED ──────────────────────────── -->
+<section id="work-2">
+  <div class="wrap">
+
+    <article class="entry" data-r>
+      <div class="entry-rule"><span class="entry-n">02</span></div>
+      <div class="entry-main">
+        <h3 class="h3">Band-wise graph attention networks for EEG</h3>
+        <div class="entry-meta">
+          <span class="stat">Lead researcher</span>
+          <span>121 subjects · 19 channels · leave-one-subject-out</span>
+          <span>Manuscript in preparation</span>
+        </div>
+        <p class="body">
+          Treating the brain as a network rather than a stack of channels: phase-based connectivity,
+          chosen because it is immune to volume conduction, and learning over the resulting topology
+          rather than over the raw channels.
+        </p>
+        <p class="body">
+          Before building any of it I established, under strict multiple-comparison control, whether
+          the discriminative signal was present at all. It was. The bottleneck in this problem is
+          not absent signal — it is that every new subject arrives with a different baseline, so a
+          model that scores well within a cohort can be recognising people rather than the
+          condition. That is the part worth solving, and it is what the method is aimed at.
+        </p>
+        <div class="entry-links">
+          <a class="link" href="https://github.com/Beyondinfinity1610/ADHD-CLASSFiCATION-EEG" target="_blank" rel="noopener">
+            Repository
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <article class="entry" data-r>
+      <div class="entry-rule"><span class="entry-n">03</span></div>
+      <div class="entry-main">
+        <h3 class="h3">Self-healing sensor architecture</h3>
+        <div class="entry-meta">
+          <span class="stat">Patent 202541081235</span>
+          <span>Published</span>
+          <span>Embedded ML</span>
+        </div>
+        <p class="body">
+          A fault detection and recovery layer that sits beneath the application. The fault is
+          identified and correction triggered within fifty milliseconds — before the next
+          control-loop tick in most embedded systems — so the logic above it never observes the bad
+          reading. On-device learning performs the recalibration, which removes the technician from
+          continuous-monitoring deployments that never had one to begin with.
+        </p>
+        <p class="body dim">
+          Different domain, same conviction as the research: the instrument is wrong, so build the
+          correction into the floor rather than the model.
+        </p>
+      </div>
+    </article>
+
+    <article class="entry" data-r>
+      <div class="entry-rule"><span class="entry-n">04</span></div>
+      <div class="entry-main">
+        <h3 class="h3">Synthetic population and life-event engine</h3>
+        <div class="entry-meta">
+          <span class="stat">Applied ML · industry</span>
+          <span>Shipped</span>
+          <span>FastAPI · Docker</span>
+        </div>
+        <p class="body">
+          A generator producing privacy-safe synthetic populations with multi-year, event-labelled
+          financial histories — for training and testing systems where the real data is regulated
+          and the situations that matter are, by definition, rare.
+        </p>
+        <p class="body">
+          The discipline is the interesting part. The same seed reproduces the dataset byte for byte.
+          Generation is split into three separable layers, and a cohort can be grown forward,
+          backward or sideways while carrying state. Most importantly, the output is not certified
+          as usable until a change-point detector recovers the injected life events above a hard
+          threshold — the detector is not the product, it is the proof that the data is learnable
+          and not naively separable. A standing adversarial harness must pass clean before any
+          change counts as done.
+        </p>
+        <p class="body dim">
+          The documentation states its own limits: a detector's ranking transfers between
+          populations, but its threshold does not, because the cutoff is an absolute number on a
+          probability scale set by the base rate it was fitted at.
+        </p>
+      </div>
+    </article>
+
+    <article class="entry" data-r>
+      <div class="entry-rule"><span class="entry-n">05</span></div>
+      <div class="entry-main">
+        <h3 class="h3">Quantum-Hilbert encoding for EEG</h3>
+        <div class="entry-meta">
+          <span class="stat">Lead research intern · CADS, VIT</span>
+          <span>With co-authors at VIT and Yonsei University</span>
+          <span>Under review</span>
+        </div>
+        <p class="body">
+          EEG is non-stationary and its phase is fundamental, yet most quantum machine learning on
+          biosignals encodes real-valued features and throws the analytic structure away. This work
+          builds a sign-preserving complex encoding that carries instantaneous amplitude and phase
+          intact into quantum state space, alongside a study of the encoding design space itself.
+        </p>
+        <p class="body dim">
+          The paper deliberately claims representational fidelity rather than quantum advantage, and
+          names the hardware limits that would make the stronger claim dishonest.
+        </p>
+      </div>
+    </article>
 
     <div class="also" data-r>
-      <p class="label" style="margin-bottom:1.4rem">Also</p>
+      <p class="label" style="margin-bottom:1.6rem">Also</p>
 
       <div class="also-row">
-        <span class="also-t">Federated monitoring for safety-critical infrastructure</span>
-        <span class="also-d">Ultrasonic, fibre-optic and vision, fused at the edge</span>
+        <span class="also-t">Federated multi-modal infrastructure monitoring</span>
+        <span class="also-d">Ultrasonic, fibre-optic and vision, fused at the edge so raw data never leaves the node</span>
         <span class="also-k">Pre-publication</span>
       </div>
       <a class="also-row" href="https://github.com/Beyondinfinity1610/EEG-Motor-Imagery-Classification-using-ERD-Features-Beginner-Neuro-AI-Project-" target="_blank" rel="noopener">
         <span class="also-t">Motor-imagery classification from ERD features</span>
-        <span class="also-d">The first one. Where I learned that preprocessing decides the result</span>
+        <span class="also-d">The first one. Where I learned that preprocessing decides the result and the classifier mostly reports it</span>
         <span class="also-k">Repository</span>
       </a>
       <a class="also-row" href="https://github.com/Beyondinfinity1610/Plate-Vision--AI" target="_blank" rel="noopener">
         <span class="also-t">Plate Vision</span>
-        <span class="also-d">Plate recognition from real footage — blur, angle, bad light</span>
+        <span class="also-d">Plate detection and recognition from real footage — motion blur, oblique angles, poor light</span>
         <span class="also-k">Repository</span>
       </a>
       <a class="also-row" href="https://github.com/Beyondinfinity1610/Code-AI-Plus" target="_blank" rel="noopener">
         <span class="also-t">Code AI Plus</span>
-        <span class="also-d">Multi-language editor with sandboxed execution</span>
+        <span class="also-d">Multi-language editor with sandboxed execution and model-assisted diagnosis, not a decorated stack trace</span>
         <span class="also-k">Repository</span>
       </a>
       <div class="also-row">
-        <span class="also-t">Word-to-IEEE converter</span>
-        <span class="also-d">Manuscript formatting, automated. Built at midnight before a deadline</span>
-        <span class="also-k">Tool</span>
-      </div>
-      <div class="also-row">
-        <span class="also-t">Club integration platform</span>
-        <span class="also-d">Membership and events for a university technical society</span>
+        <span class="also-t">Academic project management platform</span>
+        <span class="also-d">Panels, rubrics, review cycles and workload allocation for a university — real institutional software with real users</span>
         <span class="also-k">Deployed</span>
       </div>
+      <div class="also-row">
+        <span class="also-t">Word-to-IEEE converter</span>
+        <span class="also-d">Manuscripts into two-column conference format — figures, tables, references. Ships with an MCP server</span>
+        <span class="also-k">Tool</span>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ───────────────────────────── INTERLUDE ───────────────────────────── -->
-<section id="interlude" aria-label="Electrode connectivity">
-  <canvas id="topo-canvas"></canvas>
-  <div class="interlude-veil"></div>
-  <div class="interlude-copy">
-    <p class="label label--brass">Nineteen electrodes</p>
-    <p class="body">
-      The standard montage, drawn as what it actually is — a network, not a list of channels.
-      Drag it.
-    </p>
-  </div>
-</section>
-
-<!-- ───────────────────────────── APPROACH ───────────────────────────── -->
-<section id="approach">
+<!-- ───────────────────────────────  METHOD  ─────────────────────────────── -->
+<section id="method">
   <div class="wrap">
     <div class="head" data-r>
-      <p class="label label--brass">Approach</p>
-      <h2 class="h2">Four things I will not compromise on.</h2>
+      <p class="label label--brass">How I work</p>
+      <h2 class="h2">Diagnostic before <em>architectural</em>.</h2>
+      <p class="body head-sub">
+        The best result I have produced did not come from a new module. It came from stopping, and
+        finding out what the system was actually doing.
+      </p>
     </div>
 
-    <div class="principles" data-r>
-      <div class="principle">
-        <span class="entry-n">i</span>
-        <h3 class="h3">Audit the data path first.</h3>
+    <ol class="principles">
+      <li class="principle" data-r>
+        <span class="p-n">i</span>
+        <h3 class="h3">Audit what the model is receiving.</h3>
         <p class="body">
-          Before the architecture, before the loss, before anything: confirm the model is receiving
-          what you believe it is receiving. The largest single improvement I have ever made to a
-          system came from reading my own data loader properly. It is unglamorous and it keeps
-          working.
+          Before the architecture, before the loss, before anything: confirm that the tensor arriving
+          at the network is the tensor you believe you are sending it. The largest single improvement
+          I have ever made to a system came from that check rather than from anything I added. It is
+          unglamorous and it keeps working.
         </p>
-      </div>
-      <div class="principle">
-        <span class="entry-n">ii</span>
-        <h3 class="h3">Verify what you assume is learning.</h3>
+      </li>
+      <li class="principle" data-r data-delay="1">
+        <span class="p-n">ii</span>
+        <h3 class="h3">Verify that what you assume is learning, learned.</h3>
         <p class="body">
-          A component can sit in a network for months, appear in every diagram, and contribute
-          nothing — with no sign of it in the loss curve. If a part is supposed to be training, open
-          the checkpoint and prove that it did.
+          A component can sit in a network for months, appear in every diagram you draw, and
+          contribute nothing — with no trace of it in the loss curve. If a part is supposed to be
+          training, open the checkpoint and prove that it did. Describing a system is not the same
+          as knowing it.
         </p>
-      </div>
-      <div class="principle">
-        <span class="entry-n">iii</span>
+      </li>
+      <li class="principle" data-r>
+        <span class="p-n">iii</span>
         <h3 class="h3">Score it the way a practitioner would.</h3>
         <p class="body">
-          On the full continuous stream, never a balanced subset. Split by subject, always — a
-          random split leaks the person across the boundary and inflates everything downstream. And
-          treat a suspiciously good number as a bug until proven otherwise.
+          On the full continuous stream, never a balanced subset. Split by subject, always — a random
+          split leaks the person across the boundary and inflates everything downstream of it. Read
+          the evaluation code with the same suspicion as the model code, and treat a suspiciously
+          good number as a bug until it survives being attacked.
         </p>
-      </div>
-      <div class="principle">
-        <span class="entry-n">iv</span>
-        <h3 class="h3">Keep the negative results.</h3>
+      </li>
+      <li class="principle" data-r data-delay="1">
+        <span class="p-n">iv</span>
+        <h3 class="h3">Reach for the physics before the parameters.</h3>
+        <p class="body">
+          Phase-based connectivity because it is immune to volume conduction. An analytic-signal
+          representation because a magnitude transform throws the phase away and the phase is where
+          the information is. Every component should have a physical justification for existing;
+          where one does not exist, I remove the component rather than tune it.
+        </p>
+      </li>
+      <li class="principle" data-r>
+        <span class="p-n">v</span>
+        <h3 class="h3">Map the ceiling instead of assuming it.</h3>
+        <p class="body">
+          When a model stops improving, the useful question is whether the remaining gap is
+          addressable at all. So: sweep the levers systematically — scale, fusion, ensembling,
+          post-processing, features, band selection — record what each one actually did, then go and
+          find what a trained human achieves on the same signal. Knowing when to stop is harder than
+          continuing, and it is worth more.
+        </p>
+      </li>
+      <li class="principle" data-r data-delay="1">
+        <span class="p-n">vi</span>
+        <h3 class="h3">Keep the negative results, including your own.</h3>
         <p class="body">
           The experiments that made things worse are documented as carefully as the ones that
-          worked, and so are my own corrections. Negative results are the only part of a research
-          record that cannot be produced by luck.
+          worked. When I found that an evaluation of mine was invalid, I rebuilt it from the raw
+          recordings and corrected the claims I had already made in public. Negative results are the
+          only part of a research record that cannot be produced by luck.
         </p>
-      </div>
-    </div>
+      </li>
+    </ol>
   </div>
 </section>
 
-<!-- ───────────────────────────── ABOUT ───────────────────────────── -->
+<!-- ───────────────────────────────  ABOUT  ─────────────────────────────── -->
 <section id="about">
   <div class="wrap about">
     <div class="about-body" data-r>
-      <p class="label label--brass" style="margin-bottom:1.4rem">About</p>
-      <h2 class="h2" style="margin-bottom:1.8rem">I came to this through <em>engines</em>.</h2>
+      <p class="label label--brass">About</p>
+      <h2 class="h2">Twenty-one, final year, mostly nocturnal.</h2>
       <p class="body">
-        What first interested me was that a modern engine controller makes hundreds of decisions a
-        second from sensors that are all, quietly, wrong. A knock sensor drifts as it heats. An
-        oxygen sensor ages and its response curve moves. Nothing is broken — the instruments are
-        measuring a moving world through hardware that is itself moving. And the controller still
-        has to decide, right now, whether that vibration is detonation or a bad road.
+        I am in my final year of computer science at VIT Chennai. Most of the research happens
+        outside coursework, because it is what I would be doing regardless — long overnight training
+        runs and a great deal of matplotlib at two in the morning.
       </p>
       <p class="body">
-        An electrode is the same object. Impedance drifts with sweat, anatomy differs between
-        people, the sensor is re-seated at a slightly different angle every morning — and the model
-        still has to decide whether that burst of rhythm is a seizure or someone chewing. I did not
-        move from cars to neuroscience. I found the same problem wearing different clothes, with
-        higher stakes and worse data.
+        Away from it, cars. Engine management, forced induction, ECU behaviour. Systems where every
+        parameter has a consequence you can hear, which turns out to be an unreasonably good
+        education in feedback under uncertainty.
       </p>
       <p class="body">
-        I am twenty-one, in my final year of computer science at VIT Chennai, and I do most of this
-        outside coursework because it is what I would be doing regardless.
+        I am looking for graduate research positions and applied roles where the data is noisy,
+        shifting and expensive to label. That is the interesting one.
       </p>
     </div>
 
-    <div data-r>
+    <div data-r data-delay="1">
       <dl class="facts">
-        <div class="fact"><dt>Focus</dt><dd>Non-stationary biosignals, multimodal fusion, domain generalisation, embedded sensing.</dd></div>
-        <div class="fact"><dt>Currently</dt><dd>Preparing two manuscripts. Moving the graph work from static to dynamic connectivity.</dd></div>
-        <div class="fact"><dt>Looking for</dt><dd>Graduate research positions and applied roles in neurotechnology, medical devices and sensor intelligence.</dd></div>
-        <div class="fact"><dt>Tools</dt><dd>PyTorch · PyTorch&nbsp;Geometric · MNE-Python · PennyLane · scikit-learn · a great deal of matplotlib at two in the morning.</dd></div>
-        <div class="fact"><dt>Away from it</dt><dd>Cars. Engine management and forced induction, mostly — systems where every parameter has a consequence you can hear.</dd></div>
+        <div class="fact">
+          <dt>Focus</dt>
+          <dd>Non-stationary biosignals · multimodal fusion · domain generalisation · embedded sensing</dd>
+        </div>
+        <div class="fact">
+          <dt>Method</dt>
+          <dd>Leave-one-subject-out and patient-level splitting · event-level and coverage-aware scoring · bootstrap intervals · corrected multiple-comparison testing · ablation design</dd>
+        </div>
+        <div class="fact">
+          <dt>Signal</dt>
+          <dd>Variational mode decomposition · Hilbert transform and analytic signal · phase lag index · event-related desynchronisation · multitaper PSD · filter design</dd>
+        </div>
+        <div class="fact">
+          <dt>Learning</dt>
+          <dd>1D CNNs · temporal convolutional networks · recurrent encoders · transformers and attention · graph neural networks · domain adaptation · self-supervised pre-training · variational quantum circuits</dd>
+        </div>
+        <div class="fact">
+          <dt>Tools</dt>
+          <dd>PyTorch · PyTorch Geometric · MNE-Python · PennyLane · scikit-learn · NumPy/SciPy · FastAPI · Docker</dd>
+        </div>
+        <div class="fact">
+          <dt>Reading toward</dt>
+          <dd>Riemannian covariance geometry and tangent-space mapping · EEG microstates · cross-frequency coupling · source localisation · dynamic graphs with edges that evolve in time · latent graph inference · persistent homology</dd>
+        </div>
+        <div class="fact">
+          <dt>Credentials</dt>
+          <dd>Oracle Cloud Infrastructure 2025 Generative AI Professional · Machine Learning Specialization, DeepLearning.AI · Biomedical AI &amp; Quantum ML, CADS VIT</dd>
+        </div>
       </dl>
     </div>
   </div>
 </section>
 
-<!-- ───────────────────────────── CONTACT ───────────────────────────── -->
+<!-- ──────────────────────────────  CONTACT  ────────────────────────────── -->
 <section id="contact">
   <div class="wrap">
     <div class="head" data-r>
       <p class="label label--brass">Contact</p>
-      <h2 class="h2">If the data is noisy, shifting and expensive to label — <em>that is the interesting one</em>.</h2>
+      <h2 class="h1 lead">If the instrument is unreliable, <em>that is the interesting one</em>.</h2>
     </div>
 
     <div class="contact-rows" data-r>
       <a class="c-row" href="mailto:thejeshwaarsathishkumar@gmail.com">
-        <span><span class="c-k">Email</span><span class="c-v">thejeshwaarsathishkumar@gmail.com</span></span>
+        <span class="c-k">Email</span>
+        <span class="c-v">thejeshwaarsathishkumar@gmail.com</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
       </a>
       <a class="c-row" href="https://github.com/Beyondinfinity1610" target="_blank" rel="noopener">
-        <span><span class="c-k">GitHub</span><span class="c-v">Beyondinfinity1610</span></span>
+        <span class="c-k">GitHub</span>
+        <span class="c-v">Beyondinfinity1610</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
       </a>
     </div>
@@ -409,10 +525,21 @@
 <footer>
   <span class="label">Thejeshwaar Sathishkumar</span>
   <span class="label" id="clock">Chennai</span>
-  <span class="label">Built by hand</span>
+  <span class="label">Built by hand · no build step</span>
 </footer>
 
 </main>
+
+<noscript>
+  <style>
+    [data-r]{opacity:1 !important;transform:none !important;clip-path:none !important}
+    .hero-title .ln>span{transform:none !important;opacity:1 !important}
+    #montage,#rail,#redact-canvas,.scroll-cue{display:none}
+    #redaction .redaction-stage{min-height:auto;padding:12vh 0}
+    .redaction-fallback{display:flex !important}
+    .redaction-stage{height:100svh !important}
+  </style>
+</noscript>
 
 <script type="module" src="js/main.js"></script>
 </body>
