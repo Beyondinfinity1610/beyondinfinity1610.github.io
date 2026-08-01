@@ -3,20 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Thejeshwaar Sathishkumar — Signal Intelligence</title>
-<meta name="description" content="ML researcher building multimodal deep-learning systems for non-stationary biosignals. Wearable seizure detection at 0.759 AUROC on the official SeizeIT2 split, band-wise graph networks for EEG, and a published patent on self-healing sensor hardware." />
-<meta name="theme-color" content="#0b0a09" />
+<title>Thejeshwaar Sathishkumar</title>
+<meta name="description" content="Machine learning research on non-stationary biosignals — wearable neurology, sensor intelligence, and models that survive the second patient." />
+<meta name="theme-color" content="#0a0908" />
 <link rel="canonical" href="https://beyondinfinity1610.github.io/" />
-
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Thejeshwaar Sathishkumar — Signal Intelligence" />
-<meta property="og:description" content="I spent months optimising a number that turned out to be meaningless. Then I found out why, and rebuilt the model on the evidence. Multimodal deep learning for signals that refuse to sit still." />
+<meta property="og:title" content="Thejeshwaar Sathishkumar" />
+<meta property="og:description" content="Machine learning research on non-stationary biosignals — wearable neurology, sensor intelligence, and models that survive the second patient." />
 <meta property="og:url" content="https://beyondinfinity1610.github.io/" />
-<meta name="twitter:card" content="summary_large_image" />
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0a09'/%3E%3Cpath d='M3 17h5l2.5-8 3.5 15 3-10 2 5 2.5-3H29' fill='none' stroke='%23ff7a18' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0908'/%3E%3Cpath d='M3 17h6l2-6 3 11 3-8 2 4 2-2h8' fill='none' stroke='%23c69a5e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="preload" href="vendor/fonts/instrument-serif.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="vendor/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="preload" href="vendor/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="css/main.css" />
 
 <script type="application/ld+json">
@@ -28,899 +26,394 @@
   "url": "https://beyondinfinity1610.github.io/",
   "email": "mailto:thejeshwaarsathishkumar@gmail.com",
   "sameAs": ["https://github.com/Beyondinfinity1610"],
-  "knowsAbout": ["EEG signal processing", "Multimodal deep learning", "Graph neural networks", "Domain adaptation", "Seizure detection", "Biomedical AI", "Embedded systems"]
+  "knowsAbout": ["Biosignal processing", "Multimodal deep learning", "Graph neural networks", "Domain adaptation", "Embedded sensing"]
 }
 </script>
 </head>
 
-<body class="is-loading">
+<body>
 
-<!-- ============================ IGNITION ============================ -->
-<div id="preloader">
-  <div class="ign">
-    <svg class="ign-gauge" viewBox="0 0 360 300" aria-label="Loading">
-      <defs>
-        <linearGradient id="ignGrad" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0%"   stop-color="#b8460a" />
-          <stop offset="55%"  stop-color="#ff7a18" />
-          <stop offset="82%"  stop-color="#ffc44d" />
-          <stop offset="100%" stop-color="#ff3b5c" />
-        </linearGradient>
-      </defs>
-      <path id="ign-arc-bg"  class="ign-arc-bg" />
-      <path id="ign-arc-red" class="ign-arc-red" />
-      <g id="ign-ticks"></g>
-      <path id="ign-fill" class="ign-arc-fill" />
-      <text class="ign-read" id="ign-read" x="180" y="188">00</text>
-      <text class="ign-read-sub" x="180" y="208">SYSTEM CHECK</text>
-      <line id="ign-needle" class="ign-needle" x1="180" y1="178" x2="180" y2="70" />
-      <circle class="ign-hub" cx="180" cy="178" r="7" />
-    </svg>
-    <svg class="ign-trace" viewBox="0 0 360 54" preserveAspectRatio="none" aria-hidden="true">
-      <path id="ign-trace-path" d="M0 27 L360 27" />
-    </svg>
-    <div class="ign-log" id="ign-log">Montage · 19 channels</div>
-    <button class="ign-skip" id="ign-skip" type="button">Skip</button>
-  </div>
-</div>
+<canvas id="trace" aria-hidden="true"></canvas>
 
-<div class="grain" aria-hidden="true"></div>
-<div id="scroll-progress" aria-hidden="true"></div>
-
-<!-- ============================ FIELD ============================ -->
-<canvas id="field-canvas" aria-hidden="true"></canvas>
-<div class="hero-veil" aria-hidden="true"></div>
-
-<!-- ============================ NAV ============================ -->
 <nav class="nav" id="nav">
-  <a class="brand" href="#top" aria-label="Thejeshwaar Sathishkumar, home">
-    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-      <path d="M2 18h4.5l2.5-9 3.5 17 3-12 2.2 6 2.3-4H30" />
-    </svg>
-    <span class="brand-txt"><b>Thejeshwaar</b><span class="brand-desc"> · Signal Intelligence</span></span>
-  </a>
-  <div class="nav-links" id="nav-links">
-    <a href="#person">Me</a>
-    <a href="#problem">Problem</a>
-    <a href="#teardown">NeuroSync</a>
-    <a href="#observatory">Evidence</a>
-    <a href="#topology">Topology</a>
-    <a href="#work">Work</a>
-    <a href="#method">Method</a>
+  <a class="nav-name" href="#top">Thejeshwaar&nbsp;Sathishkumar</a>
+  <div class="nav-right">
+    <div class="nav-sec">
+      <a href="#work">Work</a>
+      <a href="#approach">Approach</a>
+      <a href="#about">About</a>
+    </div>
+    <a href="#contact">Contact</a>
   </div>
-  <a class="nav-cta" href="#contact">Get in touch</a>
 </nav>
 
 <main class="shell" id="top">
 
-<!-- ============================ HERO ============================ -->
+<!-- ───────────────────────────── HERO ───────────────────────────── -->
 <section id="hero">
   <div class="hero-inner">
-    <p class="eyebrow" data-reveal>Thejeshwaar Sathishkumar · ML researcher · Chennai</p>
+    <p class="label" id="hero-label">Machine learning research — Chennai, India</p>
 
-    <h1 class="h-display hero-title" id="hero-title">
-      <span class="ln"><span>Most models</span></span>
-      <span class="ln"><span>break on the</span></span>
-      <span class="ln"><span class="grad-text">second patient.</span></span>
+    <h1 class="display hero-title reveal-pen" id="hero-title">
+      Signals that <em>refuse</em> to sit still.
     </h1>
 
-    <p class="lede hero-lede" data-reveal>
-      I build multimodal deep-learning systems for signals that refuse to sit still — brain, heart,
-      muscle, motion. I am twenty-one, I have been doing this for about three years, and the most
-      useful thing I have learned so far is how to catch my own model lying to me.
+    <p class="hero-sub" data-r>
+      I build models for measurements that drift — brain, heart, muscle, motion.
+      <strong>The interesting failure is never the architecture.</strong> It is that the sensor
+      was never telling the truth in the first place, and almost nothing in the literature is
+      built for that.
     </p>
-
-    <div class="hero-actions" data-reveal>
-      <a class="btn btn--solid" href="#teardown"><span class="btn-dot"></span><span>Open the teardown</span></a>
-      <a class="btn" href="#observatory"><span>38 experiments</span></a>
-    </div>
-
-    <div class="hero-stats" data-reveal>
-      <div class="stat">
-        <div class="stat-v" data-count="0.759">0</div>
-        <span class="stat-k">Continuous AUROC · official split<br />past SVM 0.700, level with ChronoNet 0.792</span>
-      </div>
-      <div class="stat">
-        <div class="stat-v" data-count="2" data-suffix="×">0<em>×</em></div>
-        <span class="stat-k">Event-F1 from multimodal fusion<br />0.327 against 0.163 EEG-only</span>
-      </div>
-      <div class="stat">
-        <div class="stat-v" data-count="60" data-suffix="%">0<em>%</em></div>
-        <span class="stat-k">Of seizures caught at ~2 alarms/hour<br />2,385 hours · cross-validated · no human</span>
-      </div>
-      <div class="stat">
-        <div class="stat-v" data-count="38">0</div>
-        <span class="stat-k">Documented experiments<br />including the ones that broke it</span>
-      </div>
-    </div>
   </div>
 
-  <div class="scroll-cue" aria-hidden="true"><span>Scroll</span><i></i></div>
+  <div class="hero-foot" data-r>
+    <div class="hero-meta">
+      <span class="label">Wearable neurology</span>
+      <span class="label">Sensor intelligence</span>
+      <span class="label">Domain generalisation</span>
+    </div>
+    <a class="link" href="#work">
+      Selected work
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+    </a>
+  </div>
 </section>
 
-<!-- ============================ PERSON ============================ -->
-<section class="section" id="person">
-  <div class="wrap">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow" data-reveal>01 — Who is doing this</p>
-        <h2 class="h-section" data-reveal style="margin-top:1.4rem">I got here through engines, not through papers.</h2>
-      </div>
-      <p class="lede" data-reveal>
-        The honest version of how I ended up spending my nights staring at electrode traces.
+<!-- ───────────────────────────── STATEMENT ───────────────────────────── -->
+<section id="statement">
+  <div class="wrap statement">
+    <h2 class="h2" data-r>Most published accuracy does not survive the <em>second recording site</em>.</h2>
+    <div class="statement-body" data-r>
+      <p class="body">
+        A model learns the drift instead of the event. It learns the patient instead of the
+        condition. It calls a jaw clench a seizure because one sensor genuinely cannot tell the
+        difference. None of these show up in a validation score computed the usual way — which is
+        precisely why so much of this field fails to replicate.
       </p>
-    </div>
-
-    <div class="person-grid" data-reveal>
-      <div>
-        <p class="person-lede">
-          I came to signal processing sideways. I got interested in engines first — specifically in
-          the fact that a modern ECU is making hundreds of decisions a second from sensors that are
-          all, quietly, wrong.
-        </p>
-        <p class="body-s">
-          A knock sensor drifts as it heats up. An oxygen sensor ages and its response curve moves.
-          A wheel-speed reading is fine until the tyre pressure changes. None of these are broken —
-          they are just measuring a moving world through hardware that is itself moving. And the ECU
-          still has to decide, right now, whether that vibration is detonation or a bad road surface.
-        </p>
-        <p class="body-s">
-          That is the same problem as an EEG electrode. Impedance drifts with sweat. Skull thickness
-          varies between people. The sensor gets re-seated at a slightly different angle every
-          morning. And the model still has to decide whether that burst of rhythmic activity is a
-          seizure or the patient chewing. I did not move from cars to neuroscience. I found the same
-          problem wearing different clothes, and the medical version had higher stakes and worse data.
-        </p>
-
-        <p class="pull">Almost nobody is working on the part where the sensor is lying to you. That is the part I want.</p>
-
-        <p class="body-s">
-          What I actually enjoy is the diagnostic half — the bit where something is not working and
-          the reason is not in the architecture diagram. Most of my best results this year came from
-          reading my own dataloader properly, inspecting weights I assumed were training, and finding
-          out that a validation set had been shuffled. That is unglamorous and it is where the real
-          movement is.
-        </p>
-        <p class="body-s">
-          I am a final-year computer science student at VIT Chennai, and I do most of this outside
-          coursework because it is the part I would be doing anyway.
-        </p>
-      </div>
-
-      <aside class="person-aside">
-        <dl class="person-fact">
-          <dt>Currently</dt>
-          <dd>Pushing the seizure-detection work toward ICASSP / EMBC. Moving the ADHD graph network onto dynamic rather than static connectivity.</dd>
-        </dl>
-        <dl class="person-fact">
-          <dt>Looking for</dt>
-          <dd>Graduate research positions and applied roles in neurotechnology, medical devices and sensor intelligence. Anywhere the data is messy enough to be interesting.</dd>
-        </dl>
-        <dl class="person-fact">
-          <dt>Away from the screen</dt>
-          <dd>Cars, mostly — engine management, forced induction, and the specific joy of a system where every parameter has a physical consequence you can hear. It is the same taste that makes me like signal work.</dd>
-        </dl>
-        <dl class="person-fact">
-          <dt>Opinion I will defend</dt>
-          <dd>Most published biosignal accuracy is an artifact of the validation split. I know because mine was, and I am the one who found it.</dd>
-        </dl>
-        <dl class="person-fact">
-          <dt>Tools</dt>
-          <dd>PyTorch · MNE-Python · PyTorch Geometric · PennyLane · scikit-learn · NumPy / SciPy · a great deal of matplotlib at two in the morning</dd>
-        </dl>
-      </aside>
+      <p class="body">
+        My work sits on that fault line. Decomposition before learning, so the network is handed
+        separated structure rather than a sum. Architectures penalised for encoding identity.
+        Evaluation on the full continuous stream, split by subject, scored the way a practitioner
+        would score it.
+      </p>
+      <p class="body">
+        It makes every number smaller and every result slower to arrive. It is the only version of
+        the work worth doing.
+      </p>
     </div>
   </div>
 </section>
 
-<!-- ============================ PROBLEM ============================ -->
-<section class="section" id="problem">
+<!-- ───────────────────────────── WORK ───────────────────────────── -->
+<section id="work">
   <div class="wrap">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow" data-reveal>02 — The problem</p>
-        <h2 class="h-section" data-reveal style="margin-top:1.4rem">Three ways a biosignal model quietly lies to you.</h2>
-      </div>
-      <p class="lede" data-reveal>
-        None of these show up in a validation score computed the usual way. I have personally been
-        caught by all three. Everything below is built to attack one of them.
-      </p>
+    <div class="head" data-r>
+      <p class="label label--brass">Selected work</p>
+      <h2 class="h2">Five that matter.</h2>
     </div>
 
-    <div class="panel-grid panel-grid--3" data-reveal>
-      <article class="panel">
-        <span class="panel-n">01 / Non-stationarity</span>
-        <h3>The signal changes while you are modelling it.</h3>
-        <p class="body-s">
-          EEG is not a stationary process. Its spectral content, amplitude and phase structure drift
-          over minutes, and the interesting events are exactly the moments where that drift breaks. A
-          model trained on windowed averages learns the drift and misses the break. The fix is
-          decomposition before learning — mode decomposition, Hilbert envelopes, per-branch filtering
-          — so the network receives separated oscillations instead of their sum.
-        </p>
-        <svg class="panel-spark" viewBox="0 0 300 42" preserveAspectRatio="none" aria-hidden="true">
-          <path data-spark="nonstationary" stroke="#ff7a18" />
-        </svg>
+    <div class="work">
+
+      <article class="entry" data-r>
+        <span class="entry-n">01</span>
+        <div class="entry-head">
+          <h3 class="h3">Wearable seizure detection</h3>
+          <div class="entry-meta">
+            <span class="stat">Lead researcher</span>
+            <span>SeizeIT2 · 125 patients · 2,912 hours</span>
+            <span>Manuscript in preparation</span>
+          </div>
+        </div>
+        <div class="entry-body">
+          <p class="body">
+            Detecting focal seizures from a two-channel sensor worn behind the ear, on people who
+            are walking, eating and sleeping while wearing it. Seizures occupy well under one
+            percent of the recording, and the signal that indicates one is frequently
+            indistinguishable from ordinary movement.
+          </p>
+          <p class="body">
+            My contribution is as much diagnostic as architectural: establishing what this class of
+            model is actually doing, which of its components genuinely carry information, and where
+            the ceiling of the modality itself lies. Evaluated end to end on the continuous stream
+            against the dataset's published baselines.
+          </p>
+          <p class="body" style="color:var(--fg-3)">
+            Method and results are held back pending review. I am glad to walk through them in
+            conversation.
+          </p>
+        </div>
       </article>
 
-      <article class="panel">
-        <span class="panel-n">02 / Domain shift</span>
-        <h3>Subject A does not generalise to Subject B.</h3>
-        <p class="body-s">
-          Electrode impedance, skull thickness, cortical folding and cognitive baseline all differ.
-          A network with enough capacity will identify the <em>patient</em> and infer the label from
-          that — scoring near-perfectly in cross-validation and collapsing on anyone new. It is the
-          same failure as an engine map tuned on one dyno in one climate. The answer is not more data.
-          It is an architecture that is punished for encoding identity at all.
-        </p>
-        <svg class="panel-spark" viewBox="0 0 300 42" preserveAspectRatio="none" aria-hidden="true">
-          <path data-spark="shift" stroke="#ffc44d" />
-        </svg>
+      <article class="entry" data-r>
+        <span class="entry-n">02</span>
+        <div class="entry-head">
+          <h3 class="h3">Band-wise graph networks for EEG</h3>
+          <div class="entry-meta">
+            <span class="stat">Lead researcher</span>
+            <span>121 subjects</span>
+            <span>In preparation</span>
+          </div>
+        </div>
+        <div class="entry-body">
+          <p class="body">
+            Treating the brain as a network rather than a stack of channels: phase-based
+            connectivity, graph attention over the resulting topology, and an adversarial branch
+            whose entire job is to stop the encoder recognising the person it is looking at.
+          </p>
+          <p class="body">
+            The premise is that different frequency bands carry different — sometimes opposing —
+            structure, and collapsing them early destroys the thing you came to measure.
+          </p>
+          <div class="entry-links">
+            <a class="link" href="https://github.com/Beyondinfinity1610/ADHD-CLASSFiCATION-EEG" target="_blank" rel="noopener">
+              Repository
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+            </a>
+          </div>
+        </div>
       </article>
 
-      <article class="panel">
-        <span class="panel-n">03 / Artifact vs. event</span>
-        <h3>A jaw clench and a seizure look the same to one sensor.</h3>
-        <p class="body-s">
-          On behind-the-ear wearable EEG, chewing, speaking and walking produce high-amplitude
-          rhythmic activity that is spectrally indistinguishable from an ictal discharge. Knock
-          detection has exactly this problem: detonation and a pothole hit the same sensor the same
-          way, and the only way through is a second channel that disagrees. Here that channel turned
-          out to be the heart.
-        </p>
-        <svg class="panel-spark" viewBox="0 0 300 42" preserveAspectRatio="none" aria-hidden="true">
-          <path data-spark="artifact" stroke="#6fd3ff" />
-        </svg>
+      <article class="entry" data-r>
+        <span class="entry-n">03</span>
+        <div class="entry-head">
+          <h3 class="h3">Self-healing sensor architecture</h3>
+          <div class="entry-meta">
+            <span class="stat">Patent 202541081235</span>
+            <span>Published</span>
+            <span>Embedded ML</span>
+          </div>
+        </div>
+        <div class="entry-body">
+          <p class="body">
+            A fault-detection and recovery layer that sits beneath the application: the fault is
+            identified and correction triggered before the next control-loop tick, so downstream
+            logic never sees the bad reading. On-device learning performs the recalibration, which
+            removes the technician from deployments that never had one.
+          </p>
+          <p class="body">
+            Different domain, same conviction as the research — assume the instrument is wrong and
+            design for it.
+          </p>
+        </div>
       </article>
+
+      <article class="entry" data-r>
+        <span class="entry-n">04</span>
+        <div class="entry-head">
+          <h3 class="h3">Synthetic population engine</h3>
+          <div class="entry-meta">
+            <span class="stat">KYFR</span>
+            <span>Applied ML</span>
+            <span>Shipped</span>
+          </div>
+        </div>
+        <div class="entry-body">
+          <p class="body">
+            A generator for privacy-safe synthetic populations and multi-year, event-labelled
+            financial histories — built for training systems where the real data is regulated and
+            the situations that matter are, by definition, rare.
+          </p>
+          <p class="body">
+            The discipline is the interesting part. The same seed reproduces the dataset byte for
+            byte, and the output has to survive an adversarial audit and a change-point detector
+            recovering the injected events before it is allowed to certify as usable at all. A
+            generator you cannot falsify is not a generator.
+          </p>
+        </div>
+      </article>
+
+      <article class="entry" data-r>
+        <span class="entry-n">05</span>
+        <div class="entry-head">
+          <h3 class="h3">Quantum-Hilbert signal encoding</h3>
+          <div class="entry-meta">
+            <span class="stat">Lead research intern</span>
+            <span>CADS, VIT</span>
+            <span>Under review</span>
+          </div>
+        </div>
+        <div class="entry-body">
+          <p class="body">
+            An encoding framework built from first principles, targeting the actual mathematical
+            structure of a physiological signal — phase-coherent, amplitude-modulated,
+            multi-oscillatory — rather than a picture of its spectrogram.
+          </p>
+          <p class="body">
+            It preserves the instantaneous phase and envelope information that a magnitude
+            transform discards, and carries them into a variational quantum latent space.
+          </p>
+        </div>
+      </article>
+
     </div>
-  </div>
-</section>
 
-<!-- ============================ TEARDOWN ============================ -->
-<section id="teardown">
-  <div class="td-scrollzone" id="td-scrollzone">
-    <div class="td-stage">
-      <canvas id="td-canvas" aria-hidden="true"></canvas>
+    <div class="also" data-r>
+      <p class="label" style="margin-bottom:1.4rem">Also</p>
 
-      <div class="td-hud">
-        <div class="td-topbar">
-          <div>
-            <p class="eyebrow eyebrow--plain" style="margin-bottom:0.7rem">03 — Flagship research</p>
-            <div class="td-chip">NeuroSync · wearable focal-seizure detection</div>
-          </div>
-          <div class="td-chip" id="td-counter">01 / 06</div>
-        </div>
-
-        <div class="td-steps" id="td-steps">
-          <div class="td-step on">
-            <span class="td-step-i">Step 01 — The setting</span>
-            <h3>A sensor behind the ear, and a person living their life.</h3>
-            <p>
-              SeizeIT2: 125 patients wearing a behind-the-ear Sensor Dot in hospital. Two EEG channels
-              instead of a 21-electrode cap. The patient walks, eats, talks and sleeps. Seizures
-              occupy well under one percent of the recording.
-            </p>
-            <p>
-              The published baselines on this dataset are a classical SVM and ChronoNet. Beating them
-              honestly, with nobody reviewing the output, is the whole task.
-            </p>
-            <div class="td-tags">
-              <span class="td-tag">125 patients</span>
-              <span class="td-tag">2-channel bte-EEG</span>
-              <span class="td-tag">2,912 hours</span>
-              <span class="td-tag">&lt;1% prevalence</span>
-            </div>
-          </div>
-
-          <div class="td-step">
-            <span class="td-step-i">Step 02 — What I built first</span>
-            <h3>Five tokenizers, a trust gate, and a cross-modal transformer.</h3>
-            <p>
-              Every modality got the encoder its physics deserved. A CNN-GRU on low-frequency EEG for
-              seizure evolution. Teager energy on the high band. Deltoid EMG reduced to energy and
-              rhythmicity. A masked autoencoder over a Takens embedding of the ECG. ROCKET on the
-              accelerometer, frozen by design.
-            </p>
-            <p>
-              Above them a gate that emits one scalar of trust in the EEG, and a transformer doing
-              directional cross-attention so the modalities could find their own alignment. It was a
-              good design. I ran thirty-odd experiments on it.
-            </p>
-            <div class="td-tags">
-              <span class="td-tag">5 tokenizers</span>
-              <span class="td-tag">DynMM gate</span>
-              <span class="td-tag">Deep MulT</span>
-              <span class="td-tag">4-phase curriculum</span>
-            </div>
-          </div>
-
-          <div class="td-step">
-            <span class="td-step-i">Step 03 — The plateau</span>
-            <h3>It stopped moving, and I kept tuning it anyway.</h3>
-            <p>
-              Around 0.57 AUROC on a balanced validation set. Every architectural idea bought a
-              fraction of a point. I had a headline event-F1 of 53% that I was genuinely proud of and
-              quoted in slides.
-            </p>
-            <p>
-              The mistake was that I kept optimising instead of asking what the model was actually
-              doing. Twenty-eight experiments is a lot of evidence that your problem is not the one
-              you think it is.
-            </p>
-            <div class="td-tags">
-              <span class="td-tag">~0.57 AUROC</span>
-              <span class="td-tag">28 tuning runs</span>
-              <span class="td-tag">balanced val</span>
-            </div>
-          </div>
-
-          <div class="td-step">
-            <span class="td-step-i">Step 04 — The diagnosis</span>
-            <h3>Three things were wrong, and none of them were the architecture.</h3>
-            <p>
-              The model was reading the last 2 seconds of every 17-second window. One line. Fixing it
-              moved continuous AUROC from 0.51 to 0.72 — the largest single gain of the project.
-            </p>
-            <p>
-              The fusion residual weights were exactly zero and the gate had collapsed to a constant.
-              What I had been calling multimodal for months was functionally EEG-only. And the
-              continuous validation set was loaded in hash order, so every event-level number I had
-              reported was an artifact of shuffled time.
-            </p>
-            <div class="td-tags">
-              <span class="td-tag">0.51 → 0.72 AUROC</span>
-              <span class="td-tag">fusion weights = 0</span>
-              <span class="td-tag">shuffled eval</span>
-            </div>
-          </div>
-
-          <div class="td-step">
-            <span class="td-step-i">Step 05 — The rebuild</span>
-            <h3>The heart was carrying the signal the whole time.</h3>
-            <p>
-              Recomputing raw physiology at the detector's firing windows: real seizures average
-              93 bpm, false alarms 78. Ictal tachycardia, AUROC 0.73. The modalities were never
-              useless — the pipeline had been discarding them.
-            </p>
-            <p>
-              So: keep the working EEG detector, feed heart rate and motion in explicitly, delete the
-              dead fusion, train it end to end. Event-F1 went from 0.163 to 0.327 with false alarms
-              cut roughly five-fold, and it held under leave-one-patient-out at 0.326.
-            </p>
-            <div class="td-tags">
-              <span class="td-tag">HR AUROC 0.73</span>
-              <span class="td-tag">F1 0.163 → 0.327</span>
-              <span class="td-tag">LOPO 0.326</span>
-            </div>
-          </div>
-
-          <div class="td-step">
-            <span class="td-step-i">Step 06 — The fair test</span>
-            <h3>Retrained on the official split, against the published baselines.</h3>
-            <p>
-              Train on subjects 001–096, validate on 097–125, score on the full continuous stream.
-              Continuous AUROC 0.759, best seed 0.780 — past the published SVM at 0.700 and level
-              with ChronoNet at 0.792.
-            </p>
-            <p>
-              At the operating point: about 60% sensitivity at 13 false alarms per hour, against
-              ChronoNet's 84% at 100.5. Better practical profile, lower sensitivity. And human
-              experts reach roughly 59% on this modality — so the remaining gap is the hardware,
-              not the model.
-            </p>
-            <div class="td-tags">
-              <span class="td-tag">AUROC 0.759</span>
-              <span class="td-tag">SVM 0.700</span>
-              <span class="td-tag">ChronoNet 0.792</span>
-              <span class="td-tag">human ~59%</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="td-progress" id="td-progress" aria-hidden="true">
-          <b class="on"></b><b></b><b></b><b></b><b></b><b></b>
-        </div>
+      <div class="also-row">
+        <span class="also-t">Federated monitoring for safety-critical infrastructure</span>
+        <span class="also-d">Ultrasonic, fibre-optic and vision, fused at the edge</span>
+        <span class="also-k">Pre-publication</span>
       </div>
-    </div>
-  </div>
-
-  <div class="section" style="padding-top:clamp(4rem,9vh,7rem)">
-    <div class="wrap">
-      <div class="td-result" data-reveal>
-        <div>
-          <div class="stat-v" data-count="0.759">0</div>
-          <span class="stat-k">Continuous AUROC · official split<br />best seed 0.780 · SVM 0.700 · ChronoNet 0.792</span>
-        </div>
-        <div>
-          <div class="stat-v" data-count="0.327">0</div>
-          <span class="stat-k">Event-F1, multimodal<br />against 0.163 EEG-only · LOPO 0.326</span>
-        </div>
-        <div>
-          <div class="stat-v" data-count="0.5">0</div>
-          <span class="stat-k">False alarms per day at 47% precision<br />under the strict clinical bar</span>
-        </div>
+      <a class="also-row" href="https://github.com/Beyondinfinity1610/EEG-Motor-Imagery-Classification-using-ERD-Features-Beginner-Neuro-AI-Project-" target="_blank" rel="noopener">
+        <span class="also-t">Motor-imagery classification from ERD features</span>
+        <span class="also-d">The first one. Where I learned that preprocessing decides the result</span>
+        <span class="also-k">Repository</span>
+      </a>
+      <a class="also-row" href="https://github.com/Beyondinfinity1610/Plate-Vision--AI" target="_blank" rel="noopener">
+        <span class="also-t">Plate Vision</span>
+        <span class="also-d">Plate recognition from real footage — blur, angle, bad light</span>
+        <span class="also-k">Repository</span>
+      </a>
+      <a class="also-row" href="https://github.com/Beyondinfinity1610/Code-AI-Plus" target="_blank" rel="noopener">
+        <span class="also-t">Code AI Plus</span>
+        <span class="also-d">Multi-language editor with sandboxed execution</span>
+        <span class="also-k">Repository</span>
+      </a>
+      <div class="also-row">
+        <span class="also-t">Word-to-IEEE converter</span>
+        <span class="also-d">Manuscript formatting, automated. Built at midnight before a deadline</span>
+        <span class="also-k">Tool</span>
       </div>
-
-      <div class="correction" data-reveal>
-        <p class="eyebrow">Correction · this page previously said otherwise</p>
-        <p>
-          An earlier version of this site led with 53% event-F1 and 91% precision. Those came from a
-          balanced validation split and a time-shuffled evaluation, and my own later work showed both
-          were artifacts. They are wrong and I am not going to quietly delete them — they are still
-          plotted in the evidence section below, struck through, because the gap between what I
-          believed then and what I can defend now <em>is</em> the result. If you saw the old numbers
-          somewhere, these are the real ones.
-        </p>
+      <div class="also-row">
+        <span class="also-t">Club integration platform</span>
+        <span class="also-d">Membership and events for a university technical society</span>
+        <span class="also-k">Deployed</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================ OBSERVATORY ============================ -->
-<section class="section" id="observatory">
-  <div class="wrap">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow" data-reveal>04 — The evidence</p>
-        <h2 class="h-section" data-reveal style="margin-top:1.4rem">Every experiment, including the ones that embarrassed me.</h2>
-      </div>
-      <p class="lede" data-reveal>
-        Thirty-eight documented runs across five campaigns. The middle lane is the metric I trusted
-        for most of a year. The top lane is the fair test. Nothing has been removed — a research
-        record that only contains the wins is not a record, it is marketing.
-      </p>
-    </div>
-
-    <div class="ab-toolbar" data-reveal>
-      <button class="chip on" id="ab-story" type="button">▸ Walk the campaign</button>
-      <span class="mono dim">Hover to inspect · click to pin</span>
-      <div class="ab-legend" id="ab-legend"></div>
-    </div>
-
-    <div class="ab-layout" data-reveal>
-      <div class="ab-plotwrap">
-        <canvas id="ab-canvas"></canvas>
-      </div>
-      <aside class="ab-detail" id="ab-detail"></aside>
-    </div>
-  </div>
-</section>
-
-<!-- ============================ TOPOLOGY ============================ -->
-<section class="section" id="topology">
-  <div class="wrap">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow" data-reveal>05 — Second research line</p>
-        <h2 class="h-section" data-reveal style="margin-top:1.4rem">The brain is a graph. So build one per band.</h2>
-      </div>
-      <p class="lede" data-reveal>
-        Resting-state EEG classification for ADHD across 121 subjects. Different dataset, same
-        obsession: making sure the network learned the condition rather than the person.
-      </p>
-    </div>
-
-    <div class="topo-layout">
-      <div class="topo-visual" data-reveal>
-        <div class="topo-stage">
-          <canvas id="topo-canvas"></canvas>
-          <div class="topo-readout" id="topo-readout"></div>
-        </div>
-        <div class="band-picker" id="band-picker" role="group" aria-label="Frequency band"></div>
-      </div>
-
-      <div data-reveal>
-        <h3 class="h-sub">Why five graphs and not one.</h3>
-        <p class="body-s" style="margin-top:1rem">
-          Connectivity is computed with the weighted Phase Lag Index rather than correlation. wPLI is
-          phase-based and therefore immune to volume conduction — the artifact where one source
-          appears at several electrodes at once and manufactures connectivity that does not exist.
-          It is the single largest reason EEG connectivity findings fail to replicate.
-        </p>
-        <p class="body-s" style="margin-top:1rem">
-          Delta and gamma carry <em>opposite</em> discriminative patterns in ADHD. Fuse their
-          adjacency matrices early and the two cancel. So each band gets its own Graph Attention
-          Network, message passing independently over its own topology, and the five embeddings are
-          combined only at the end through learned attention. Switch bands below — the change in
-          structure is real, not decorative.
-        </p>
-
-        <p class="body-s" style="margin-top:1rem" id="band-note"></p>
-
-        <div class="dann">
-          <p class="eyebrow eyebrow--plain" style="margin-bottom:1.2rem">Gradient reversal — the anti-memorisation layer</p>
-          <svg viewBox="0 0 460 118" id="dann-svg" aria-label="Diagram: a shared encoder feeds a label classifier, and through a gradient reversal layer, a subject classifier.">
-            <g id="dann-flows"></g>
-            <g id="dann-nodes"></g>
-          </svg>
-          <p class="body-s" style="margin-top:1.2rem">
-            A second head is attached to the shared encoder and asked to identify <em>which subject</em>
-            the window came from. Between them sits a layer that passes activations forward unchanged
-            and multiplies the gradient by a negative constant on the way back. The subject classifier
-            gets better at its job; the encoder is actively pushed to make that job impossible. What
-            survives is the part of the representation that is not a fingerprint.
-          </p>
-        </div>
-
-        <div class="td-result" style="margin-top:2rem">
-          <div>
-            <div class="stat-v" data-count="92.4" data-suffix="%">0<em>%</em></div>
-            <span class="stat-k">Subject-level accuracy<br />QC-passed high-fidelity records</span>
-          </div>
-          <div>
-            <div class="stat-v" data-count="0.946">0</div>
-            <span class="stat-k">AUC<br />leave-one-subject-out</span>
-          </div>
-          <div>
-            <div class="stat-v" data-count="89.3" data-suffix="%">0<em>%</em></div>
-            <span class="stat-k">Accuracy on all 121 subjects<br />including the corrupted records</span>
-          </div>
-        </div>
-        <p class="body-s" style="margin-top:1.4rem">
-          The three-point gap between those last two numbers is the honest one. Eighteen subjects
-          were excluded by a multivariate quality-control step applied before any model was trained —
-          unstable PLI variance, collapsed graph topology, positions outside the 95% confidence
-          ellipse of the feature manifold. The full set is retained and reported anyway, as a stress
-          test. Given what I found in the seizure project, I now treat every one of these numbers as
-          provisional until it survives a properly ordered evaluation.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================ WORK INDEX ============================ -->
-<section class="section" id="work">
-  <div class="wrap">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow" data-reveal>06 — Everything else</p>
-        <h2 class="h-section" data-reveal style="margin-top:1.4rem">The full index.</h2>
-      </div>
-      <p class="lede" data-reveal>
-        Research, hardware, and things I built because somebody needed them to exist. Open any row.
-      </p>
-    </div>
-
-    <div class="idx" data-reveal id="work-index">
-
-      <div class="idx-row" tabindex="0" role="button" aria-expanded="false">
-        <span class="idx-n">01</span>
-        <span class="idx-title">NeuroSync — wearable focal-seizure detection</span>
-        <span class="idx-role">Lead · SeizeIT2 · targeting ICASSP / EMBC</span>
-        <span class="idx-tags"><span class="idx-kind research">Research</span><span class="idx-toggle">+</span></span>
-        <div class="idx-body"><div>
-          <p>
-            A multimodal detector for behind-the-ear EEG, diagnosed and rebuilt on evidence.
-            Continuous AUROC 0.759 on the official split — past the published SVM, level with
-            ChronoNet — with the most practical false-alarm profile of the three. The methodological
-            contribution is the diagnosis: why a sophisticated gated cross-modal transformer goes
-            inert, why heart rate recovers the signal the pipeline discarded, and why a hand-crafted
-            line-length feature matches a deep encoder on a cohort this size.
-          </p>
-          <div class="sys-meta">
-            <span class="td-tag">PyTorch</span><span class="td-tag">TCN + cross-attention</span>
-            <span class="td-tag">leave-one-patient-out</span><span class="td-tag">2,912 hours</span>
-          </div>
-        </div></div>
-      </div>
-
-      <div class="idx-row" tabindex="0" role="button" aria-expanded="false">
-        <span class="idx-n">02</span>
-        <span class="idx-title">Band-wise graph networks for ADHD classification</span>
-        <span class="idx-role">Lead · VIT Chennai · 121 subjects</span>
-        <span class="idx-tags"><span class="idx-kind research">Research</span><span class="idx-toggle">+</span></span>
-        <div class="idx-body"><div>
-          <p>
-            Five parallel Graph Attention Networks, one per frequency band, over wPLI connectivity,
-            with graph-theoretic node features fused in as auxiliary inputs and a domain-adversarial
-            branch that punishes the encoder for encoding subject identity. 92.4% subject-level
-            accuracy and 0.946 AUC on QC-passed records. Currently moving from static adjacency to
-            dynamic graphs so the topology can evolve within a recording.
-          </p>
-          <div class="sys-meta">
-            <span class="td-tag">PyTorch Geometric</span><span class="td-tag">GATv2</span>
-            <span class="td-tag">wPLI</span><span class="td-tag">gradient reversal</span>
-            <span class="td-tag">Captum</span>
-          </div>
-        </div></div>
-      </div>
-
-      <div class="idx-row" tabindex="0" role="button" aria-expanded="false">
-        <span class="idx-n">03</span>
-        <span class="idx-title">Hardware-level self-healing IoT architecture</span>
-        <span class="idx-role">Patent 202541081235 · published</span>
-        <span class="idx-tags"><span class="idx-kind patent">Patent</span><span class="idx-toggle">+</span></span>
-        <div class="idx-body"><div>
-          <p>
-            A sensor fault-detection and recovery layer operating below the application: a fault is
-            identified and correction triggered inside 50 milliseconds, before the next control-loop
-            tick in most embedded systems, so downstream logic never observes the bad reading.
-            Embedded ML performs the recalibration, which removes the human from the loop in
-            continuous monitoring deployments where there is no human to remove. This is the same
-            instinct as the research — assume the sensor is wrong and design for it.
-          </p>
-          <div class="sys-meta">
-            <span class="td-tag">sub-50 ms recovery</span><span class="td-tag">embedded ML</span>
-            <span class="td-tag">auto-calibration</span>
-          </div>
-        </div></div>
-      </div>
-
-      <div class="idx-row" tabindex="0" role="button" aria-expanded="false">
-        <span class="idx-n">04</span>
-        <span class="idx-title">Quantum-Hilbert hybrid encoding for physiological signals</span>
-        <span class="idx-role">Lead research intern · CADS, VIT · under review</span>
-        <span class="idx-tags"><span class="idx-kind research">Research</span><span class="idx-toggle">+</span></span>
-        <div class="idx-body"><div>
-          <p>
-            An encoding framework built from scratch. Hilbert transforms extract instantaneous phase
-            and amplitude envelopes — the information an FFT discards the moment it takes a magnitude
-            — and variational quantum circuits embed those envelopes into a quantum latent space. It
-            targets the actual mathematical structure of a biosignal: phase-coherent,
-            amplitude-modulated, multi-oscillatory. Most work in this area is image classification on
-            a spectrogram wearing a lab coat.
-          </p>
-          <div class="sys-meta">
-            <span class="td-tag">PennyLane</span><span class="td-tag">Hilbert envelopes</span>
-            <span class="td-tag">variational circuits</span>
-          </div>
-        </div></div>
-      </div>
-
-      <div class="idx-row" tabindex="0" role="button" aria-expanded="false">
-        <span class="idx-n">05</span>
-        <span class="idx-title">DMQS-EARIMS — federated monitoring for safety-critical infrastructure</span>
-        <span class="idx-role">System design · pre-publication</span>
-        <span class="idx-tags"><span class="idx-kind system">System</span><span class="idx-toggle">+</span></span>
-        <div class="idx-body"><div>
-          <p>
-            A decentralised fault-detection system fusing ultrasonic, fibre-optic and computer-vision
-            streams. Each node trains locally under federated learning, so raw sensor data never
-            leaves the edge device. That is usually framed as privacy engineering; here it is equally
-            a latency and bandwidth argument, which is what makes it survive contact with a real
-            deployment budget.
-          </p>
-          <div class="sys-meta">
-            <span class="td-tag">federated learning</span><span class="td-tag">multi-sensor fusion</span>
-            <span class="td-tag">edge-resident</span>
-          </div>
-        </div></div>
-      </div>
-
-      <div class="idx-row" tabindex="0" role="button" aria-expanded="false">
-        <span class="idx-n">06</span>
-        <span class="idx-title">Synthetic population &amp; life-event simulation engine</span>
-        <span class="idx-role">Applied ML · industry · shipped</span>
-        <span class="idx-tags"><span class="idx-kind system">System</span><span class="idx-toggle">+</span></span>
-        <div class="idx-body"><div>
-          <p>
-            Deterministic generation of privacy-safe synthetic populations with multi-year,
-            event-labelled transaction histories — for training systems where the real data is
-            regulated and the edge cases are, by definition, rare. The engineering discipline is the
-            interesting part: the same seed reproduces the dataset byte for byte, and a change-point
-            detector has to recover the injected events above a hard F1 gate before the data is
-            allowed to certify as usable at all. A generator you cannot falsify is not a generator.
-          </p>
-          <div class="sys-meta">
-            <span class="td-tag">FastAPI</span><span class="td-tag">deterministic generation</span>
-            <span class="td-tag">change-point detection</span><span class="td-tag">adversarial QC gate</span>
-            <span class="td-tag">Docker</span>
-          </div>
-        </div></div>
-      </div>
-
-      <div class="idx-row" tabindex="0" role="button" aria-expanded="false">
-        <span class="idx-n">07</span>
-        <span class="idx-title">EEG motor-imagery classification from ERD features</span>
-        <span class="idx-role">Solo · the project that started all of this</span>
-        <span class="idx-tags"><span class="idx-kind research">Research</span><span class="idx-toggle">+</span></span>
-        <div class="idx-body"><div>
-          <p>
-            Event-related desynchronisation features and an SVM on motor-imagery EEG. Deliberately
-            classical, deliberately small. I keep it listed because it is where I learned that the
-            preprocessing decides the result and the classifier mostly just reports it — which is the
-            belief everything since has been built on.
-          </p>
-          <div class="sys-meta">
-            <span class="td-tag">MNE-Python</span><span class="td-tag">ERD/ERS</span>
-            <span class="td-tag">scikit-learn</span>
-          </div>
-        </div></div>
-      </div>
-
-      <div class="idx-row" tabindex="0" role="button" aria-expanded="false">
-        <span class="idx-n">08</span>
-        <span class="idx-title">Plate Vision AI — licence-plate recognition</span>
-        <span class="idx-role">Solo · computer vision</span>
-        <span class="idx-tags"><span class="idx-kind build">Build</span><span class="idx-toggle">+</span></span>
-        <div class="idx-body"><div>
-          <p>
-            Detection and recognition of vehicle plates from real camera footage — motion blur,
-            oblique angles, bad light. The cars project, obviously. Also a useful lesson in how much
-            of a vision pipeline's accuracy is decided before the model: rectification, contrast
-            handling, and knowing which frames to throw away.
-          </p>
-          <div class="sys-meta">
-            <span class="td-tag">OpenCV</span><span class="td-tag">OCR</span><span class="td-tag">Python</span>
-          </div>
-        </div></div>
-      </div>
-
-      <div class="idx-row" tabindex="0" role="button" aria-expanded="false">
-        <span class="idx-n">09</span>
-        <span class="idx-title">Code AI Plus — AI-assisted code editor</span>
-        <span class="idx-role">Full stack · MERN + Judge0</span>
-        <span class="idx-tags"><span class="idx-kind build">Build</span><span class="idx-toggle">+</span></span>
-        <div class="idx-body"><div>
-          <p>
-            A multi-language editor with sandboxed execution and model-assisted error analysis. The
-            genuinely hard part was not the AI — it was executing untrusted code safely and returning
-            a useful diagnosis rather than a stack trace with a summary bolted on.
-          </p>
-          <div class="sys-meta">
-            <span class="td-tag">MongoDB · Express · React · Node</span>
-            <span class="td-tag">Judge0</span><span class="td-tag">sandboxed execution</span>
-          </div>
-        </div></div>
-      </div>
-
-      <div class="idx-row" tabindex="0" role="button" aria-expanded="false">
-        <span class="idx-n">10</span>
-        <span class="idx-title">Word-to-IEEE converter</span>
-        <span class="idx-role">Tool · with an MCP server</span>
-        <span class="idx-tags"><span class="idx-kind build">Build</span><span class="idx-toggle">+</span></span>
-        <div class="idx-body"><div>
-          <p>
-            Automated conversion of manuscripts into IEEE conference format — the two-column
-            template, figure and table placement, reference styling, code blocks. Built because I was
-            doing it by hand at midnight before a deadline and decided never again. Ships with an MCP
-            server so it can be driven by an assistant directly.
-          </p>
-          <div class="sys-meta">
-            <span class="td-tag">python-docx</span><span class="td-tag">MCP server</span>
-            <span class="td-tag">IEEE templates</span>
-          </div>
-        </div></div>
-      </div>
-
-      <div class="idx-row" tabindex="0" role="button" aria-expanded="false">
-        <span class="idx-n">11</span>
-        <span class="idx-title">Club integration &amp; management platform</span>
-        <span class="idx-role">Full stack · used by a real organisation</span>
-        <span class="idx-tags"><span class="idx-kind build">Build</span><span class="idx-toggle">+</span></span>
-        <div class="idx-body"><div>
-          <p>
-            Membership, events, and internal coordination for a university technical club, plus the
-            club's public site and dashboard. Not research, and I list it deliberately: software that
-            other people depend on daily teaches you things that a notebook never will, mostly about
-            what happens when your assumptions meet a hundred users.
-          </p>
-          <div class="sys-meta">
-            <span class="td-tag">MERN</span><span class="td-tag">auth &amp; roles</span>
-            <span class="td-tag">deployed</span>
-          </div>
-        </div></div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ============================ METHOD ============================ -->
-<section class="section" id="method">
-  <div class="wrap">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow" data-reveal>07 — How I work</p>
-        <h2 class="h-section" data-reveal style="margin-top:1.4rem">Five rules, most of them learned the bad way.</h2>
-      </div>
-      <p class="lede" data-reveal>
-        Every one of these makes the work slower and the headline number smaller. That is the trade,
-        and it is the right one — the alternative is a result that only exists inside its own notebook.
-      </p>
-    </div>
-
-    <div class="method" data-reveal>
-      <div class="method-row">
-        <span class="method-n">01</span>
-        <h3>Read the dataloader before you touch the architecture.</h3>
-        <p class="body-s">
-          The biggest gain in my flagship project — 0.51 to 0.72 AUROC — came from noticing the model
-          was reading two seconds of a seventeen-second window. Every clever thing I built before that
-          was tuning a network that could barely see. I now audit the data path first, every time,
-          and it is boring and it keeps working.
-        </p>
-      </div>
-      <div class="method-row">
-        <span class="method-n">02</span>
-        <h3>Inspect the weights you assume are training.</h3>
-        <p class="body-s">
-          My fusion residual weights were exactly zero for months. The gate had collapsed to a
-          constant. One of its inputs was dead. Nothing in the loss curve indicated any of this. If a
-          component is supposed to be learning, open the checkpoint and confirm that it did.
-        </p>
-      </div>
-      <div class="method-row">
-        <span class="method-n">03</span>
-        <h3>Choose the metric a practitioner would choose.</h3>
-        <p class="body-s">
-          At sub-one-percent prevalence, accuracy is noise. I score on the full continuous stream
-          rather than a balanced subset, report AUROC because it is roughly fourteen times more stable
-          across bootstrap resamples than sensitivity, and quote sensitivity only alongside its
-          false-alarm rate. And I check whether a suspiciously good number is really coverage in
-          disguise — because once, it was.
-        </p>
-      </div>
-      <div class="method-row">
-        <span class="method-n">04</span>
-        <h3>Split by subject, always.</h3>
-        <p class="body-s">
-          Random window-level splits leak the patient across the boundary and inflate every score in
-          the paper. Splits are patient-level and seeded; leave-one-patient-out where the dataset
-          allows it; and where a published split exists, use theirs even when yours is kinder.
-        </p>
-      </div>
-      <div class="method-row">
-        <span class="method-n">05</span>
-        <h3>Publish the graveyard, including your own corrections.</h3>
-        <p class="body-s">
-          A third of my experiments made things worse and they are documented as carefully as the
-          wins. So is the fact that my headline result for most of a year was an artifact. Negative
-          results are the only part of a campaign that cannot be produced by luck, and a correction
-          you publish yourself costs far less than one a reviewer finds.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================ CONTACT ============================ -->
-<section class="section" id="contact">
-  <div class="wrap">
-    <p class="eyebrow" data-reveal>08 — Signal out</p>
-    <h2 class="contact-title" data-reveal style="margin-top:1.6rem">
-      If your data is<br />noisy, shifting<br />and <span class="grad-text">expensive to label</span> —
-    </h2>
-    <p class="lede" data-reveal style="margin-top:2rem">
-      that is the interesting case, and it is the one I want. Open to research collaboration,
-      graduate positions, and applied work in neurotechnology, medical devices and sensor
-      intelligence. I reply to everything.
+<!-- ───────────────────────────── INTERLUDE ───────────────────────────── -->
+<section id="interlude" aria-label="Electrode connectivity">
+  <canvas id="topo-canvas"></canvas>
+  <div class="interlude-veil"></div>
+  <div class="interlude-copy">
+    <p class="label label--brass">Nineteen electrodes</p>
+    <p class="body">
+      The standard montage, drawn as what it actually is — a network, not a list of channels.
+      Drag it.
     </p>
+  </div>
+</section>
 
-    <div class="contact-links" data-reveal>
-      <a class="c-link" href="mailto:thejeshwaarsathishkumar@gmail.com">
-        <span><span class="c-link-k">Email</span><span class="c-link-v">thejeshwaarsathishkumar@gmail.com</span></span>
-        <svg class="c-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+<!-- ───────────────────────────── APPROACH ───────────────────────────── -->
+<section id="approach">
+  <div class="wrap">
+    <div class="head" data-r>
+      <p class="label label--brass">Approach</p>
+      <h2 class="h2">Four things I will not compromise on.</h2>
+    </div>
+
+    <div class="principles" data-r>
+      <div class="principle">
+        <span class="entry-n">i</span>
+        <h3 class="h3">Audit the data path first.</h3>
+        <p class="body">
+          Before the architecture, before the loss, before anything: confirm the model is receiving
+          what you believe it is receiving. The largest single improvement I have ever made to a
+          system came from reading my own data loader properly. It is unglamorous and it keeps
+          working.
+        </p>
+      </div>
+      <div class="principle">
+        <span class="entry-n">ii</span>
+        <h3 class="h3">Verify what you assume is learning.</h3>
+        <p class="body">
+          A component can sit in a network for months, appear in every diagram, and contribute
+          nothing — with no sign of it in the loss curve. If a part is supposed to be training, open
+          the checkpoint and prove that it did.
+        </p>
+      </div>
+      <div class="principle">
+        <span class="entry-n">iii</span>
+        <h3 class="h3">Score it the way a practitioner would.</h3>
+        <p class="body">
+          On the full continuous stream, never a balanced subset. Split by subject, always — a
+          random split leaks the person across the boundary and inflates everything downstream. And
+          treat a suspiciously good number as a bug until proven otherwise.
+        </p>
+      </div>
+      <div class="principle">
+        <span class="entry-n">iv</span>
+        <h3 class="h3">Keep the negative results.</h3>
+        <p class="body">
+          The experiments that made things worse are documented as carefully as the ones that
+          worked, and so are my own corrections. Negative results are the only part of a research
+          record that cannot be produced by luck.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── ABOUT ───────────────────────────── -->
+<section id="about">
+  <div class="wrap about">
+    <div class="about-body" data-r>
+      <p class="label label--brass" style="margin-bottom:1.4rem">About</p>
+      <h2 class="h2" style="margin-bottom:1.8rem">I came to this through <em>engines</em>.</h2>
+      <p class="body">
+        What first interested me was that a modern engine controller makes hundreds of decisions a
+        second from sensors that are all, quietly, wrong. A knock sensor drifts as it heats. An
+        oxygen sensor ages and its response curve moves. Nothing is broken — the instruments are
+        measuring a moving world through hardware that is itself moving. And the controller still
+        has to decide, right now, whether that vibration is detonation or a bad road.
+      </p>
+      <p class="body">
+        An electrode is the same object. Impedance drifts with sweat, anatomy differs between
+        people, the sensor is re-seated at a slightly different angle every morning — and the model
+        still has to decide whether that burst of rhythm is a seizure or someone chewing. I did not
+        move from cars to neuroscience. I found the same problem wearing different clothes, with
+        higher stakes and worse data.
+      </p>
+      <p class="body">
+        I am twenty-one, in my final year of computer science at VIT Chennai, and I do most of this
+        outside coursework because it is what I would be doing regardless.
+      </p>
+    </div>
+
+    <div data-r>
+      <dl class="facts">
+        <div class="fact"><dt>Focus</dt><dd>Non-stationary biosignals, multimodal fusion, domain generalisation, embedded sensing.</dd></div>
+        <div class="fact"><dt>Currently</dt><dd>Preparing two manuscripts. Moving the graph work from static to dynamic connectivity.</dd></div>
+        <div class="fact"><dt>Looking for</dt><dd>Graduate research positions and applied roles in neurotechnology, medical devices and sensor intelligence.</dd></div>
+        <div class="fact"><dt>Tools</dt><dd>PyTorch · PyTorch&nbsp;Geometric · MNE-Python · PennyLane · scikit-learn · a great deal of matplotlib at two in the morning.</dd></div>
+        <div class="fact"><dt>Away from it</dt><dd>Cars. Engine management and forced induction, mostly — systems where every parameter has a consequence you can hear.</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── CONTACT ───────────────────────────── -->
+<section id="contact">
+  <div class="wrap">
+    <div class="head" data-r>
+      <p class="label label--brass">Contact</p>
+      <h2 class="h2">If the data is noisy, shifting and expensive to label — <em>that is the interesting one</em>.</h2>
+    </div>
+
+    <div class="contact-rows" data-r>
+      <a class="c-row" href="mailto:thejeshwaarsathishkumar@gmail.com">
+        <span><span class="c-k">Email</span><span class="c-v">thejeshwaarsathishkumar@gmail.com</span></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
       </a>
-      <a class="c-link" href="https://github.com/Beyondinfinity1610" target="_blank" rel="noopener">
-        <span><span class="c-link-k">Code</span><span class="c-link-v">github.com/Beyondinfinity1610</span></span>
-        <svg class="c-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
-      </a>
-      <a class="c-link" href="https://github.com/Beyondinfinity1610/ADHD-CLASSFiCATION-EEG" target="_blank" rel="noopener">
-        <span><span class="c-link-k">Repository</span><span class="c-link-v">ADHD classification · EEG graph networks</span></span>
-        <svg class="c-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+      <a class="c-row" href="https://github.com/Beyondinfinity1610" target="_blank" rel="noopener">
+        <span><span class="c-k">GitHub</span><span class="c-v">Beyondinfinity1610</span></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
       </a>
     </div>
   </div>
 </section>
 
-<footer class="footer">
-  <span>Thejeshwaar Sathishkumar — Signal Intelligence</span>
-  <span class="footer-live"><i></i><span id="clock">Active</span></span>
-  <span>Built from scratch · WebGL &amp; GLSL · no framework</span>
+<footer>
+  <span class="label">Thejeshwaar Sathishkumar</span>
+  <span class="label" id="clock">Chennai</span>
+  <span class="label">Built by hand</span>
 </footer>
 
 </main>
 
 <script type="module" src="js/main.js"></script>
-<noscript>
-  <div style="padding:6rem 1.5rem;max-width:62ch;margin:auto">
-    <h1 style="font-size:2rem">Thejeshwaar Sathishkumar</h1>
-    <p style="color:#b9afa3">ML researcher working on multimodal deep learning for non-stationary biosignals — brain, heart, muscle and motion. Wearable focal-seizure detection at 0.759 continuous AUROC on the official SeizeIT2 split, ahead of the published SVM baseline and level with ChronoNet; band-wise graph attention networks with domain-adversarial training for ADHD classification; and a published patent on self-healing IoT sensor architecture.</p>
-    <p><a style="color:#ff7a18" href="mailto:thejeshwaarsathishkumar@gmail.com">thejeshwaarsathishkumar@gmail.com</a> · <a style="color:#ff7a18" href="https://github.com/Beyondinfinity1610">github.com/Beyondinfinity1610</a></p>
-  </div>
-</noscript>
-
 </body>
 </html>
