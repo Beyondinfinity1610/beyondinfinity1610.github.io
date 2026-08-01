@@ -1,1218 +1,677 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thejeshwaar Sathishkumar | Signal Intelligence & Deep Learning</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #020408;
-    --bg2: #050c14;
-    --blue-deep: #0a1628;
-    --blue-mid: #0d2340;
-    --blue-bright: #1a6bff;
-    --blue-glow: #3d8bff;
-    --blue-pulse: #00c8ff;
-    --text: #e8edf5;
-    --text-dim: #6b82a0;
-    --text-muted: #3a4d63;
-    --accent: #00c8ff;
-    --accent2: #1a6bff;
-    --mono: 'Space Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
-    --grid: rgba(26, 107, 255, 0.04);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    overflow-x: hidden;
-    cursor: none;
-  }
-
-  /* CUSTOM CURSOR */
-  .cursor {
-    position: fixed;
-    width: 8px;
-    height: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: width 0.2s, height 0.2s, background 0.2s;
-    box-shadow: 0 0 12px var(--accent);
-  }
-
-  .cursor-ring {
-    position: fixed;
-    width: 32px;
-    height: 32px;
-    border: 1px solid rgba(0, 200, 255, 0.4);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%, -50%);
-    transition: all 0.12s ease;
-  }
-
-  body:hover .cursor { opacity: 1; }
-
-  /* LOADING SCREEN */
-  #loader {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.8s ease, visibility 0.8s ease;
-  }
-
-  #loader.hidden {
-    opacity: 0;
-    visibility: hidden;
-  }
-
-  .loader-canvas {
-    width: 500px;
-    max-width: 90vw;
-    height: 80px;
-  }
-
-  .loader-sequence {
-    margin-top: 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .loader-line {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text-muted);
-    letter-spacing: 0.2em;
-    opacity: 0;
-    transform: translateX(-8px);
-    transition: opacity 0.4s, transform 0.4s, color 0.4s;
-  }
-
-  .loader-line.active {
-    opacity: 1;
-    transform: translateX(0);
-    color: var(--text-dim);
-  }
-
-  .loader-line.done {
-    opacity: 0.4;
-  }
-
-  /* GRID BACKGROUND */
-  .grid-bg {
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* NAV */
-  nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    padding: 20px 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(26, 107, 255, 0.08);
-    backdrop-filter: blur(20px);
-    background: rgba(2, 4, 8, 0.7);
-  }
-
-  .nav-logo {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--accent);
-    letter-spacing: 0.15em;
-    text-decoration: none;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 40px;
-    list-style: none;
-  }
-
-  .nav-links a {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text-dim);
-    text-decoration: none;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    transition: color 0.2s;
-    position: relative;
-  }
-
-  .nav-links a::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: var(--accent);
-    transition: width 0.3s;
-  }
-
-  .nav-links a:hover { color: var(--accent); }
-  .nav-links a:hover::after { width: 100%; }
-
-  /* SECTIONS */
-  section {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* HERO */
-  #hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 120px 60px 60px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-canvas {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 200px;
-    opacity: 0.6;
-  }
-
-  .hero-tag {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 0.4em;
-    text-transform: uppercase;
-    margin-bottom: 24px;
-    opacity: 0;
-    animation: fadeup 0.7s 1.2s forwards;
-  }
-
-  .hero-name {
-    font-family: var(--mono);
-    font-size: clamp(42px, 7vw, 88px);
-    font-weight: 700;
-    line-height: 1;
-    color: var(--text);
-    letter-spacing: -0.02em;
-    opacity: 0;
-    animation: fadeup 0.7s 1.4s forwards;
-  }
-
-  .hero-name span {
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(0, 200, 255, 0.5);
-  }
-
-  .hero-sub {
-    font-family: var(--sans);
-    font-size: clamp(16px, 2.5vw, 22px);
-    font-weight: 300;
-    color: var(--text-dim);
-    margin-top: 20px;
-    max-width: 600px;
-    line-height: 1.6;
-    opacity: 0;
-    animation: fadeup 0.7s 1.6s forwards;
-  }
-
-  .hero-question {
-    margin-top: 48px;
-    font-family: var(--mono);
-    font-size: 14px;
-    color: var(--text-muted);
-    opacity: 0;
-    animation: fadeup 0.7s 1.8s forwards;
-    border-left: 2px solid var(--blue-bright);
-    padding-left: 20px;
-    max-width: 560px;
-    line-height: 1.7;
-  }
-
-  .hero-question strong {
-    color: var(--text);
-    font-weight: 700;
-  }
-
-  .hero-ctas {
-    display: flex;
-    gap: 16px;
-    margin-top: 48px;
-    opacity: 0;
-    animation: fadeup 0.7s 2s forwards;
-  }
-
-  .btn-primary {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 14px 28px;
-    background: var(--accent2);
-    color: var(--text);
-    text-decoration: none;
-    border: none;
-    cursor: none;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-primary::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--accent);
-    transform: translateX(-100%);
-    transition: transform 0.3s;
-  }
-
-  .btn-primary:hover::before { transform: translateX(0); }
-  .btn-primary span { position: relative; z-index: 1; }
-
-  .btn-ghost {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 14px 28px;
-    background: transparent;
-    color: var(--text-dim);
-    text-decoration: none;
-    border: 1px solid var(--text-muted);
-    cursor: none;
-    transition: all 0.3s;
-  }
-
-  .btn-ghost:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  /* SIGNAL BADGE */
-  .signal-badge {
-    position: absolute;
-    right: 60px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 280px;
-    opacity: 0;
-    animation: fadeup 0.7s 2.2s forwards;
-  }
-
-  .badge-inner {
-    border: 1px solid rgba(26, 107, 255, 0.2);
-    padding: 24px;
-    background: rgba(5, 12, 20, 0.8);
-    backdrop-filter: blur(10px);
-  }
-
-  .badge-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--accent);
-    letter-spacing: 0.4em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-
-  .badge-stat {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(26, 107, 255, 0.08);
-  }
-
-  .badge-stat:last-child { border-bottom: none; }
-
-  .badge-stat-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-dim);
-  }
-
-  .badge-stat-value {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--text);
-  }
-
-  .pulse-dot {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    margin-right: 6px;
-    animation: pulse 2s infinite;
-  }
-
-  /* ABOUT */
-  #about {
-    padding: 120px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .section-tag {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--accent);
-    letter-spacing: 0.5em;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .section-title {
-    font-family: var(--mono);
-    font-size: clamp(28px, 4vw, 48px);
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1.1;
-    margin-bottom: 48px;
-  }
-
-  .about-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: start;
-  }
-
-  .about-body p {
-    font-size: 16px;
-    line-height: 1.8;
-    color: var(--text-dim);
-    margin-bottom: 20px;
-  }
-
-  .about-body p strong {
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .about-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .thinking-block {
-    border: 1px solid rgba(26, 107, 255, 0.12);
-    padding: 20px 24px;
-    background: rgba(5, 12, 20, 0.5);
-    transition: border-color 0.3s, background 0.3s;
-    cursor: none;
-  }
-
-  .thinking-block:hover {
-    border-color: rgba(0, 200, 255, 0.3);
-    background: rgba(10, 22, 40, 0.8);
-  }
-
-  .thinking-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--accent);
-    letter-spacing: 0.4em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  .thinking-text {
-    font-size: 14px;
-    color: var(--text-dim);
-    line-height: 1.6;
-  }
-
-  /* PROJECTS */
-  #projects {
-    padding: 120px 60px;
-    background: linear-gradient(180deg, transparent, rgba(5, 12, 20, 0.5), transparent);
-  }
-
-  .projects-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-    margin-top: 48px;
-  }
-
-  .project-card {
-    background: rgba(5, 12, 20, 0.7);
-    border: 1px solid rgba(26, 107, 255, 0.1);
-    padding: 32px;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.4s;
-    cursor: none;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .project-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    transform: scaleX(0);
-    transition: transform 0.4s;
-  }
-
-  .project-card:hover { border-color: rgba(0, 200, 255, 0.25); }
-  .project-card:hover::before { transform: scaleX(1); }
-
-  .project-num {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-muted);
-    letter-spacing: 0.3em;
-    margin-bottom: 20px;
-  }
-
-  .project-title {
-    font-family: var(--mono);
-    font-size: 15px;
-    color: var(--text);
-    font-weight: 700;
-    margin-bottom: 12px;
-    line-height: 1.3;
-  }
-
-  .project-desc {
-    font-size: 13px;
-    color: var(--text-dim);
-    line-height: 1.7;
-    flex: 1;
-    margin-bottom: 20px;
-  }
-
-  .project-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 20px;
-  }
-
-  .tag {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    border: 1px solid rgba(0, 200, 255, 0.2);
-    padding: 4px 8px;
-    text-transform: uppercase;
-  }
-
-  .project-link {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-dim);
-    text-decoration: none;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    transition: color 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .project-link:hover { color: var(--accent); }
-
-  .project-link::after {
-    content: '→';
-    transition: transform 0.2s;
-  }
-
-  .project-link:hover::after { transform: translateX(4px); }
-
-  /* BLOG / THINKING */
-  #thinking {
-    padding: 120px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .thinking-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-    margin-top: 48px;
-  }
-
-  .thought-card {
-    border: 1px solid rgba(26, 107, 255, 0.1);
-    padding: 36px;
-    background: rgba(5, 12, 20, 0.4);
-    position: relative;
-    overflow: hidden;
-    cursor: none;
-    transition: all 0.3s;
-  }
-
-  .thought-card:hover {
-    background: rgba(10, 22, 40, 0.6);
-    border-color: rgba(0, 200, 255, 0.2);
-  }
-
-  .thought-date {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-muted);
-    letter-spacing: 0.3em;
-    margin-bottom: 16px;
-  }
-
-  .thought-title {
-    font-family: var(--mono);
-    font-size: 16px;
-    color: var(--text);
-    font-weight: 700;
-    margin-bottom: 12px;
-    line-height: 1.4;
-  }
-
-  .thought-preview {
-    font-size: 14px;
-    color: var(--text-dim);
-    line-height: 1.7;
-  }
-
-  .thought-card-wide {
-    grid-column: span 2;
-  }
-
-  /* CONTACT */
-  #contact {
-    padding: 120px 60px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .contact-inner {
-    max-width: 600px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
-  }
-
-  .contact-glow {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(26, 107, 255, 0.08) 0%, transparent 70%);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-  }
-
-  .contact-title {
-    font-family: var(--mono);
-    font-size: clamp(32px, 5vw, 64px);
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1;
-    margin-bottom: 20px;
-  }
-
-  .contact-sub {
-    font-size: 16px;
-    color: var(--text-dim);
-    line-height: 1.7;
-    margin-bottom: 48px;
-  }
-
-  .contact-links {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  /* FOOTER */
-  footer {
-    border-top: 1px solid rgba(26, 107, 255, 0.08);
-    padding: 24px 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  footer span {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-muted);
-    letter-spacing: 0.2em;
-  }
-
-  /* ANIMATIONS */
-  @keyframes fadeup {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent); }
-    50% { opacity: 0.4; box-shadow: none; }
-  }
-
-  /* SCROLL REVEAL */
-  .reveal {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
-
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* WAVEFORM CANVAS */
-  #waveform-hero {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    opacity: 0.3;
-    pointer-events: none;
-  }
-
-  /* ANTI GRAVITY PARTICLES */
-  #particles {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* MOBILE */
-  @media (max-width: 768px) {
-    nav { padding: 20px 24px; }
-    .nav-links { display: none; }
-    #hero { padding: 100px 24px 60px; }
-    .signal-badge { display: none; }
-    .about-grid { grid-template-columns: 1fr; gap: 40px; }
-    .projects-grid { grid-template-columns: 1fr; }
-    .thinking-grid { grid-template-columns: 1fr; }
-    .thought-card-wide { grid-column: span 1; }
-    #about, #thinking, #contact { padding: 80px 24px; }
-    #projects { padding: 80px 24px; }
-    footer { padding: 24px; flex-direction: column; gap: 12px; }
-  }
-</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Thejeshwaar Sathishkumar — Signal Intelligence</title>
+<meta name="description" content="ML researcher building multimodal deep-learning systems for non-stationary biosignals: EEG, ECG and motion. Seizure detection, brain connectivity graphs, and domain-invariant architectures that survive the second patient." />
+<meta name="theme-color" content="#04050a" />
+<link rel="canonical" href="https://beyondinfinity1610.github.io/" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Thejeshwaar Sathishkumar — Signal Intelligence" />
+<meta property="og:description" content="Multimodal deep learning for non-stationary biosignals. 33 ablations, one wearable seizure detector, and a graph network that refuses to memorise its patients." />
+<meta property="og:url" content="https://beyondinfinity1610.github.io/" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2304050a'/%3E%3Cpath d='M3 17h5l2.5-8 3.5 15 3-10 2 5 2.5-3H29' fill='none' stroke='%234ddbff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="preload" href="vendor/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="vendor/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="css/main.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Thejeshwaar Sathishkumar",
+  "jobTitle": "Machine Learning Researcher",
+  "url": "https://beyondinfinity1610.github.io/",
+  "email": "mailto:thejeshwaarsathishkumar@gmail.com",
+  "sameAs": ["https://github.com/Beyondinfinity1610"],
+  "knowsAbout": ["EEG signal processing", "Multimodal deep learning", "Graph neural networks", "Domain adaptation", "Seizure detection", "Biomedical AI"]
+}
+</script>
 </head>
-<body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
+<body class="is-loading">
 
-<!-- GRID BG -->
-<div class="grid-bg"></div>
-
-<!-- PARTICLES -->
-<canvas id="particles"></canvas>
-
-<!-- LOADER -->
-<div id="loader">
-  <canvas class="loader-canvas" id="loaderCanvas"></canvas>
-  <div class="loader-sequence">
-    <div class="loader-line" id="ll1">// scanning neural signal...</div>
-    <div class="loader-line" id="ll2">// applying hilbert transform</div>
-    <div class="loader-line" id="ll3">// extracting phase-amplitude features</div>
-    <div class="loader-line" id="ll4">// building connectivity graph (PLI)</div>
-    <div class="loader-line" id="ll5">// <span style="color:#00c8ff">Thejeshwaar Sathishkumar</span> — ready.</div>
+<!-- ============================ PRELOADER ============================ -->
+<div id="preloader">
+  <div class="pre-inner">
+    <svg class="pre-trace" viewBox="0 0 460 64" preserveAspectRatio="none" aria-hidden="true">
+      <path id="pre-path" d="M0 32 L460 32" />
+    </svg>
+    <div class="pre-bar"><i id="pre-fill"></i></div>
+    <div class="pre-meta">
+      <span>Calibrating montage</span>
+      <span class="pre-pct" id="pre-pct">00</span>
+    </div>
   </div>
 </div>
 
-<!-- NAV -->
-<nav>
-  <a href="#hero" class="nav-logo">TS_1610</a>
-  <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="#projects">Projects</a></li>
-    <li><a href="#thinking">Thinking</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
+<div class="grain" aria-hidden="true"></div>
+<div id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ============================ FIELD ============================ -->
+<canvas id="field-canvas" aria-hidden="true"></canvas>
+<div class="hero-veil" aria-hidden="true"></div>
+
+<!-- ============================ NAV ============================ -->
+<nav class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="Thejeshwaar Sathishkumar, home">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M2 18h4.5l2.5-9 3.5 17 3-12 2.2 6 2.3-4H30" />
+    </svg>
+    <span class="brand-txt"><b>Thejeshwaar</b><span class="brand-desc"> · Signal Intelligence</span></span>
+  </a>
+  <div class="nav-links" id="nav-links">
+    <a href="#problem">Problem</a>
+    <a href="#teardown">NeuroSync</a>
+    <a href="#observatory">Ablations</a>
+    <a href="#topology">Topology</a>
+    <a href="#systems">Systems</a>
+    <a href="#method">Method</a>
+  </div>
+  <a class="nav-cta" href="#contact">Get in touch</a>
 </nav>
 
-<!-- HERO -->
+<main class="shell" id="top">
+
+<!-- ============================ HERO ============================ -->
 <section id="hero">
-  <canvas id="waveform-hero" height="200"></canvas>
+  <div class="hero-inner">
+    <p class="eyebrow" data-reveal>ML Researcher · Non-stationary signals · VIT Chennai</p>
 
-  <div class="hero-tag"><span class="pulse-dot"></span>Deep Learning Researcher // Signal Intelligence</div>
-  <div class="hero-name">Thejeshwaar <span>Sathishkumar</span></div>
-  <div class="hero-sub">Building at the edge of Deep Learning and Signal Intelligence. VIT Chennai.</div>
+    <h1 class="h-display hero-title" id="hero-title">
+      <span class="ln"><span>Most models</span></span>
+      <span class="ln"><span>break on the</span></span>
+      <span class="ln"><span class="grad-text">second patient.</span></span>
+    </h1>
 
-  <div class="hero-question">
-    <strong>The question driving everything:</strong><br>
-    How do we make AI work on messy, real-world data?<br>
-    Getting to 95% in a lab is easy. Making it hold across subjects, sensors, and noise is the actual hard problem.
+    <p class="lede hero-lede" data-reveal>
+      I build multimodal deep-learning systems for signals that refuse to sit still — EEG, cardiac,
+      muscle, motion. The noise is structured, the distribution shifts with every subject and every
+      sensor placement, and the model that scored beautifully in a notebook falls apart on the ward.
+      That failure is the actual research problem. It is the one I work on.
+    </p>
+
+    <div class="hero-actions" data-reveal>
+      <a class="btn btn--solid" href="#teardown"><span class="btn-dot"></span><span>Open the teardown</span></a>
+      <a class="btn" href="#observatory"><span>33 experiments</span></a>
+    </div>
+
+    <div class="hero-stats" data-reveal>
+      <div class="stat">
+        <div class="stat-v" data-count="53.01" data-suffix="%">0<em>%</em></div>
+        <span class="stat-k">Event F1 · wearable seizure detection<br />vs. a 43% scalp-EEG literature ceiling</span>
+      </div>
+      <div class="stat">
+        <div class="stat-v" data-count="91.18" data-suffix="%">0<em>%</em></div>
+        <span class="stat-k">Ensemble precision at the bedside<br />under two false alarms per day</span>
+      </div>
+      <div class="stat">
+        <div class="stat-v" data-count="33">0</div>
+        <span class="stat-k">Full ablation runs<br />a third of them deliberate failures</span>
+      </div>
+      <div class="stat">
+        <div class="stat-v" data-count="125">0</div>
+        <span class="stat-k">Patients, patient-level split<br />no subject on both sides of the line</span>
+      </div>
+    </div>
   </div>
 
-  <div class="hero-ctas">
-    <a href="#projects" class="btn-primary"><span>View Projects</span></a>
-    <a href="https://github.com/BeyondInfinity1610" target="_blank" class="btn-ghost">GitHub</a>
-  </div>
+  <div class="scroll-cue" aria-hidden="true"><span>Scroll</span><i></i></div>
+</section>
 
-  <div class="signal-badge">
-    <div class="badge-inner">
-      <div class="badge-label"><span class="pulse-dot"></span>Current Focus</div>
-      <div class="badge-stat">
-        <span class="badge-stat-label">Domain</span>
-        <span class="badge-stat-value">EEG / Signal</span>
+<!-- ============================ PROBLEM ============================ -->
+<section class="section" id="problem">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow" data-reveal>01 — The problem</p>
+        <h2 class="h-section" data-reveal style="margin-top:1.4rem">Three ways a biosignal model quietly lies to you.</h2>
       </div>
-      <div class="badge-stat">
-        <span class="badge-stat-label">Problem</span>
-        <span class="badge-stat-value">Generalization Gap</span>
-      </div>
-      <div class="badge-stat">
-        <span class="badge-stat-label">Arch</span>
-        <span class="badge-stat-value">CNN / GNN / Transformer</span>
-      </div>
-      <div class="badge-stat">
-        <span class="badge-stat-label">Status</span>
-        <span class="badge-stat-value">Building in public</span>
-      </div>
+      <p class="lede" data-reveal>
+        None of these show up in a validation score computed the usual way. All three are why most
+        published biosignal accuracy does not survive contact with a second recording site. Everything
+        below is built to attack one of them.
+      </p>
+    </div>
+
+    <div class="panel-grid panel-grid--3" data-reveal>
+      <article class="panel">
+        <span class="panel-n">01 / Non-stationarity</span>
+        <h3>The signal changes while you are modelling it.</h3>
+        <p class="body-s">
+          EEG is not a stationary process. Its spectral content, amplitude and phase structure drift over
+          minutes, and the interesting events are exactly the moments where that drift breaks. A model
+          trained on windowed averages learns the drift and misses the break. The fix is decomposition
+          before learning — variational mode decomposition, Hilbert envelopes, per-branch filtering — so
+          the network receives separated oscillations instead of their sum.
+        </p>
+        <svg class="panel-spark" viewBox="0 0 300 42" preserveAspectRatio="none" aria-hidden="true">
+          <path data-spark="nonstationary" stroke="#4ddbff" />
+        </svg>
+      </article>
+
+      <article class="panel">
+        <span class="panel-n">02 / Domain shift</span>
+        <h3>Subject A does not generalise to Subject B.</h3>
+        <p class="body-s">
+          Electrode impedance, skull thickness, cortical folding and cognitive baseline all differ. A
+          network with enough capacity will identify the <em>patient</em> and infer the label from that —
+          scoring near-perfectly in cross-validation and collapsing on anyone new. The answer is not more
+          data. It is an architecture that is punished for encoding subject identity at all.
+        </p>
+        <svg class="panel-spark" viewBox="0 0 300 42" preserveAspectRatio="none" aria-hidden="true">
+          <path data-spark="shift" stroke="#9d7bff" />
+        </svg>
+      </article>
+
+      <article class="panel">
+        <span class="panel-n">03 / Artifact vs. event</span>
+        <h3>A jaw clench and a seizure look the same to one sensor.</h3>
+        <p class="body-s">
+          On behind-the-ear wearable EEG, chewing, speaking and walking produce high-amplitude rhythmic
+          activity that is spectrally indistinguishable from an ictal discharge. No amount of filtering
+          separates them, because the difference is not in the EEG. It is in whether the heart, the
+          deltoid and the accelerometer agree — a fusion problem, not a denoising one.
+        </p>
+        <svg class="panel-spark" viewBox="0 0 300 42" preserveAspectRatio="none" aria-hidden="true">
+          <path data-spark="artifact" stroke="#ffc46b" />
+        </svg>
+      </article>
     </div>
   </div>
 </section>
 
-<!-- ABOUT -->
-<section id="about">
-  <div class="reveal">
-    <div class="section-tag">// 01 — About</div>
-    <div class="section-title">The Approach</div>
-  </div>
+<!-- ============================ TEARDOWN ============================ -->
+<section id="teardown">
+  <div class="td-scrollzone" id="td-scrollzone">
+    <div class="td-stage">
+      <canvas id="td-canvas" aria-hidden="true"></canvas>
 
-  <div class="about-grid">
-    <div class="about-body reveal">
-      <p>I'm a student researcher at VIT Chennai working at the intersection of <strong>Deep Learning and Signal Intelligence</strong>. Most of my time is spent on one problem: making AI that actually generalizes.</p>
-      <p>Standard models hit high accuracy in controlled environments then quietly fall apart in the wild. I'm interested in <strong>why that happens</strong> and how to build architectures that are structurally resilient to it — what I call the "Generalization Gap."</p>
-      <p>I work primarily with <strong>EEG and Time-Series data</strong> — trying to understand the underlying physics of a signal, not just its surface pattern. How phase and amplitude encode information. How connectivity between nodes reveals structure that raw features miss.</p>
-      <p>I believe in building in public. The dead ends are part of the work.</p>
-    </div>
-
-    <div class="about-sidebar reveal">
-      <div class="thinking-block">
-        <div class="thinking-label">Current Obsession</div>
-        <div class="thinking-text">Why does cross-subject generalization fail even when in-subject accuracy is high? The model isn't learning the signal. It's learning the person.</div>
-      </div>
-      <div class="thinking-block">
-        <div class="thinking-label">Working Hypothesis</div>
-        <div class="thinking-text">Graph-based architectures have an inherent structural advantage for EEG because they can encode spatial dependencies between electrodes — something CNNs approximate but can't represent directly.</div>
-      </div>
-      <div class="thinking-block">
-        <div class="thinking-label">Learning Direction</div>
-        <div class="thinking-text">Going deeper into interpretability. Not XAI as a checkbox — but architectures where the decision pathway is mathematically traceable from input to output.</div>
-      </div>
-      <div class="thinking-block">
-        <div class="thinking-label">Honest Status</div>
-        <div class="thinking-text">Early in the journey. Documenting everything. The repos show where I've been. Current work stays private until it's ready.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PROJECTS -->
-<section id="projects">
-  <div class="projects-inner">
-    <div class="reveal">
-      <div class="section-tag">// 02 — Projects</div>
-      <div class="section-title">Implementations</div>
-    </div>
-
-    <div class="projects-grid">
-      <div class="project-card reveal">
-        <div class="project-num">01</div>
-        <div class="project-title">ADHD Detection via EEG & Graph Neural Networks</div>
-        <div class="project-desc">Multi-stage research pipeline from classical ML to Graph Attention Networks. Discovered "Subject Mimicry" — specific healthy controls classified as ADHD with 100% confidence. Currently in failure analysis phase, investigating PLV volume conduction artifacts and biological mimicry as root causes. Real research looks like this.</div>
-        <div class="project-tags">
-          <span class="tag">GAT</span>
-          <span class="tag">PLI</span>
-          <span class="tag">Cross-subject</span>
-          <span class="tag">Failure Analysis</span>
+      <div class="td-hud">
+        <div class="td-topbar">
+          <div>
+            <p class="eyebrow eyebrow--plain" style="margin-bottom:0.7rem">02 — Flagship research</p>
+            <div class="td-chip">NeuroSync · multimodal focal-seizure detection</div>
+          </div>
+          <div class="td-chip" id="td-counter">01 / 06</div>
         </div>
-        <a href="https://github.com/BeyondInfinity1610/ADHD-CLASSFiCATION-EEG" target="_blank" class="project-link">View on GitHub</a>
-      </div>
 
-      <div class="project-card reveal">
-        <div class="project-num">02</div>
-        <div class="project-title">Quantum-Hilbert EEG Feature Learning</div>
-        <div class="project-desc">Quantum circuits as nonlinear feature learners when signals are first mapped into phase-amplitude Hilbert space. The classifier is just a probe — the real question is whether quantum circuits discover structure that classical methods miss. Circuit architecture itself is learnable: connectivity mask, layer gating, measurement selection.</div>
-        <div class="project-tags">
-          <span class="tag">Quantum ML</span>
-          <span class="tag">Hilbert Transform</span>
-          <span class="tag">VQC</span>
-          <span class="tag">Representation</span>
+        <div class="td-steps" id="td-steps">
+          <div class="td-step on">
+            <span class="td-step-i">Step 01 — The setting</span>
+            <h3>A sensor behind the ear, and a person living their life.</h3>
+            <p>
+              SeizeIT2: 125 patients wearing a behind-the-ear Sensor Dot in hospital. Two EEG channels
+              instead of a 21-electrode cap. The patient walks, eats, talks and sleeps. Seizures occupy
+              well under one percent of the recording.
+            </p>
+            <p>
+              Published scalp-EEG detectors reach roughly 43% event-level F1 in this setting. Wearable
+              detectors do considerably worse — not because the models are weak, but because two channels
+              of ambulatory EEG genuinely cannot tell a seizure from a jaw clench.
+            </p>
+            <div class="td-tags">
+              <span class="td-tag">125 patients</span>
+              <span class="td-tag">2-channel bte-EEG</span>
+              <span class="td-tag">&lt;1% prevalence</span>
+              <span class="td-tag">patient-level 80/20</span>
+            </div>
+          </div>
+
+          <div class="td-step">
+            <span class="td-step-i">Step 02 — Five tokenizers</span>
+            <h3>Every modality gets the encoder its physics deserves.</h3>
+            <p>
+              Not one shared backbone. The low-frequency EEG branch is a CNN-GRU tracking seizure
+              evolution. The high-frequency branch runs Teager energy and autocorrelation for automatisms.
+              The deltoid EMG reduces to energy and rhythmicity. The ECG is a masked autoencoder over a
+              Takens phase-space embedding, trained self-supervised so it knows a normal heart before it
+              is ever shown an abnormal one. The accelerometer uses ROCKET — random, deterministic, and
+              never allowed to train.
+            </p>
+            <div class="td-tags">
+              <span class="td-tag">ChronoNet 0.5–15 Hz</span>
+              <span class="td-tag">TKEO 20–40 Hz</span>
+              <span class="td-tag">Takens masked AE</span>
+              <span class="td-tag">ROCKET · frozen</span>
+            </div>
+          </div>
+
+          <div class="td-step">
+            <span class="td-step-i">Step 03 — The trust gate</span>
+            <h3>The model decides, second by second, whether to believe its own EEG.</h3>
+            <p>
+              A small network reads accelerometer energy, EMG energy and the rhythmicity of both, and
+              emits one scalar between zero and one that scales the entire EEG pathway. It learns a
+              distinction that matters clinically: chaotic high-motion means artifact, so close the gate —
+              but <em>rhythmic</em> motion means a bilateral tonic-clonic seizure, so hold it open.
+            </p>
+            <p>
+              Removing this module costs 41% more false alarms. Replacing the scalar with a
+              128-dimensional vector gate destroys the model entirely. The narrow bottleneck is the point.
+            </p>
+            <div class="td-tags">
+              <span class="td-tag">DynMM · scalar g ∈ [0,1]</span>
+              <span class="td-tag">motion-type aware</span>
+              <span class="td-tag">soft targets 0.9 / 0.3</span>
+            </div>
+          </div>
+
+          <div class="td-step">
+            <span class="td-step-i">Step 04 — Cross-modal fusion</span>
+            <h3>Autonomic signs arrive before cortical ones. The transformer learns the lag.</h3>
+            <p>
+              Heart-rate change frequently precedes visible EEG onset, and the offset differs by patient.
+              Rather than hand-align the streams, directional cross-attention lets each modality query the
+              others and discover the alignment itself.
+            </p>
+            <p>
+              The upgrade that mattered was a second layer of <em>inter</em>-modal self-attention after
+              the cross-modal pass — letting ECG and EMG interrogate each other. That single change
+              suppressed over 90% of chewing and speaking false alarms and pushed event-level F1 to 53.01%,
+              ten points clear of the scalp-EEG ceiling.
+            </p>
+            <div class="td-tags">
+              <span class="td-tag">Deep MulT</span>
+              <span class="td-tag">directional cross-attention</span>
+              <span class="td-tag">+10.0 pts vs. ceiling</span>
+            </div>
+          </div>
+
+          <div class="td-step">
+            <span class="td-step-i">Step 05 — Two heads, and an argument</span>
+            <h3>What it predicts, and why you can check it.</h3>
+            <p>
+              Level one is seizure versus background. Level two is whether the seizure generalised to a
+              bilateral tonic-clonic event — gated so it contributes no gradient unless a real seizure is
+              present.
+            </p>
+            <p>
+              Every forward pass also returns the gate value, the cross-attention relevance map and the
+              recurrent hidden states. Explainability is a property of the architecture rather than a
+              post-hoc wrapper: you can watch the gate close on a corrupted channel in real time, which is
+              the form of the "black box" objection that actually needs answering in a clinical setting.
+            </p>
+            <div class="td-tags">
+              <span class="td-tag">L1 seizure</span>
+              <span class="td-tag">L2 FBTC · conditional</span>
+              <span class="td-tag">Chefer relevance</span>
+            </div>
+          </div>
+
+          <div class="td-step">
+            <span class="td-step-i">Step 06 — The curriculum</span>
+            <h3>Five phases, because training it all at once does not work.</h3>
+            <p>
+              Phase zero pre-trains the cardiac autoencoder self-supervised. Phase one warms up EEG alone
+              with fusion bypassed. Phase two freezes the encoders and trains only the gate, the
+              transformer and the heads. Phase three unfreezes end to end — the moment where everything
+              previously learned gets destroyed, unless the learning rate is deliberately re-warmed at the
+              boundary. Phase four is a low-rate polish.
+            </p>
+            <p>
+              The model is selected on best AUPRC across <em>all</em> phases, never reset per phase. At
+              sub-one-percent prevalence, AUPRC is the only selection metric that is not mostly measuring
+              the background class.
+            </p>
+            <div class="td-tags">
+              <span class="td-tag">5-phase curriculum</span>
+              <span class="td-tag">warm restart at φ3</span>
+              <span class="td-tag">AUPRC selection</span>
+              <span class="td-tag">~2.63M params</span>
+            </div>
+          </div>
         </div>
-        <a href="https://github.com/BeyondInfinity1610/Quantum-Hilbert-EEG-Feature-Learning" target="_blank" class="project-link">View on GitHub</a>
-      </div>
 
-      <div class="project-card reveal">
-        <div class="project-num">03</div>
-        <div class="project-title">EEG Motor Imagery via ERD Features</div>
-        <div class="project-desc">Foundation project. Deliberately chose classical pipeline over deep learning to understand the problem space first — Mu/Beta rhythms, Event-Related Desynchronization, SVM on spatial features. The point wasn't accuracy. It was understanding what the signal actually contains before letting a model decide for you.</div>
-        <div class="project-tags">
-          <span class="tag">ERD</span>
-          <span class="tag">BCI</span>
-          <span class="tag">SVM</span>
-          <span class="tag">Signal Processing</span>
+        <div class="td-progress" id="td-progress" aria-hidden="true">
+          <b class="on"></b><b></b><b></b><b></b><b></b><b></b>
         </div>
-        <a href="https://github.com/BeyondInfinity1610/EEG-Motor-Imagery-Classification-using-ERD-Features-Beginner-Neuro-AI-Project-" target="_blank" class="project-link">View on GitHub</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:clamp(4rem,9vh,7rem)">
+    <div class="wrap">
+      <div class="td-result" data-reveal>
+        <div>
+          <div class="stat-v" data-count="53.01" data-suffix="%">0<em>%</em></div>
+          <span class="stat-k">Event-level F1 · Any-Overlap<br />+10.0 points over the scalp-EEG ceiling</span>
+        </div>
+        <div>
+          <div class="stat-v" data-count="91.18" data-suffix="%">0<em>%</em></div>
+          <span class="stat-k">Bedside ensemble precision<br />100% on 7 of 10 validation subjects</span>
+        </div>
+        <div>
+          <div class="stat-v" data-count="79.1">0</div>
+          <span class="stat-k">False positives per 24 hours<br />bootstrap-significant at p &lt; 0.001</span>
+        </div>
+      </div>
+      <p class="body-s" style="margin-top:1.6rem;max-width:74ch" data-reveal>
+        Ten thousand bootstrap resamples confirm the improvement over the published baseline is not a lucky
+        split. The architecture profiles at roughly 2.6 million parameters — small enough to run in real
+        time on wearable-class hardware, which is the difference between a paper and a device.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ OBSERVATORY ============================ -->
+<section class="section" id="observatory">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow" data-reveal>03 — The evidence</p>
+        <h2 class="h-section" data-reveal style="margin-top:1.4rem">The ablation observatory.</h2>
+      </div>
+      <p class="lede" data-reveal>
+        Thirty-three complete training runs of a four-modality network. Every architectural claim above
+        traces to one of these points — and the ones that failed did more to determine the final design
+        than the ones that worked. A component you have never managed to break is a component you have
+        never actually tested.
+      </p>
+    </div>
+
+    <div class="ab-toolbar" data-reveal>
+      <button class="chip on" id="ab-story" type="button">▸ Walk the campaign</button>
+      <span class="mono dim">Hover to inspect · click to pin</span>
+      <div class="ab-legend" id="ab-legend"></div>
+    </div>
+
+    <div class="ab-layout" data-reveal>
+      <div class="ab-plotwrap">
+        <canvas id="ab-canvas"></canvas>
+      </div>
+      <aside class="ab-detail" id="ab-detail"></aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ TOPOLOGY ============================ -->
+<section class="section" id="topology">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow" data-reveal>04 — Second research line</p>
+        <h2 class="h-section" data-reveal style="margin-top:1.4rem">The brain is a graph. So build one per band.</h2>
+      </div>
+      <p class="lede" data-reveal>
+        Resting-state EEG classification for ADHD across 121 subjects. The interesting failure here is not
+        accuracy — it is that a network with enough capacity will memorise the subject rather than the
+        condition, and no amount of cross-validation will tell you that it did.
+      </p>
+    </div>
+
+    <div class="topo-layout">
+      <div class="topo-visual" data-reveal>
+        <div class="topo-stage">
+          <canvas id="topo-canvas"></canvas>
+          <div class="topo-readout" id="topo-readout"></div>
+        </div>
+        <div class="band-picker" id="band-picker" role="group" aria-label="Frequency band"></div>
+      </div>
+
+      <div data-reveal>
+        <h3 class="h-sub">Why five graphs and not one.</h3>
+        <p class="body-s" style="margin-top:1rem">
+          Connectivity is computed with the weighted Phase Lag Index rather than correlation. wPLI is
+          phase-based and therefore immune to volume conduction — the artifact where one source appears at
+          several electrodes at once and manufactures connectivity that does not exist. It is the single
+          largest reason EEG connectivity findings fail to replicate.
+        </p>
+        <p class="body-s" style="margin-top:1rem">
+          Delta and gamma carry <em>opposite</em> discriminative patterns in ADHD. Fuse their adjacency
+          matrices early and the two cancel. So each band gets its own Graph Attention Network, message
+          passing independently over its own topology, and the five embeddings are combined only at the
+          end through learned attention. Switch bands below — the change in structure is real, not decorative.
+        </p>
+
+        <p class="body-s" style="margin-top:1rem" id="band-note"></p>
+
+        <div class="dann">
+          <p class="eyebrow eyebrow--plain" style="margin-bottom:1.2rem">Gradient reversal — the anti-memorisation layer</p>
+          <svg viewBox="0 0 460 118" id="dann-svg" aria-label="Diagram: a shared encoder feeds a label classifier, and through a gradient reversal layer, a subject classifier.">
+            <g id="dann-flows"></g>
+            <g id="dann-nodes"></g>
+          </svg>
+          <p class="body-s" style="margin-top:1.2rem">
+            A second head is attached to the shared encoder and asked to identify <em>which subject</em> the
+            window came from. Between them sits a layer that passes activations forward unchanged and
+            multiplies the gradient by a negative constant on the way back. The subject classifier gets
+            better at its job; the encoder is actively pushed to make that job impossible. What survives is
+            the part of the representation that is not a fingerprint.
+          </p>
+        </div>
+
+        <div class="td-result" style="margin-top:2rem">
+          <div>
+            <div class="stat-v" data-count="92.4" data-suffix="%">0<em>%</em></div>
+            <span class="stat-k">Subject-level accuracy<br />QC-passed high-fidelity records</span>
+          </div>
+          <div>
+            <div class="stat-v" data-count="0.946">0</div>
+            <span class="stat-k">AUC<br />leave-one-subject-out</span>
+          </div>
+          <div>
+            <div class="stat-v" data-count="89.3" data-suffix="%">0<em>%</em></div>
+            <span class="stat-k">Accuracy on all 121 subjects<br />including the corrupted records</span>
+          </div>
+        </div>
+        <p class="body-s" style="margin-top:1.4rem">
+          The three-point gap between those last two numbers is the honest one. Eighteen subjects were
+          excluded by a multivariate quality-control step applied before any model was trained — unstable
+          PLI variance, collapsed graph topology, positions outside the 95% confidence ellipse of the
+          feature manifold. The full set is retained and reported anyway, as a stress test.
+        </p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- THINKING -->
-<section id="thinking">
-  <div class="reveal">
-    <div class="section-tag">// 03 — Thinking</div>
-    <div class="section-title">Notes from the Build</div>
-  </div>
-
-  <div class="thinking-grid">
-    <div class="thought-card thought-card-wide reveal">
-      <div class="thought-date">From the ADHD project // Active research note</div>
-      <div class="thought-title">Subject Mimicry: when the model is right for the wrong reason</div>
-      <div class="thought-preview">Subject v129 — healthy control — gets classified as ADHD with 100% window confidence. The model isn't broken. It's doing exactly what it was trained to do: find high-sync connectivity patterns. The problem is v129's baseline brain connectivity is statistically indistinguishable from the ADHD signature. This isn't a data problem. It's a representation problem. PLV is measuring synchrony — but it can't distinguish real hyper-connectivity from volume conduction artifacts. Switching to PLI (Phase Lag Index) filters out zero-lag correlations caused by field spread. The real lesson: accuracy metrics hide per-subject failure. Always audit at the individual level.</div>
+<!-- ============================ SYSTEMS ============================ -->
+<section class="section" id="systems">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow" data-reveal>05 — Systems</p>
+        <h2 class="h-section" data-reveal style="margin-top:1.4rem">The same problem, wearing different clothes.</h2>
+      </div>
+      <p class="lede" data-reveal>
+        A drifting sensor on an industrial rig and a drifting electrode on a scalp are the same
+        mathematics. These are the places that idea has taken me outside the lab.
+      </p>
     </div>
 
-    <div class="thought-card reveal">
-      <div class="thought-date">On architecture choice</div>
-      <div class="thought-title">Why GNNs have a structural prior CNNs don't</div>
-      <div class="thought-preview">EEG electrodes aren't a grid. They're a spatial graph with topology that matters. CNNs treat them as sequences or images — which loses the inter-electrode structure. A Graph Attention Network can encode adjacency by design and learn which electrode relationships actually matter for a given class. The benchmark confirms it: RF at 62%, 1D-CNN at 77.77%, GAT at 77.91%. The gap will widen as the connectivity representation improves.</div>
-    </div>
+    <div class="sys-grid" data-reveal>
+      <article class="sys-card" data-tilt>
+        <div class="sys-top">
+          <span class="sys-kind">Patent · published</span>
+          <span class="sys-status">202541081235</span>
+        </div>
+        <h3>Hardware-level self-healing IoT architecture</h3>
+        <p class="body-s">
+          A sensor fault-detection and recovery layer that operates below the application: a fault is
+          identified and correction triggered inside 50 milliseconds — before the next control-loop tick in
+          most embedded systems, so downstream logic never observes the bad reading. Embedded ML performs
+          the recalibration, which removes the human from the loop in continuous monitoring deployments
+          where there is no human to remove.
+        </p>
+        <div class="sys-meta">
+          <span class="td-tag">sub-50 ms recovery</span>
+          <span class="td-tag">embedded ML auto-calibration</span>
+          <span class="td-tag">published</span>
+        </div>
+      </article>
 
-    <div class="thought-card reveal">
-      <div class="thought-date">On quantum-inspired methods</div>
-      <div class="thought-title">The classifier is just a ruler, not the point</div>
-      <div class="thought-preview">In the Quantum-Hilbert project, the SVM at the end isn't the contribution. It's a probe measuring whether the quantum circuit learned a better representation of the signal. This reframing matters: most people optimize for the downstream metric. The interesting question is whether the feature space itself has better structure. Hilbert transform naturally produces complex-valued outputs — instantaneous phase and amplitude — which align with quantum state amplitudes. That's not a coincidence worth ignoring.</div>
-    </div>
+      <article class="sys-card" data-tilt>
+        <div class="sys-top">
+          <span class="sys-kind">System design · pre-publication</span>
+          <span class="sys-status">DMQS-EARIMS</span>
+        </div>
+        <h3>Federated multi-modal monitoring for safety-critical infrastructure</h3>
+        <p class="body-s">
+          A decentralised fault-detection system fusing ultrasonic, fibre-optic and computer-vision streams.
+          Each node trains locally under federated learning, so raw sensor data never leaves the edge
+          device. That decision is usually framed as privacy engineering; here it is equally a latency and
+          bandwidth argument, which is what makes it survive contact with a real deployment budget.
+        </p>
+        <div class="sys-meta">
+          <span class="td-tag">ultrasonic + fibre + vision</span>
+          <span class="td-tag">federated</span>
+          <span class="td-tag">edge-resident</span>
+        </div>
+      </article>
 
-    <div class="thought-card thought-card-wide reveal">
-      <div class="thought-date">On the learning path</div>
-      <div class="thought-title">Why I started with SVM before touching deep learning</div>
-      <div class="thought-preview">The Motor Imagery project was deliberate. I could have gone straight to a Transformer. Instead I spent time understanding Mu rhythms, Beta rhythms, Event-Related Desynchronization, and why specific electrodes over the motor cortex carry more information than others. That grounding means that when I look at a GNN attention map now, I know what the model should be attending to — and when it's attending to noise. You can't audit a black box if you don't know what truth looks like.</div>
+      <article class="sys-card" data-tilt>
+        <div class="sys-top">
+          <span class="sys-kind">Research · quantum-hybrid encoding</span>
+          <span class="sys-status">Under review</span>
+        </div>
+        <h3>Quantum-Hilbert hybrid encoding for physiological signals</h3>
+        <p class="body-s">
+          An encoding framework built from scratch: Hilbert transforms extract instantaneous phase and
+          amplitude envelopes — the information an FFT discards the moment it takes a magnitude — and
+          variational quantum circuits embed those envelopes into a quantum latent space. It targets the
+          actual mathematical structure of a biosignal: phase-coherent, amplitude-modulated,
+          multi-oscillatory. Most work in this space is image classification on a spectrogram wearing a
+          lab coat.
+        </p>
+        <div class="sys-meta">
+          <span class="td-tag">Hilbert envelopes</span>
+          <span class="td-tag">variational quantum circuits</span>
+          <span class="td-tag">PennyLane</span>
+        </div>
+      </article>
+
+      <article class="sys-card" data-tilt>
+        <div class="sys-top">
+          <span class="sys-kind">Applied ML · industry</span>
+          <span class="sys-status">Shipped</span>
+        </div>
+        <h3>Synthetic population and life-event simulation engine</h3>
+        <p class="body-s">
+          Deterministic generation of privacy-safe financial populations with multi-year, event-labelled
+          transaction histories — for training systems where the real data is regulated and the edge cases
+          are, by definition, rare. The engineering discipline is the interesting part: the same seed
+          reproduces the dataset byte for byte, and a change-point detector must recover the injected
+          events above a hard F1 gate before the data is allowed to certify as usable at all.
+        </p>
+        <div class="sys-meta">
+          <span class="td-tag">deterministic generation</span>
+          <span class="td-tag">change-point detection</span>
+          <span class="td-tag">adversarial QC gate</span>
+        </div>
+      </article>
     </div>
   </div>
 </section>
 
-<!-- CONTACT -->
-<section id="contact">
-  <div class="contact-glow"></div>
-  <div class="contact-inner">
-    <div class="reveal">
-      <div class="section-tag" style="margin-bottom:16px">// 04 — Contact</div>
-      <div class="contact-title">Let's think together.</div>
-      <div class="contact-sub">Open to connecting with people working on Signal Intelligence, Time-Series AI, Neural Architectures, and the math behind the models.</div>
-      <div class="contact-links">
-        <a href="https://github.com/BeyondInfinity1610" target="_blank" class="btn-primary"><span>GitHub</span></a>
-        <a href="https://www.linkedin.com/in/thejeshwaar-sathish-kumar-672a52291" target="_blank" class="btn-ghost">LinkedIn</a>
-        <a href="mailto:thejeshwaarsathishkumar@gmail.com" class="btn-ghost">Email</a>
+<!-- ============================ METHOD ============================ -->
+<section class="section" id="method">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow" data-reveal>06 — How I work</p>
+        <h2 class="h-section" data-reveal style="margin-top:1.4rem">Four commitments, and what they cost.</h2>
+      </div>
+      <p class="lede" data-reveal>
+        Every one of these makes the work slower and the headline number smaller. That is the trade, and it
+        is the right one — because the alternative is a result that only exists inside its own notebook.
+      </p>
+    </div>
+
+    <div class="method" data-reveal>
+      <div class="method-row">
+        <span class="method-n">01</span>
+        <h3>Decompose before you learn.</h3>
+        <p class="body-s">
+          I do not hand a network the raw sum of a dozen overlapping oscillations and hope attention sorts
+          it out. Variational mode decomposition, Hilbert envelopes, per-branch filtering, Teager energy —
+          the separation happens before a single weight is trained. It costs preprocessing time, and it is
+          why the models hold up on data that was not collected by the lab that trained them.
+        </p>
+      </div>
+      <div class="method-row">
+        <span class="method-n">02</span>
+        <h3>Choose the metric a practitioner would choose.</h3>
+        <p class="body-s">
+          At sub-one-percent prevalence, accuracy is noise and ROC-AUC is close to it. I select on AUPRC,
+          report event-level F1 under clinical Any-Overlap scoring with proper collars, and quote false
+          alarms per 24 hours — because that is the number that decides whether a device is worn or left in
+          a drawer.
+        </p>
+      </div>
+      <div class="method-row">
+        <span class="method-n">03</span>
+        <h3>Split by subject, always.</h3>
+        <p class="body-s">
+          Random window-level splits leak the patient across the boundary and inflate every score in the
+          paper. Splits are patient-level and seeded; leave-one-subject-out where the dataset allows it. If
+          a result depends on which windows landed where, it is not a result.
+        </p>
+      </div>
+      <div class="method-row">
+        <span class="method-n">04</span>
+        <h3>Publish the graveyard.</h3>
+        <p class="body-s">
+          A third of the ablation campaign made the model worse, and those runs are documented as carefully
+          as the wins — including the vector gate that collapsed to zero F1 and the two attempts to stack
+          winning components that both backfired. Negative results are the only part of a campaign that
+          cannot be produced by luck.
+        </p>
       </div>
     </div>
   </div>
 </section>
 
-<footer>
-  <span>Thejeshwaar Sathishkumar // VIT Chennai</span>
-  <span>Building in public. Dead ends included.</span>
+<!-- ============================ CONTACT ============================ -->
+<section class="section" id="contact">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal>07 — Signal out</p>
+    <h2 class="contact-title" data-reveal style="margin-top:1.6rem">
+      If your data is<br />noisy, shifting<br />and <span class="grad-text">expensive to label</span> —
+    </h2>
+    <p class="lede" data-reveal style="margin-top:2rem">
+      that is the interesting case, and it is the one I want. Open to research collaboration, graduate
+      positions, and applied work in neurotechnology, medical devices and sensor intelligence.
+    </p>
+
+    <div class="contact-links" data-reveal>
+      <a class="c-link" href="mailto:thejeshwaarsathishkumar@gmail.com">
+        <span><span class="c-link-k">Email</span><span class="c-link-v">thejeshwaarsathishkumar@gmail.com</span></span>
+        <svg class="c-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+      </a>
+      <a class="c-link" href="https://github.com/Beyondinfinity1610" target="_blank" rel="noopener">
+        <span><span class="c-link-k">Code</span><span class="c-link-v">github.com/Beyondinfinity1610</span></span>
+        <svg class="c-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+      </a>
+      <a class="c-link" href="https://github.com/Beyondinfinity1610/ADHD-CLASSFiCATION-EEG" target="_blank" rel="noopener">
+        <span><span class="c-link-k">Repository</span><span class="c-link-v">ADHD classification · EEG graph networks</span></span>
+        <svg class="c-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <span>Thejeshwaar Sathishkumar — Signal Intelligence</span>
+  <span class="footer-live"><i></i><span id="clock">Active</span></span>
+  <span>Built from scratch · WebGL &amp; GLSL · no framework</span>
 </footer>
 
-<script>
-// ---- CURSOR ----
-const cursor = document.getElementById('cursor');
-const ring = document.getElementById('cursorRing');
-let mx = 0, my = 0, rx = 0, ry = 0;
+</main>
 
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cursor.style.left = mx + 'px';
-  cursor.style.top = my + 'px';
-});
+<script type="module" src="js/main.js"></script>
+<noscript>
+  <div style="padding:6rem 1.5rem;max-width:62ch;margin:auto">
+    <h1 style="font-size:2rem">Thejeshwaar Sathishkumar</h1>
+    <p style="color:#a6afc4">ML researcher working on multimodal deep learning for non-stationary biosignals — EEG, cardiac, muscle and motion. Wearable focal-seizure detection at 53.01% event-level F1; band-wise graph networks with domain-adversarial training for ADHD classification at 92.4% subject-level accuracy; a published patent on self-healing IoT sensor architecture.</p>
+    <p><a style="color:#4ddbff" href="mailto:thejeshwaarsathishkumar@gmail.com">thejeshwaarsathishkumar@gmail.com</a> · <a style="color:#4ddbff" href="https://github.com/Beyondinfinity1610">github.com/Beyondinfinity1610</a></p>
+  </div>
+</noscript>
 
-function animRing() {
-  rx += (mx - rx) * 0.12;
-  ry += (my - ry) *.12;
-  ring.style.left = rx + 'px';
-  ring.style.top = ry + 'px';
-  requestAnimationFrame(animRing);
-}
-animRing();
-
-document.querySelectorAll('a, button').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    cursor.style.width = '16px';
-    cursor.style.height = '16px';
-  });
-  el.addEventListener('mouseleave', () => {
-    cursor.style.width = '8px';
-    cursor.style.height = '8px';
-  });
-});
-
-// ---- LOADER SEQUENCE ----
-const loaderCanvas = document.getElementById('loaderCanvas');
-const lctx = loaderCanvas.getContext('2d');
-loaderCanvas.width = loaderCanvas.offsetWidth * window.devicePixelRatio;
-loaderCanvas.height = loaderCanvas.offsetHeight * window.devicePixelRatio;
-lctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-const lines = ['ll1','ll2','ll3','ll4','ll5'];
-let lt = 0;
-
-function drawLoaderWave() {
-  const w = loaderCanvas.offsetWidth;
-  const h = loaderCanvas.offsetHeight;
-  lctx.clearRect(0, 0, w, h);
-  const progress = Math.min(lt / 120, 1);
-
-  lctx.beginPath();
-  lctx.strokeStyle = 'rgba(26, 107, 255, 0.08)';
-  lctx.lineWidth = 1;
-  lctx.moveTo(0, h / 2);
-  lctx.lineTo(w, h / 2);
-  lctx.stroke();
-
-  lctx.beginPath();
-  lctx.strokeStyle = `rgba(0, 200, 255, ${progress})`;
-  lctx.lineWidth = 1.5;
-  lctx.shadowColor = '#00c8ff';
-  lctx.shadowBlur = 10;
-
-  const drawW = w * progress;
-  for (let x = 0; x <= drawW; x += 1) {
-    const t = x / w;
-    const y = h/2
-      + Math.sin(t * 40 + lt * 0.08) * 14
-      + Math.sin(t * 15 + lt * 0.05) * 8
-      + Math.exp(-Math.pow((t - 0.35) * 12, 2)) * 26
-      - Math.exp(-Math.pow((t - 0.62) * 18, 2)) * 16;
-    if (x === 0) lctx.moveTo(x, y); else lctx.lineTo(x, y);
-  }
-  lctx.stroke();
-
-  lctx.beginPath();
-  lctx.strokeStyle = 'rgba(0, 200, 255, 0.7)';
-  lctx.lineWidth = 1;
-  lctx.shadowBlur = 0;
-  lctx.moveTo(drawW, 0);
-  lctx.lineTo(drawW, h);
-  lctx.stroke();
-
-  lt++;
-  if (lt < 130) requestAnimationFrame(drawLoaderWave);
-}
-
-drawLoaderWave();
-
-// Sequence the text lines
-lines.forEach((id, i) => {
-  setTimeout(() => {
-    const el = document.getElementById(id);
-    if (el) el.classList.add('active');
-    if (i > 0) {
-      const prev = document.getElementById(lines[i-1]);
-      if (prev) { prev.classList.remove('active'); prev.classList.add('done'); }
-    }
-  }, 400 + i * 500);
-});
-
-setTimeout(() => {
-  document.getElementById('loader').classList.add('hidden');
-}, 400 + lines.length * 500 + 400);
-
-// ---- HERO WAVEFORM ----
-const heroCanvas = document.getElementById('waveform-hero');
-const hctx = heroCanvas.getContext('2d');
-
-function resizeHero() {
-  heroCanvas.width = window.innerWidth;
-  heroCanvas.height = 200;
-}
-resizeHero();
-window.addEventListener('resize', resizeHero);
-
-let ht = 0;
-function drawHeroWave() {
-  const w = heroCanvas.width;
-  const h = heroCanvas.height;
-  hctx.clearRect(0, 0, w, h);
-
-  // Multiple signal layers
-  const signals = [
-    { color: 'rgba(0, 200, 255, 0.25)', freq: 0.008, amp: 30, speed: 0.03, offset: 0 },
-    { color: 'rgba(26, 107, 255, 0.2)', freq: 0.012, amp: 20, speed: 0.02, offset: 50 },
-    { color: 'rgba(0, 200, 255, 0.1)', freq: 0.005, amp: 40, speed: 0.015, offset: 100 },
-  ];
-
-  signals.forEach(sig => {
-    hctx.beginPath();
-    hctx.strokeStyle = sig.color;
-    hctx.lineWidth = 1;
-
-    for (let x = 0; x <= w; x += 2) {
-      const y = h / 2 +
-        Math.sin(x * sig.freq + ht * sig.speed + sig.offset) * sig.amp +
-        Math.sin(x * sig.freq * 2.3 + ht * sig.speed * 1.5) * (sig.amp * 0.3);
-      if (x === 0) hctx.moveTo(x, y);
-      else hctx.lineTo(x, y);
-    }
-    hctx.stroke();
-  });
-
-  ht++;
-  requestAnimationFrame(drawHeroWave);
-}
-drawHeroWave();
-
-// ---- ANTI-GRAVITY PARTICLES ----
-const pCanvas = document.getElementById('particles');
-const pctx = pCanvas.getContext('2d');
-
-function resizeParticles() {
-  pCanvas.width = window.innerWidth;
-  pCanvas.height = window.innerHeight;
-}
-resizeParticles();
-window.addEventListener('resize', resizeParticles);
-
-const particles = [];
-const PARTICLE_COUNT = 60;
-
-for (let i = 0; i < PARTICLE_COUNT; i++) {
-  particles.push({
-    x: Math.random() * window.innerWidth,
-    y: Math.random() * window.innerHeight,
-    vx: (Math.random() - 0.5) * 0.3,
-    vy: (Math.random() - 0.5) * 0.3,
-    size: Math.random() * 1.5 + 0.5,
-    opacity: Math.random() * 0.4 + 0.1,
-  });
-}
-
-let pmx = window.innerWidth / 2;
-let pmy = window.innerHeight / 2;
-
-document.addEventListener('mousemove', e => {
-  pmx = e.clientX;
-  pmy = e.clientY;
-});
-
-function animParticles() {
-  pctx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-
-  particles.forEach(p => {
-    // Anti-gravity: repel from cursor
-    const dx = p.x - pmx;
-    const dy = p.y - pmy;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    const maxDist = 120;
-
-    if (dist < maxDist) {
-      const force = (maxDist - dist) / maxDist;
-      p.vx += (dx / dist) * force * 0.4;
-      p.vy += (dy / dist) * force * 0.4;
-    }
-
-    // Friction
-    p.vx *= 0.97;
-    p.vy *= 0.97;
-
-    p.x += p.vx;
-    p.y += p.vy;
-
-    // Bounds
-    if (p.x < 0) p.x = pCanvas.width;
-    if (p.x > pCanvas.width) p.x = 0;
-    if (p.y < 0) p.y = pCanvas.height;
-    if (p.y > pCanvas.height) p.y = 0;
-
-    pctx.beginPath();
-    pctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    pctx.fillStyle = `rgba(0, 200, 255, ${p.opacity})`;
-    pctx.fill();
-  });
-
-  // Draw connections
-  particles.forEach((p, i) => {
-    particles.slice(i + 1).forEach(q => {
-      const dx = p.x - q.x;
-      const dy = p.y - q.y;
-      const d = Math.sqrt(dx * dx + dy * dy);
-      if (d < 100) {
-        pctx.beginPath();
-        pctx.strokeStyle = `rgba(26, 107, 255, ${0.15 * (1 - d / 100)})`;
-        pctx.lineWidth = 0.5;
-        pctx.moveTo(p.x, p.y);
-        pctx.lineTo(q.x, q.y);
-        pctx.stroke();
-      }
-    });
-  });
-
-  requestAnimationFrame(animParticles);
-}
-animParticles();
-
-// ---- SCROLL REVEAL ----
-const reveals = document.querySelectorAll('.reveal');
-const observer = new IntersectionObserver(entries => {
-  entries.forEach((entry, i) => {
-    if (entry.isIntersecting) {
-      setTimeout(() => {
-        entry.target.classList.add('visible');
-      }, 100);
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.1 });
-
-reveals.forEach(el => observer.observe(el));
-</script>
 </body>
 </html>
