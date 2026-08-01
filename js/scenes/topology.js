@@ -38,7 +38,7 @@ void main() {
   float ring = smoothstep(0.86, 0.62, d) * smoothstep(0.44, 0.60, d);
   float halo = pow(1.0 - d, 3.0) * 0.55;
   vec3 c = mix(uColor, vec3(1.0), 0.35 + vHot * 0.5);
-  float i = core * (0.7 + vS * 0.8 + vHot) + ring * (0.5 + vHot) + halo * (0.4 + vS);
+  float i = core * (1.15 + vS * 1.1 + vHot) + ring * (0.8 + vHot) + halo * (0.65 + vS);
   gl_FragColor = vec4(c * i, 1.0);
 }`;
 
@@ -56,7 +56,7 @@ void main() {
   float head = fract(uTime * 0.22 + aSeed);
   float d = abs(aT - head); d = min(d, 1.0 - d);
   float pulse = exp(-pow(d * 10.0, 2.0));
-  vI = appear * ((aW - 0.40) * 1.75 + pulse * 2.4 * aW + aHot * 1.6);
+  vI = appear * ((aW - 0.38) * 2.6 + pulse * 3.2 * aW + aHot * 2.0);
   vHot = aHot;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }`;
@@ -114,7 +114,7 @@ export class Topology {
     const geo = new THREE.IcosahedronGeometry(R * 1.06, 2);
     const wire = new THREE.WireframeGeometry(geo);
     this.shell = new THREE.LineSegments(wire, new THREE.LineBasicMaterial({
-      color: 0x2a3f66, transparent: true, opacity: 0.13, depthWrite: false,
+      color: 0x5c3a22, transparent: true, opacity: 0.16, depthWrite: false,
     }));
     this.root.add(this.shell);
 
@@ -122,7 +122,7 @@ export class Topology {
     const nose = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, R * 1.02, 0.6), new THREE.Vector3(0, R * 1.22, 0), new THREE.Vector3(0, R * 1.02, -0.6),
     ]);
-    this.root.add(new THREE.Line(nose, new THREE.LineBasicMaterial({ color: 0x4a6da8, transparent: true, opacity: 0.4 })));
+    this.root.add(new THREE.Line(nose, new THREE.LineBasicMaterial({ color: 0x9a6438, transparent: true, opacity: 0.45 })));
   }
 
   _nodePos(i) {

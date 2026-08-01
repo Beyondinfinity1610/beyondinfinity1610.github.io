@@ -37,6 +37,27 @@ js/
 vendor/                three.js + fonts
 ```
 
+## The numbers on this site
+
+`js/data/ablations.js` is the single source of truth for every research figure
+shown. It tracks the `seizeit2-work` repo, and it includes results that were
+**superseded** — the early balanced-split numbers are still plotted, struck
+through, because the correction is part of the argument.
+
+**Never quote a figure here that has not survived the continuous-stream,
+patient-level evaluation.** The site previously led with 53% event-F1 and 91%
+precision; both were artifacts of a balanced split and a time-shuffled
+evaluation. If a number changes upstream, change it here and add a line to the
+correction callout in `index.html` rather than silently editing it.
+
+## Palette
+
+"Molten" — warm graphite base, amber primary, one cold counterpoint. Signal
+energy maps to temperature everywhere it appears: deep ember at rest, amber
+working, ignition yellow into white at a discharge, ice blue for structure and
+for the physiological channels. Frequency bands run cold to hot with frequency.
+Keep that mapping if you add anything — it is doing real work, not decoration.
+
 ## Notes for future edits
 
 - **Entrance animations do not use IntersectionObserver.** IO callbacks are

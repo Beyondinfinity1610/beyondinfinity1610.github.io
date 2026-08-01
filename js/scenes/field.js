@@ -139,24 +139,29 @@ void main() {
   gl_Position = projectionMatrix * mv;
 
   // ---------------- colour -------------------------------------------------
-  // deep blue at rest -> cyan with activity -> white/violet at discharge
-  vec3 cCalm  = vec3(0.100, 0.320, 0.680);
-  vec3 cLive  = vec3(0.180, 0.780, 1.000);
-  vec3 cFire  = vec3(1.000, 0.930, 0.860);
-  vec3 cViolet= vec3(0.560, 0.420, 1.000);
+  // A real black-body ramp: signal energy is temperature. Dark ember at rest,
+  // amber as the trace works, ignition yellow into white at the discharge.
+  vec3 cEmber = vec3(0.290, 0.070, 0.015);
+  vec3 cAmber = vec3(1.000, 0.420, 0.070);
+  vec3 cIgnite= vec3(1.000, 0.790, 0.320);
+  vec3 cWhite = vec3(1.000, 0.960, 0.900);
+  vec3 cIce   = vec3(0.330, 0.760, 1.000);
 
   float act = clamp(energy * 0.9, 0.0, 1.0);
-  vec3 col = mix(cCalm, cLive, smoothstep(0.05, 0.55, act));
-  col = mix(col, cFire, smoothstep(0.55, 1.15, act + env * 0.7));
-  col = mix(col, cViolet, p2 * 0.45 * (0.4 + aRand.y * 0.6));
-  col = mix(col, mix(cCalm, cLive, 0.55), p1 * 0.35);
+  vec3 col = mix(cEmber, cAmber, smoothstep(0.02, 0.42, act));
+  col = mix(col, cIgnite, smoothstep(0.38, 0.80, act));
+  col = mix(col, cWhite, smoothstep(0.62, 1.20, act + env * 0.8));
+
+  // the shell reads cooler — it is structure, not activity
+  col = mix(col, mix(col, cIce, 0.42), p1 * 0.62);
+  col = mix(col, cIce, p2 * 0.30 * (0.3 + aRand.y * 0.7));
 
   float ptr = (ring + near) * uPointerAmt;
-  col += vec3(0.20, 0.55, 0.85) * ptr * 1.4;
+  col += cIce * ptr * 1.5;
 
   // dust stays dim and cool once the montage exists; it rejoins the shell later
   float dustNow = isDust * (1.0 - p1);
-  col = mix(col, cCalm * 1.15, dustNow);
+  col = mix(col, vec3(0.44, 0.16, 0.05), dustNow);
 
   // dissolve toward the edges of the montage so the field has no visible box
   float edge = (1.0 - smoothstep(17.0, 33.0, abs(pos.x)))
@@ -220,7 +225,7 @@ const ARC_FRAG = /* glsl */ `
 varying float vFade;
 void main() {
   if (vFade <= 0.002) discard;
-  gl_FragColor = vec4(vec3(0.28, 0.72, 1.0) * vFade, 1.0);
+  gl_FragColor = vec4(vec3(0.42, 0.80, 1.0) * vFade, 1.0);
 }`;
 
 /* ------------------------------------------------------------------------ */
@@ -237,7 +242,7 @@ export class NeuralField {
       alpha: false,
       powerPreference: 'high-performance',
     });
-    this.renderer.setClearColor(0x04050a, 1);
+    this.renderer.setClearColor(0x0b0a09, 1);
 
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(46, 1, 0.1, 260);

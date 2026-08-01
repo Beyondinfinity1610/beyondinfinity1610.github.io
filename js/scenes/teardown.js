@@ -56,15 +56,15 @@ void main() {
   float edge = 1.0 - smoothstep(0.0, 0.012, min(b.x, b.y));
   float inner = 1.0 - smoothstep(0.03, 0.038, min(b.x, b.y));
 
-  float base = 0.10 + uActive * 0.30;
-  float lum = g * (0.5 + uActive) + scan * (0.20 + uActive * 0.75) + scan2 * 0.16 * uActive;
-  lum += edge * (0.55 + uActive * 1.5);
-  lum += inner * (0.10 + uActive * 0.35);
-  lum += fres * (0.20 + uActive * 0.55);
+  float base = 0.07 + uActive * 0.18;
+  float lum = g * (0.34 + uActive * 0.62) + scan * (0.13 + uActive * 0.46) + scan2 * 0.10 * uActive;
+  lum += edge * (0.40 + uActive * 0.85);
+  lum += inner * (0.07 + uActive * 0.20);
+  lum += fres * (0.14 + uActive * 0.34);
 
   vec3 col = uColor * (base + lum);
-  float alpha = clamp(0.055 + lum * 0.9 + uActive * 0.10, 0.0, 1.0) * uAssembled;
-  gl_FragColor = vec4(col * (0.55 + uActive * 0.9), alpha);
+  float alpha = clamp(0.045 + lum * 0.75 + uActive * 0.08, 0.0, 1.0) * uAssembled;
+  gl_FragColor = vec4(col * (0.42 + uActive * 0.52), alpha);
 }`;
 
 const FLOW_VERT = /* glsl */ `
@@ -89,28 +89,34 @@ const FLOW_FRAG = /* glsl */ `
 varying float vI;
 varying float vStage;
 void main() {
-  vec3 cool = vec3(0.20, 0.66, 1.00);
-  vec3 warm = vec3(0.66, 0.50, 1.00);
+  vec3 cool = vec3(0.35, 0.78, 1.00);
+  vec3 warm = vec3(1.00, 0.52, 0.12);
   vec3 c = mix(cool, warm, vStage);
   gl_FragColor = vec4(c * vI, 1.0);
 }`;
 
 /* ------------------------------------------------------------------ */
 
-const CY = new THREE.Color('#4ddbff');
-const VI = new THREE.Color('#9d7bff');
-const AM = new THREE.Color('#ffc46b');
-const GR = new THREE.Color('#5ce8b0');
+const CY = new THREE.Color('#ff7a18');   // EEG — the primary path
+const VI = new THREE.Color('#ff9a3c');   // gate & fusion — mid amber
+const AM = new THREE.Color('#6fd3ff');   // physiological — the cold channels
+const GR = new THREE.Color('#3dd9b0');   // outputs
 
-/** [id, title, subtitle, x, y, z, w, h, color, step-it-belongs-to] */
+/**
+ * [id, title, subtitle, x, y, z, w, h, color, narrative-step]
+ *
+ * The step index maps each module to the moment in the story it belongs to:
+ * 1 what I built · 3 what the diagnosis found broken · 4 what the rebuild kept.
+ * Step 2 is the plateau, where deliberately nothing lights up.
+ */
 const MODULES = [
-  ['eeg_lf', 'EEG · LF',  'ChronoNet  0.5–15 Hz',  -6.4,  3.2, -13, 4.4, 2.5, CY, 1],
-  ['eeg_hf', 'EEG · HF',  'TKEO + autocorr  20–40 Hz', -6.4, 0.2, -13, 4.4, 2.5, CY, 1],
-  ['emg',    'EMG',       'Deltoid  E + rhythmicity',  -6.4, -2.8, -13, 4.4, 2.5, GR, 1],
-  ['ecg',    'ECG',       'Takens masked autoencoder',  0.0,  3.2, -13, 4.4, 2.5, AM, 1],
+  ['eeg_lf', 'EEG · LF',  'ChronoNet  0.5–15 Hz',      -6.4,  3.2, -13, 4.4, 2.5, CY, 1],
+  ['eeg_hf', 'EEG · HF',  'TKEO + autocorr  20–40 Hz', -6.4,  0.2, -13, 4.4, 2.5, CY, 1],
+  ['emg',    'EMG',       'Deltoid  E + rhythmicity',  -6.4, -2.8, -13, 4.4, 2.5, AM, 1],
+  ['ecg',    'ECG',       'heart rate — the real signal', 0.0, 3.2, -13, 4.4, 2.5, AM, 1],
   ['acc',    'ACC',       'ROCKET  3-axis  frozen',     0.0, -2.8, -13, 4.4, 2.5, AM, 1],
-  ['gate',   'DynMM Gate','scalar trust  g ∈ [0,1]',    0.0,  0.2,  -4, 5.6, 3.4, VI, 2],
-  ['mult',   'Deep MulT', 'directional cross-attention',0.0,  0.2,   4, 7.6, 4.6, VI, 3],
+  ['gate',   'DynMM Gate','collapsed to a constant',    0.0,  0.2,  -4, 5.6, 3.4, VI, 3],
+  ['mult',   'Deep MulT', 'residual weights = 0',       0.0,  0.2,   4, 7.6, 4.6, VI, 4],
   ['h1',     'Head L1',   'seizure / background',       2.6,  1.6,  12, 3.9, 2.2, GR, 4],
   ['h2',     'Head L2',   'FBTC  motor generalisation', -2.6, -1.4, 12, 3.9, 2.2, GR, 4],
 ];
@@ -128,12 +134,12 @@ const LINKS = [
  * assembly legible — this is a teardown, not a flythrough.
  */
 const SHOTS = [
-  { pos: [25, 10, 27],    look: [-1, 0, -2] },  // 0 · three-quarter, depth reads
-  { pos: [-21, 7, 20],    look: [-3, 1, -7] },  // 1 · over the tokenizer bank
-  { pos: [15, 5.5, 19],   look: [0, 0.5, -3] }, // 2 · angled onto the gate
-  { pos: [-17, 3, 24],    look: [0, 0, 2] },    // 3 · fusion, from the left
-  { pos: [13, -5.5, 26],  look: [0, -1, 7] },   // 4 · the heads, from below
-  { pos: [30, 12, 34],    look: [-1, 0, 0] },   // 5 · pull back, curriculum
+  { pos: [25, 10, 27],   look: [-1, 0, -2] },  // 0 · the setting — three-quarter overview
+  { pos: [-21, 7, 20],   look: [-3, 1, -7] },  // 1 · what I built — the tokenizer bank
+  { pos: [5, 3, 46],     look: [0, 0, -1] },   // 2 · the plateau — far back, nothing lit
+  { pos: [16, 6, 20],    look: [0, 0.5, -3] }, // 3 · the diagnosis — in on the dead gate
+  { pos: [-17, 2, 26],   look: [0, 0, 4] },    // 4 · the rebuild — fusion into the heads
+  { pos: [28, 11, 33],   look: [-1, 0, 0] },   // 5 · the fair test — pull back
 ];
 
 export class Teardown {
@@ -299,7 +305,7 @@ export class Teardown {
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(p, 3));
     this.stars = new THREE.Points(g, new THREE.PointsMaterial({
-      size: 0.9, color: 0x2b4a7a, transparent: true, opacity: 0.55,
+      size: 0.9, color: 0x6b3a1c, transparent: true, opacity: 0.6,
       blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
     }));
     this.scene.add(this.stars);
@@ -317,12 +323,12 @@ export class Teardown {
     // On wide screens the narration occupies the left half, so shift the
     // rendered frustum to park the model clear of it.
     if (this.narrow) this.camera.clearViewOffset();
-    else this.camera.setViewOffset(w, h, -w * 0.19, 0, w, h);
+    else this.camera.setViewOffset(w, h, -w * 0.25, 0, w, h);
     this.camera.updateProjectionMatrix();
     if (this.useBloom) {
       const bw = Math.floor(w * this.dpr), bh = Math.floor(h * this.dpr);
       if (this.bloom) this.bloom.setSize(bw, bh);
-      else this.bloom = new BloomChain(this.renderer, bw, bh, { threshold: 0.26, knee: 0.3, strength: 1.15, levels: 3, vignette: 0.4 });
+      else this.bloom = new BloomChain(this.renderer, bw, bh, { threshold: 0.46, knee: 0.28, strength: 0.62, levels: 3, vignette: 0.45 });
     }
   }
 

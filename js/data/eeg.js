@@ -36,12 +36,14 @@ export const ELECTRODES = RAW.map(([name, r, aDeg], i) => {
   };
 });
 
+/* Bands run cold to hot with frequency — the same temperature logic the whole
+   site uses for signal energy. */
 export const BANDS = [
-  { key: 'delta', label: 'Delta', hz: '0.5–4 Hz',  color: '#3d6bff', note: 'Slow-wave dominance. Elevated frontal delta is the oldest ADHD marker in the literature — and the least reliable one alone.' },
-  { key: 'theta', label: 'Theta', hz: '4–8 Hz',    color: '#4ddbff', note: 'The theta/beta ratio is the classic clinical index. It is also the one that fails hardest across sites.' },
-  { key: 'alpha', label: 'Alpha', hz: '8–13 Hz',   color: '#5ce8b0', note: 'Posterior alpha reflects the resting default mode. Its suppression pattern separates attentional states.' },
-  { key: 'beta',  label: 'Beta',  hz: '13–30 Hz',  color: '#ffc46b', note: 'Active cognitive engagement. Long-range beta edges carry real discriminative weight in the trained model.' },
-  { key: 'gamma', label: 'Gamma', hz: '30–45 Hz',  color: '#ff6f85', note: 'Cognitive binding. Integrated-gradient attribution puts the heaviest weight here — on long-range frontal-posterior gamma coupling.' },
+  { key: 'delta', label: 'Delta', hz: '0.5–4 Hz',  color: '#4a90d9', note: 'Slow-wave dominance. Elevated frontal delta is the oldest ADHD marker in the literature — and the least reliable one on its own.' },
+  { key: 'theta', label: 'Theta', hz: '4–8 Hz',    color: '#6fd3ff', note: 'The theta/beta ratio is the classic clinical index. It is also the one that fails hardest across recording sites.' },
+  { key: 'alpha', label: 'Alpha', hz: '8–13 Hz',   color: '#3dd9b0', note: 'Posterior alpha reflects the resting default mode. Its suppression pattern separates attentional states.' },
+  { key: 'beta',  label: 'Beta',  hz: '13–30 Hz',  color: '#ffc44d', note: 'Active cognitive engagement. Long-range beta edges carry real discriminative weight in the trained model.' },
+  { key: 'gamma', label: 'Gamma', hz: '30–45 Hz',  color: '#ff7a18', note: 'Cognitive binding. Integrated-gradient attribution puts the heaviest weight here — on long-range frontal-posterior gamma coupling.' },
 ];
 
 /**

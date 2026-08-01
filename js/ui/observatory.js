@@ -1,30 +1,21 @@
-import { ABLATIONS, CAMPAIGNS, STATUS_STYLE } from '../data/ablations.js';
+import { ABLATIONS, CAMPAIGNS, STATUS_STYLE, BASELINES } from '../data/ablations.js';
 
 /**
  * The Ablation Observatory.
  *
- * Thirty-three experiments, plotted in the three registers of evidence they
- * actually belong to — because collapsing them onto one axis would be a lie:
- *
- *   CLINICAL   event-level F1 under Any-Overlap scoring. What a neurologist reads.
- *   WINDOW     per-window false alarms against the baseline. What training optimises.
- *   VERIFY     deployment and statistics work that produces no F1 at all.
+ * Four registers, because flattening them onto one axis is the exact mistake
+ * this project is about. The middle lane is deliberately labelled as the metric
+ * that misled me — the superseded results stay on the chart.
  */
 
 const LANES = [
-  { key: 'clinical', label: 'Clinical · event-level F1', y0: 0.06, y1: 0.30 },
-  { key: 'window',   label: 'Window-level false alarms', y0: 0.34, y1: 0.80 },
-  { key: 'verify',   label: 'Deployment & verification', y0: 0.84, y1: 0.965 },
+  { key: 'auroc',  label: 'Official split · continuous AUROC · the fair test', y0: 0.055, y1: 0.30, lo: 0.695, hi: 0.795 },
+  { key: 'event',  label: 'Held-out continuous · event-level F1',              y0: 0.355, y1: 0.53, lo: 0.13,  hi: 0.35 },
+  { key: 'window', label: 'Balanced-split window F1 · the metric that misled me', y0: 0.585, y1: 0.775, lo: 0.15, hi: 0.245, muted: true },
+  { key: 'verify', label: 'Diagnosis & verification · no score, most value',    y0: 0.83,  y1: 0.955 },
 ];
 
-const BASELINE_FP = 468;
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
-
-function laneOf(a) {
-  if (a.level === 'event') return 'clinical';
-  if (a.fp === null || a.fp === undefined) return 'verify';
-  return 'window';
-}
 
 export class Observatory {
   constructor({ canvas, detail, legend, storyBtn }) {
@@ -43,28 +34,19 @@ export class Observatory {
     this.mouse = { x: -1e4, y: -1e4 };
 
     this.items = ABLATIONS.map((a, i) => ({
-      a,
-      lane: laneOf(a),
-      order: i,
-      x: 0, y: 0, r: 0,
-      appear: 0,
-      pulse: Math.random(),
+      a, lane: a.lane, order: i, x: 0, y: 0, r: 0, appear: 0,
+      pulse: (i * 0.37) % 1,
     }));
 
-    this._layoutOrder();
+    const byLane = {};
+    this.items.forEach((it) => (byLane[it.lane] ||= []).push(it));
+    Object.values(byLane).forEach((list) => list.forEach((it, i) => { it.slot = i; it.slots = list.length; }));
+
     this._buildLegend();
     this._bind();
     this._show(null);
     this.resize();
     this.render(0);
-  }
-
-  _layoutOrder() {
-    // within each lane, keep campaign order — the chart reads left to right as
-    // the campaign actually unfolded
-    const byLane = {};
-    this.items.forEach((it) => (byLane[it.lane] ||= []).push(it));
-    Object.values(byLane).forEach((list) => list.forEach((it, i) => { it.slot = i; it.slots = list.length; }));
   }
 
   _buildLegend() {
@@ -75,19 +57,13 @@ export class Observatory {
       b.className = 'ab-key';
       b.type = 'button';
       b.innerHTML = `<i style="background:${c.color}"></i>${c.label}`;
+      b.title = c.blurb;
       b.addEventListener('click', () => {
         if (this.hidden.has(c.key)) this.hidden.delete(c.key); else this.hidden.add(c.key);
         b.classList.toggle('off', this.hidden.has(c.key));
       });
       this.legend.appendChild(b);
     });
-
-    const f = document.createElement('button');
-    f.className = 'ab-key';
-    f.type = 'button';
-    f.innerHTML = `<i style="background:${STATUS_STYLE.failed.color}"></i>Failed`;
-    f.title = 'Experiments that made things worse. Roughly a third of the campaign.';
-    this.legend.appendChild(f);
   }
 
   _bind() {
@@ -106,16 +82,13 @@ export class Observatory {
     c.addEventListener('click', () => {
       this.pinned = this.hover;
       this._show(this.pinned);
-      this.story = null;
+      clearInterval(this._storyTimer);
     });
-
-    if (this.storyBtn) {
-      this.storyBtn.addEventListener('click', () => this._runStory());
-    }
+    if (this.storyBtn) this.storyBtn.addEventListener('click', () => this._runStory());
   }
 
   _pick() {
-    let best = null, bd = 26 * 26;
+    let best = null, bd = 28 * 28;
     for (const it of this.items) {
       if (this.hidden.has(it.a.c)) continue;
       const dx = this.mouse.x - it.x, dy = this.mouse.y - it.y;
@@ -130,56 +103,55 @@ export class Observatory {
   }
 
   _runStory() {
-    const path = ['B0_control', 'B6_eeg_only', 'B2_no_gate', 'B12_phase3_warm_restart', 'C6_se_gate', 'C3_tcn_encoder', 'C5_deep_mult', 'C13_high_aug_tcn', 'D1_winner_ensemble'];
+    const path = [
+      'C5_deep_mult', 'E3_time_ordered_eval', 'E2_inert_fusion', 'E1_window_bottleneck',
+      'E4_hr_biomarker', 'F0_evidence_model', 'F1_official_split', 'F6_handcrafted', 'E6_human_ceiling',
+    ];
     let k = 0;
     clearInterval(this._storyTimer);
     const step = () => {
       const it = this.items.find((i) => i.a.id === path[k]);
-      if (it) { this.pinned = it; this._show(it); it.appear = 1; it.flash = 1; }
-      k++;
-      if (k >= path.length) clearInterval(this._storyTimer);
+      if (it) { this.pinned = it; this._show(it); it.flash = 1; }
+      if (++k >= path.length) clearInterval(this._storyTimer);
     };
     step();
-    this._storyTimer = setInterval(step, 2600);
+    this._storyTimer = setInterval(step, 3200);
   }
 
   _show(it) {
     if (!this.detail) return;
     if (!it) {
       this.detail.innerHTML = `
-        <span class="ab-id">33 experiments</span>
-        <h4>Most of research is the graveyard.</h4>
-        <div class="ab-field"><dd>Every point is one full training run of a four-modality network. Roughly a third of them made the model measurably worse — and those are the ones that determined the final architecture, because a component you cannot break is a component you have not tested.</dd></div>
-        <div class="ab-field"><dt>Read the chart</dt><dd>Top lane is clinical event-level F1, the number a neurologist would actually read. Middle lane is per-window false alarms against the baseline of ${BASELINE_FP} — lower is higher. Bottom lane is deployment work that produces no F1 at all.</dd></div>
-        <p class="ab-hint">Hover any point. Click to pin it. Or press <b>Walk the campaign</b> to follow the path that led to the final model.</p>`;
+        <span class="ab-id">${ABLATIONS.length} experiments · 5 campaigns</span>
+        <h4>I spent months optimising a number that turned out to be meaningless.</h4>
+        <div class="ab-field"><dd>Every point is a real run. The middle lane is the metric I trusted for most of a year — a balanced validation set that flattered the model. The top lane is the honest one: the official published split, scored on the full continuous recording. The gap between those two lanes is the whole story.</dd></div>
+        <div class="ab-field"><dt>Read the chart</dt><dd>Top: continuous AUROC against the published SVM and ChronoNet baselines. Second: event-level F1 on held-out patients. Third: the superseded window metric, kept on the chart on purpose. Bottom: findings that produce no score at all — which is where the real work is.</dd></div>
+        <p class="ab-hint">Hover any point. Click to pin. Or press <b>Walk the campaign</b> to follow it in the order it actually happened.</p>`;
       return;
     }
 
     const a = it.a;
     const st = STATUS_STYLE[a.status];
     const camp = CAMPAIGNS[a.c];
-    const metrics = [];
-    if (a.level === 'event') {
-      if (a.f1 != null && !a.pending) metrics.push(['Event F1', (a.f1 * 100).toFixed(2) + '%']);
-      if (a.prec != null) metrics.push(['Precision', (a.prec * 100).toFixed(2) + '%']);
-      if (a.fp != null && a.prec !== 0.9118) metrics.push(['False pos.', a.fp]);
-      if (a.far != null) metrics.push(['FP / 24h', a.far]);
-      if (a.brier != null) metrics.push(['Brier', a.brier]);
-    } else {
-      if (a.f1 != null) metrics.push(['Window F1', a.f1.toFixed(4)]);
-      if (a.fp != null) metrics.push(['False pos.', a.fp]);
-      if (a.sens != null) metrics.push(['Sensitivity', (a.sens * 100).toFixed(1) + '%']);
-    }
+    const m = [];
+    if (a.auroc != null) m.push(['AUROC', a.auroc.toFixed(3) + (a.best ? ` (best ${a.best.toFixed(3)})` : '')]);
+    if (a.f1 != null && a.lane === 'event') m.push(['Event F1', a.f1.toFixed(3)]);
+    if (a.lopo != null) m.push(['LOPO F1', a.lopo.toFixed(3)]);
+    if (a.recall != null) m.push(['Recall', Math.round(a.recall * 100) + '%']);
+    if (a.prec != null) m.push(['Precision', Math.round(a.prec * 100) + '%']);
+    if (a.farh != null) m.push(['FA / hour', a.farh]);
+    if (a.farday != null) m.push(['FA / day', a.farday]);
+    if (a.f1 != null && a.lane === 'window') m.push(['Window F1', a.f1.toFixed(4)]);
+    if (a.fp != null && a.lane === 'window') m.push(['False pos.', a.fp]);
 
     this.detail.innerHTML = `
       <span class="ab-id">${a.id}</span>
       <h4>${a.name}</h4>
       <span class="ab-badge" style="color:${st.color}">${st.label} · ${camp.label.split(' · ')[1]}</span>
-      <dl class="ab-field"><dt>Hypothesis</dt><dd>${a.aim}</dd></dl>
-      <dl class="ab-field"><dt>What was done</dt><dd>${a.did}</dd></dl>
+      <dl class="ab-field"><dt>Why</dt><dd>${a.aim}</dd></dl>
+      <dl class="ab-field"><dt>What I did</dt><dd>${a.did}</dd></dl>
       <dl class="ab-field"><dt>What it taught</dt><dd>${a.took}</dd></dl>
-      ${metrics.length ? `<div class="ab-metrics">${metrics.map(([k, v]) => `<span class="ab-metric"><small>${k}</small> ${v}</span>`).join('')}</div>` : ''}
-      ${a.pending ? '<p class="ab-hint">Full continuous-dataset evaluation in progress.</p>' : ''}`;
+      ${m.length ? `<div class="ab-metrics">${m.map(([k, v]) => `<span class="ab-metric"><small>${k}</small> ${v}</span>`).join('')}</div>` : ''}`;
   }
 
   start() {
@@ -198,175 +170,156 @@ export class Observatory {
     this._positions();
   }
 
+  _laneY(lane, v) {
+    const yTop = this.H * lane.y0, yBot = this.H * lane.y1;
+    const n = clamp01((v - lane.lo) / (lane.hi - lane.lo));
+    return yBot - n * (yBot - yTop);
+  }
+
   _positions() {
-    const padL = 78, padR = 34;
-    const W = this.W, H = this.H;
+    const padL = 62, padR = 140;   // right gutter reserved for the baseline labels
+    const W = this.W;
 
     LANES.forEach((lane) => {
       const list = this.items.filter((i) => i.lane === lane.key);
-      const yTop = H * lane.y0, yBot = H * lane.y1;
+      const yTop = this.H * lane.y0, yBot = this.H * lane.y1;
 
       list.forEach((it, i) => {
         const a = it.a;
         const fx = list.length === 1 ? 0.5 : i / (list.length - 1);
         it.x = padL + fx * (W - padL - padR);
 
-        if (lane.key === 'clinical') {
-          // 0.44 .. 0.55 event F1 mapped across the lane
-          const v = a.prec === 0.9118 ? 0.55 : (a.f1 ?? 0.47);
-          const n = (v - 0.44) / (0.56 - 0.44);
-          it.y = yBot - Math.max(0, Math.min(1, n)) * (yBot - yTop);
-          it.r = 9 + (a.status === 'champion' ? 4 : 0);
+        if (lane.key === 'auroc') {
+          // experiments that produced no measurable gain sit on the lane floor
+          it.y = a.auroc != null ? this._laneY(lane, a.auroc) : yBot + 6;
+          it.noValue = a.auroc == null;
+          it.r = a.auroc != null ? 8 : 5.5;
+        } else if (lane.key === 'event') {
+          it.y = this._laneY(lane, a.f1 ?? 0.15);
+          it.r = 7 + (a.f1 ?? 0) * 16;
         } else if (lane.key === 'window') {
-          // false alarms, inverted so "better" is up. C6 collapsed — park it at the floor.
-          const fp = a.f1 === 0 ? 1000 : a.fp;
-          const n = (Math.log(fp) - Math.log(400)) / (Math.log(1000) - Math.log(400));
-          it.y = yTop + Math.max(0, Math.min(1, n)) * (yBot - yTop);
-          it.r = 5 + (a.f1 ?? 0) * 22;
+          it.y = this._laneY(lane, a.f1 ?? 0.16);
+          it.r = 4.5 + (a.f1 ?? 0) * 14;
         } else {
-          it.y = (yTop + yBot) / 2 + (i % 2 ? -9 : 9);
+          it.y = (yTop + yBot) / 2 + (i % 2 ? -10 : 10);
           it.r = 6.5;
         }
       });
     });
 
-    // baseline reference line position
-    const wl = LANES[1];
-    const n = (Math.log(BASELINE_FP) - Math.log(400)) / (Math.log(1000) - Math.log(400));
-    this.baselineY = H * wl.y0 + n * (H * wl.y1 - H * wl.y0);
+    this.baseY = BASELINES.map((b) => ({ ...b, y: this._laneY(LANES[0], b.auroc) }));
   }
 
   render(dt) {
     const g = this.ctx, W = this.W, H = this.H;
     this.time += dt;
-    // wall-clock, not accumulated dt: a throttled tab must not strand the
-    // entrance animation half-drawn
-    if (this.started) this.reveal = Math.min(1, (performance.now() - this.t0) / 1400);
+    if (this.started) this.reveal = Math.min(1, (performance.now() - this.t0) / 1500);
 
     g.clearRect(0, 0, W, H);
-
-    // --- lane chrome -------------------------------------------------------
-    g.save();
     g.font = '400 9.5px "JetBrains Mono", monospace';
     g.textBaseline = 'top';
-    LANES.forEach((lane, li) => {
+
+    // --- lane chrome -------------------------------------------------------
+    LANES.forEach((lane) => {
       const yTop = H * lane.y0, yBot = H * lane.y1;
-      g.fillStyle = li === 1 ? 'rgba(160,190,255,0.028)' : 'rgba(160,190,255,0.014)';
-      g.fillRect(0, yTop - 14, W, yBot - yTop + 22);
+      g.fillStyle = lane.muted ? 'rgba(154,143,132,0.035)' : 'rgba(255,170,100,0.028)';
+      g.fillRect(0, yTop - 15, W, yBot - yTop + 24);
 
-      g.strokeStyle = 'rgba(160,190,255,0.10)';
+      g.strokeStyle = 'rgba(255,170,100,0.12)';
       g.lineWidth = 1;
-      g.beginPath(); g.moveTo(0, yTop - 14.5); g.lineTo(W, yTop - 14.5); g.stroke();
+      g.beginPath(); g.moveTo(0, yTop - 15.5); g.lineTo(W, yTop - 15.5); g.stroke();
 
-      g.fillStyle = 'rgba(107,116,140,0.9)';
+      g.fillStyle = lane.muted ? 'rgba(154,143,132,0.85)' : 'rgba(185,175,163,0.9)';
       g.letterSpacing = '1.6px';
-      g.fillText(lane.label.toUpperCase(), 14, yTop - 9);
+      g.fillText(lane.label.toUpperCase(), 12, yTop - 10);
     });
 
-    // baseline marker
-    g.setLineDash([3, 5]);
-    g.strokeStyle = 'rgba(255,196,107,0.34)';
-    g.beginPath(); g.moveTo(0, this.baselineY); g.lineTo(W, this.baselineY); g.stroke();
-    g.setLineDash([]);
-    g.fillStyle = 'rgba(255,196,107,0.75)';
-    g.fillText(`BASELINE  ${BASELINE_FP} FP`, W - 128, this.baselineY - 13);
-    g.restore();
+    // --- published baselines, drawn as the bar to clear ---------------------
+    this.baseY.forEach((b) => {
+      g.save();
+      g.setLineDash([3, 5]);
+      g.strokeStyle = b.auroc > 0.75 ? 'rgba(255,59,92,0.42)' : 'rgba(255,196,77,0.38)';
+      g.beginPath(); g.moveTo(0, b.y); g.lineTo(W - 134, b.y); g.stroke();
+      g.setLineDash([]);
+      g.fillStyle = b.auroc > 0.75 ? 'rgba(255,59,92,0.9)' : 'rgba(255,196,77,0.85)';
+      g.textAlign = 'left';
+      g.fillText(`${b.name.split(' ')[0].toUpperCase()}  ${b.auroc.toFixed(3)}`, W - 128, b.y - 5);
+      g.restore();
+    });
 
     const visible = this.items.filter((it) => !this.hidden.has(it.a.c));
-
-    // --- the discovery path ------------------------------------------------
-    const path = ['B0_control', 'B11_pre_cached', 'B12_phase3_warm_restart', 'C3_tcn_encoder', 'C5_deep_mult', 'C13_high_aug_tcn', 'C14_unified_hybrid', 'D1_winner_ensemble']
-      .map((id) => this.items.find((i) => i.a.id === id))
-      .filter((i) => i && !this.hidden.has(i.a.c));
-
-    if (path.length > 1) {
-      g.save();
-      const grad = g.createLinearGradient(0, 0, W, 0);
-      grad.addColorStop(0, 'rgba(77,219,255,0.10)');
-      grad.addColorStop(0.6, 'rgba(157,123,255,0.24)');
-      grad.addColorStop(1, 'rgba(92,232,176,0.34)');
-      g.strokeStyle = grad;
-      g.lineWidth = 1.2;
-      g.setLineDash([2, 6]);
-      g.lineDashOffset = -this.time * 22;
-      g.beginPath();
-      path.forEach((it, i) => (i ? g.lineTo(it.x, it.y) : g.moveTo(it.x, it.y)));
-      g.stroke();
-      g.restore();
-    }
-
-    // --- points ------------------------------------------------------------
     const active = this.hover || this.pinned;
 
     visible.forEach((it) => {
       const a = it.a;
-      const stagger = (it.slot / Math.max(1, it.slots)) * 0.65;
-      const local = clamp01((this.reveal - stagger) / 0.3);
+      const stagger = (it.slot / Math.max(1, it.slots)) * 0.6;
+      const local = clamp01((this.reveal - stagger) / 0.35);
       it.appear = local * local * (3 - 2 * local);
-      if (it.flash) it.flash = Math.max(0, it.flash - dt * 0.8);
+      if (it.flash) it.flash = Math.max(0, it.flash - dt * 0.7);
 
       const camp = CAMPAIGNS[a.c];
       const st = STATUS_STYLE[a.status];
       const isActive = active === it;
-      const dim = active && !isActive ? 0.34 : 1;
+      const laneMuted = LANES.find((l) => l.key === it.lane)?.muted;
+      const dim = (active && !isActive ? 0.3 : 1) * (laneMuted && !isActive ? 0.65 : 1);
 
-      const bob = Math.sin(this.time * 0.9 + it.pulse * 6.28) * 1.6;
+      const bob = Math.sin(this.time * 0.9 + it.pulse * 6.28) * 1.5;
       const x = it.x, y = it.y + bob;
       const r = it.r * it.appear * (isActive ? 1.35 : 1);
-
       if (r < 0.3) return;
 
-      // glow
-      const glow = g.createRadialGradient(x, y, 0, x, y, r * (isActive ? 6 : 3.6));
       const gc = a.status === 'champion' ? st.color : camp.color;
-      glow.addColorStop(0, this._rgba(gc, 0.5 * dim * (isActive ? 1 : 0.55) + (it.flash || 0) * 0.5));
+
+      const glow = g.createRadialGradient(x, y, 0, x, y, r * (isActive ? 6 : 3.6));
+      glow.addColorStop(0, this._rgba(gc, 0.5 * dim * (isActive ? 1 : 0.5) + (it.flash || 0) * 0.5));
       glow.addColorStop(1, this._rgba(gc, 0));
       g.fillStyle = glow;
       g.beginPath(); g.arc(x, y, r * (isActive ? 6 : 3.6), 0, 6.2832); g.fill();
 
-      // failures render as a hollow ring — visible, but not celebrated
       if (a.status === 'failed') {
         g.strokeStyle = this._rgba(STATUS_STYLE.failed.color, 0.9 * dim);
         g.lineWidth = 1.6;
         g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.stroke();
-        g.strokeStyle = this._rgba(STATUS_STYLE.failed.color, 0.45 * dim);
         g.beginPath();
-        g.moveTo(x - r * 0.55, y - r * 0.55); g.lineTo(x + r * 0.55, y + r * 0.55);
-        g.moveTo(x + r * 0.55, y - r * 0.55); g.lineTo(x - r * 0.55, y + r * 0.55);
+        g.moveTo(x - r * 0.5, y - r * 0.5); g.lineTo(x + r * 0.5, y + r * 0.5);
+        g.moveTo(x + r * 0.5, y - r * 0.5); g.lineTo(x - r * 0.5, y + r * 0.5);
+        g.strokeStyle = this._rgba(STATUS_STYLE.failed.color, 0.5 * dim);
         g.stroke();
-      } else {
-        g.fillStyle = this._rgba(camp.color, (a.status === 'champion' ? 1 : 0.72) * dim);
+      } else if (a.status === 'superseded') {
+        // struck through — the number was real, the meaning was not
+        g.fillStyle = this._rgba(STATUS_STYLE.superseded.color, 0.4 * dim);
         g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill();
-
+        g.strokeStyle = this._rgba(STATUS_STYLE.superseded.color, 0.95 * dim);
+        g.lineWidth = 1.4;
+        g.beginPath(); g.moveTo(x - r - 3, y + r + 3); g.lineTo(x + r + 3, y - r - 3); g.stroke();
+      } else {
+        g.fillStyle = this._rgba(camp.color, (a.status === 'champion' ? 1 : 0.7) * dim);
+        g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill();
         if (a.status === 'champion') {
           g.strokeStyle = this._rgba(STATUS_STYLE.champion.color, 0.95 * dim);
           g.lineWidth = 1.4;
-          g.beginPath(); g.arc(x, y, r + 5 + Math.sin(this.time * 2 + it.pulse * 6) * 1.2, 0, 6.2832); g.stroke();
+          g.beginPath(); g.arc(x, y, r + 5 + Math.sin(this.time * 2 + it.pulse * 6) * 1.1, 0, 6.2832); g.stroke();
         }
       }
 
-      // label the champions permanently; everything else on hover
-      if (a.status === 'champion' || isActive) {
+      if (a.status === 'champion' || a.status === 'superseded' || isActive) {
         g.save();
         g.font = '400 9.5px "JetBrains Mono", monospace';
         g.letterSpacing = '0.6px';
-        g.fillStyle = this._rgba(isActive ? '#ffffff' : gc, (isActive ? 1 : 0.72) * dim * it.appear);
-        g.textAlign = x > W - 110 ? 'right' : 'left';
-        const ox = x > W - 110 ? -r - 8 : r + 8;
-        g.fillText(a.id.split('_')[0], x + ox, y + 3.5);
+        g.fillStyle = this._rgba(isActive ? '#f5efe6' : gc, (isActive ? 1 : 0.7) * dim * it.appear);
+        const right = x > W - 190;
+        g.textAlign = right ? 'right' : 'left';
+        g.fillText(a.id.split('_')[0], x + (right ? -r - 8 : r + 8), y + 3.5);
         g.restore();
       }
     });
 
-    // crosshair readout
     if (this.hover) {
       g.save();
-      g.strokeStyle = 'rgba(255,255,255,0.12)';
+      g.strokeStyle = 'rgba(245,239,230,0.12)';
       g.lineWidth = 1;
       g.setLineDash([1, 4]);
-      g.beginPath();
-      g.moveTo(this.hover.x, 0); g.lineTo(this.hover.x, H);
-      g.stroke();
+      g.beginPath(); g.moveTo(this.hover.x, 0); g.lineTo(this.hover.x, H); g.stroke();
       g.restore();
     }
   }

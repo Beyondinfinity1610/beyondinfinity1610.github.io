@@ -38,38 +38,130 @@ const lerp = (a, b, t) => a + (b - a) * t;
  * Preloader — an EEG trace drawing itself while the scenes compile
  * ------------------------------------------------------------------ */
 
-const pre = {
-  el: document.getElementById('preloader'),
-  path: document.getElementById('pre-path'),
-  pct: document.getElementById('pre-pct'),
-  fill: document.getElementById('pre-fill'),
-  value: 0,
+/**
+ * The ignition sequence.
+ *
+ * A tachometer self-test: the needle sweeps the full range, hits the redline,
+ * settles to idle, and the montage comes alive underneath it. Loading progress
+ * drives the sweep, so the animation is honest about what it is waiting for.
+ */
+
+const CX = 180, CY = 178, RAD = 126;
+const A0 = 210, SPAN = 240;                     // degrees, clockwise from lower-left
+const polar = (t, r) => {
+  const a = ((A0 - t * SPAN) * Math.PI) / 180;
+  return [CX + Math.cos(a) * r, CY - Math.sin(a) * r];
+};
+const arcPath = (t0, t1, r) => {
+  const [x0, y0] = polar(t0, r);
+  const [x1, y1] = polar(t1, r);
+  const large = (t1 - t0) * SPAN > 180 ? 1 : 0;
+  return `M${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
 };
 
-function preTrace(t) {
-  // a live trace that gains structure as loading progresses
+const ign = {
+  el: document.getElementById('preloader'),
+  fill: document.getElementById('ign-fill'),
+  needle: document.getElementById('ign-needle'),
+  read: document.getElementById('ign-read'),
+  trace: document.getElementById('ign-trace-path'),
+  log: document.getElementById('ign-log'),
+  value: 0,
+  shown: 0,
+  done: false,
+};
+
+const BOOT_LOG = [
+  'Montage · 19 channels',
+  'Sample rate · 250 Hz',
+  'Bandpass · 0.5–45 Hz',
+  'Modalities · EEG / ECG / EMG / motion',
+  'Split · patient-level, seeded',
+  'Renderer · WebGL',
+  'Ignition',
+];
+
+function ignTrace(t, alive) {
   const pts = [];
-  for (let x = 0; x <= 460; x += 4) {
-    const n = x / 460;
-    const detail = t;
-    let y = 32;
-    y += Math.sin(n * 7 + t * 6) * 9 * detail;
-    y += Math.sin(n * 19 + t * 11) * 5 * detail;
-    y += Math.sin(n * 41 + t * 3) * 2.4 * detail;
-    // a discharge riding through, arriving with the progress front
+  for (let x = 0; x <= 360; x += 3) {
+    const n = x / 360;
+    let y = 27;
+    y += Math.sin(n * 7 + t * 6) * 8 * alive;
+    y += Math.sin(n * 19 + t * 11) * 4.5 * alive;
+    y += Math.sin(n * 41 + t * 3) * 2 * alive;
     const burst = Math.exp(-Math.pow((n - t) * 7, 2));
-    y += burst * Math.sin(n * 90) * 17;
+    y += burst * Math.sin(n * 90) * 15 * alive;
     pts.push(`${x} ${y.toFixed(2)}`);
   }
   return 'M' + pts.join(' L');
 }
 
-function setProgress(v) {
-  pre.value = Math.max(pre.value, clamp01(v));
-  pre.pct.textContent = String(Math.round(pre.value * 100)).padStart(2, '0');
-  pre.fill.style.right = `${(1 - pre.value) * 100}%`;
-  pre.path.setAttribute('d', preTrace(pre.value));
+function buildGauge() {
+  const NS = 'http://www.w3.org/2000/svg';
+  const ticks = document.getElementById('ign-ticks');
+  if (!ticks) return;
+  for (let i = 0; i <= 20; i++) {
+    const t = i / 20;
+    const major = i % 4 === 0;
+    const red = t > 0.8;
+    const [x0, y0] = polar(t, RAD - (major ? 15 : 8));
+    const [x1, y1] = polar(t, RAD - 1);
+    const l = document.createElementNS(NS, 'line');
+    l.setAttribute('x1', x0.toFixed(2)); l.setAttribute('y1', y0.toFixed(2));
+    l.setAttribute('x2', x1.toFixed(2)); l.setAttribute('y2', y1.toFixed(2));
+    l.setAttribute('class', `ign-tick${major ? ' maj' : ''}${red ? ' red' : ''}`);
+    ticks.appendChild(l);
+
+    if (major) {
+      const [lx, ly] = polar(t, RAD - 30);
+      const tx = document.createElementNS(NS, 'text');
+      tx.setAttribute('x', lx.toFixed(2));
+      tx.setAttribute('y', (ly + 3).toFixed(2));
+      tx.setAttribute('class', 'ign-tick-lbl');
+      tx.textContent = String(i * 5);
+      ticks.appendChild(tx);
+    }
+  }
+  document.getElementById('ign-arc-bg')?.setAttribute('d', arcPath(0, 0.8, RAD));
+  document.getElementById('ign-arc-red')?.setAttribute('d', arcPath(0.8, 1, RAD));
 }
+
+function setProgress(v) {
+  ign.value = Math.max(ign.value, clamp01(v));
+}
+
+function drawIgnition(now) {
+  if (!ign.el || ign.done) return;
+
+  // the needle chases loading, but never snaps — it has mass
+  ign.shown += (ign.value - ign.shown) * 0.07;
+  const t = ign.shown;
+
+  if (t > 0.004) ign.fill?.setAttribute('d', arcPath(0, Math.max(0.004, t), RAD));
+  const [nx, ny] = polar(t, RAD - 22);
+  const [bx, by] = polar(t, -16);
+  ign.needle?.setAttribute('x1', bx.toFixed(2));
+  ign.needle?.setAttribute('y1', by.toFixed(2));
+  ign.needle?.setAttribute('x2', nx.toFixed(2));
+  ign.needle?.setAttribute('y2', ny.toFixed(2));
+
+  if (ign.read) ign.read.textContent = String(Math.round(t * 100)).padStart(2, '0');
+  ign.trace?.setAttribute('d', ignTrace(t, Math.min(1, t * 1.3)));
+
+  const li = Math.min(BOOT_LOG.length - 1, Math.floor(t * BOOT_LOG.length));
+  if (ign.log && ign.log.dataset.i !== String(li)) {
+    ign.log.dataset.i = String(li);
+    ign.log.innerHTML = li === BOOT_LOG.length - 1 ? `<b>${BOOT_LOG[li]}</b>` : BOOT_LOG[li];
+  }
+}
+
+function finishIgnition() {
+  ign.done = true;
+  ign.el?.classList.add('done');
+  document.body.classList.remove('is-loading');
+}
+
+buildGauge();
 setProgress(0.02);
 
 /* ------------------------------------------------------------------ *
@@ -93,8 +185,11 @@ function checkEnters() {
   if (!enterQueue.length) return;
   let fired = false;
   for (const it of enterQueue) {
+    // No lower bound: anything already above the viewport has been passed, so
+    // it must resolve immediately. Otherwise a restored scroll position or a
+    // deep link leaves headings invisible and counters reading zero.
     const r = it.el.getBoundingClientRect();
-    if (r.top < vh * it.fraction && r.bottom > -vh) {
+    if (r.top < vh * it.fraction) {
       it.done = true;
       fired = true;
       it.fn(it.el);
@@ -288,6 +383,27 @@ function initDann() {
 }
 
 /* ------------------------------------------------------------------ *
+ * Work index accordion
+ * ------------------------------------------------------------------ */
+
+function initIndex() {
+  const rows = [...document.querySelectorAll('.idx-row')];
+  const toggle = (row) => {
+    const open = row.getAttribute('aria-expanded') === 'true';
+    // one at a time keeps the index scannable
+    rows.forEach((r) => r.setAttribute('aria-expanded', 'false'));
+    row.setAttribute('aria-expanded', open ? 'false' : 'true');
+  };
+  rows.forEach((row) => {
+    row.addEventListener('click', () => toggle(row));
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(row); }
+    });
+  });
+  rows[0]?.setAttribute('aria-expanded', 'true');
+}
+
+/* ------------------------------------------------------------------ *
  * Card tilt
  * ------------------------------------------------------------------ */
 
@@ -374,6 +490,7 @@ async function boot() {
   initReveals();
   initSparks();
   initCounters();
+  initIndex();
   initTilt();
   dannTick = initDann();
 
@@ -406,10 +523,9 @@ async function boot() {
 
   setProgress(1);
 
-  // let the first frames render before lifting the curtain
-  await new Promise((r) => setTimeout(r, REDUCED ? 60 : 620));
-  pre.el.classList.add('done');
-  document.body.classList.remove('is-loading');
+  // let the needle actually reach the stop before the curtain lifts
+  await new Promise((r) => setTimeout(r, REDUCED ? 60 : 1250));
+  finishIgnition();
   playHero();
 }
 
@@ -540,6 +656,8 @@ function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
 
+  drawIgnition(now);
+
   // catch entrances caused by reflow rather than scrolling (late fonts, resize)
   if ((frameN++ & 15) === 0) checkEnters();
 
@@ -600,22 +718,30 @@ initClock();
 window.addEventListener('scroll', onScroll, { passive: true });
 window.addEventListener('resize', onResize);
 
-// keep the preloader trace alive while everything compiles
+// The loop must be running *before* boot: the ignition gauge is animated from
+// it, and boot blocks for as long as the scenes take to compile.
+requestAnimationFrame(frame);
+
+// creep the gauge while the scenes compile, so it never looks stalled
 const preSpin = setInterval(() => {
-  if (pre.value < 0.99) setProgress(pre.value + 0.004);
-}, 90);
+  if (ign.value < 0.97) setProgress(ign.value + 0.005);
+}, 80);
+
+// the sequence is a nicety, not a gate
+document.getElementById('ign-skip')?.addEventListener('click', finishIgnition);
+
+// never let a hung asset trap someone behind the curtain
+setTimeout(finishIgnition, 9000);
 
 boot()
   .catch((err) => {
     console.error('[boot]', err);
-    pre.el.classList.add('done');
-    document.body.classList.remove('is-loading');
+    finishIgnition();
   })
   .finally(() => {
     clearInterval(preSpin);
     measure();
     onScroll();
-    requestAnimationFrame(frame);
     // fonts change metrics; re-measure once they land
     document.fonts?.ready.then(() => { measure(); onScroll(); });
   });
