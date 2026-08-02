@@ -70,9 +70,11 @@
     pyTarget = (e.clientY / window.innerHeight) * 2 - 1;
   }, { passive: true });
 
-  // ── entrances
+  // ── entrances. Held until the ignition clears, so the opening lines rise
+  // as it dissolves rather than being sat there fully formed behind it.
+  var released = reduced;
   function sweepRisers() {
-    if (reduced) return;
+    if (reduced || !released) return;
     var vh = state.vh;
     for (var i = risers.length - 1; i >= 0; i--) {
       var el = risers[i];
@@ -241,11 +243,12 @@
   }
 
   function revealChrome() {
+    released = true;
     if (rail) rail.classList.add('on');
     if (topbar) topbar.classList.add('on');
     sweepRisers();
   }
-  window.addEventListener('ignition:done', function () { setTimeout(revealChrome, 120); });
+  window.addEventListener('ignition:done', function () { setTimeout(revealChrome, 90); });
   // if the ignition never runs (reduced motion, or it was removed early)
   setTimeout(revealChrome, 3200);
 })();

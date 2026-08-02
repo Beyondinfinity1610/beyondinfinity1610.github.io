@@ -116,8 +116,9 @@
       var ang = A0 + (A1 - A0) * u;
       var ax = cx + Math.cos(ang) * R;
       var ay = cy + Math.sin(ang) * R;
+      var drop = Math.min(H * 0.17, 138);
       var lx = cx - halfW + u * halfW * 2;
-      var ly = cy + eeg(u, time) * Math.min(H * 0.055, 46);
+      var ly = cy + drop + eeg(u, time) * Math.min(H * 0.055, 46);
       var m = clamp01(morph * 1.55 - u * 0.5);   // unroll from the left
       m = m * m * (3 - 2 * m);
       pts.push([ax + (lx - ax) * m, ay + (ly - ay) * m]);

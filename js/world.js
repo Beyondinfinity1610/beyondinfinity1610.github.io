@@ -43,7 +43,9 @@ function boot() {
   gl.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0a0908, 0.0042);
+  // the fog is a shade cooler than the page, so distance recedes cool while
+  // everything near the camera stays warm. It is the whole depth cue.
+  scene.fog = new THREE.FogExp2(0x080a0c, 0.0042);
 
   const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.6, 1600);
 
@@ -241,7 +243,7 @@ function boot() {
   const trace2Geo = new THREE.BufferGeometry();
   const trace2Pos = new Float32Array(TRACE_N * 3);
   trace2Geo.setAttribute('position', new THREE.BufferAttribute(trace2Pos, 3));
-  const trace2Mat = traceMaterial(0xece7de, 0);
+  const trace2Mat = traceMaterial(0xd2e0e4, 0);
   const trace2 = new THREE.Line(trace2Geo, trace2Mat);
   trace2.frustumCulled = false;
   scene.add(trace2);
@@ -406,6 +408,81 @@ function boot() {
   topology.add(flow);
 
   // ══════════════════════════════════════════════════════════
+  //  rails — rungs streaming past at the edges of vision. They do
+  //  nothing except make the depth legible while you read.
+  // ══════════════════════════════════════════════════════════
+  const RUNG_GAP = 46;
+  const RUNG_SPAN = RUNG_GAP * 26;
+  const rails = new THREE.Group();
+  const railMat = new THREE.ShaderMaterial({
+    uniforms: { uColor: { value: new THREE.Color(0xc99a4e) }, uOpacity: { value: 0 } },
+    vertexShader: `
+      varying float vD;
+      void main() {
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vD = -mv.z;
+        gl_Position = projectionMatrix * mv;
+      }`,
+    // only the near rungs are drawn — those are the ones still out at the
+    // edges of the frame. Further back they would converge over the copy.
+    fragmentShader: `
+      uniform vec3 uColor; uniform float uOpacity;
+      varying float vD;
+      void main() {
+        float a = smoothstep(30.0, 90.0, vD) * smoothstep(430.0, 190.0, vD);
+        gl_FragColor = vec4(uColor, a * uOpacity);
+        if (gl_FragColor.a < 0.004) discard;
+      }`,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+  });
+  {
+    const pts = [];
+    for (let i = 0; i < 26; i++) {
+      const z = -i * RUNG_GAP;
+      const long = i % 4 === 0;
+      const inner = 166, outer = inner + (long ? 88 : 46);
+      for (const sx of [-1, 1]) {
+        for (const sy of [-1, 1]) {
+          const y = sy * 86;
+          pts.push(new THREE.Vector3(sx * inner, y, z));
+          pts.push(new THREE.Vector3(sx * outer, y, z));
+        }
+      }
+    }
+    const rungs = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), railMat);
+    rungs.frustumCulled = false;
+    rails.add(rungs);
+    scene.add(rails);
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  the calibration — three rings that start out of true and come
+  //  into alignment as you read the audit
+  // ══════════════════════════════════════════════════════════
+  const calib = new THREE.Group();
+  const calibRings = [];
+  {
+    const hoop = (radius, color) => {
+      const pts = [];
+      for (let i = 0; i <= 140; i++) {
+        const a = (i / 140) * Math.PI * 2;
+        pts.push(new THREE.Vector3(Math.cos(a) * radius, Math.sin(a) * radius, 0));
+      }
+      return new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false })
+      );
+    };
+    [[52, 0xc99a4e, 0.9, -0.7], [38, 0xd7e0e2, -1.1, 0.5], [24, 0xc99a4e, 0.6, 1.2]]
+      .forEach(([r, color, tx, ty], i) => {
+        const ring = hoop(r, color);
+        calib.add(ring);
+        calibRings.push({ ring, tx, ty, mat: ring.material, base: 0.34 - i * 0.06 });
+      });
+    scene.add(calib);
+  }
+
+  // ══════════════════════════════════════════════════════════
   //  the field — one point per run, unlabelled by necessity
   // ══════════════════════════════════════════════════════════
   const field = new THREE.Group();
@@ -450,7 +527,7 @@ function boot() {
       uMap: { value: DOT }, uTime: { value: 0 },
       uProj: { value: 1000 }, uOpacity: { value: 0 },
       uWarm: { value: new THREE.Color(0xc99a4e) },
-      uCool: { value: new THREE.Color(0xd8d2c8) }
+      uCool: { value: new THREE.Color(0xc2d0d4) }
     },
     vertexShader: `
       attribute float aScale; attribute float aBright;
@@ -500,7 +577,7 @@ function boot() {
     field.add(grid);
     field.userData.gridMat = gridMat;
 
-    const dropMat = traceMaterial(0xece7de, 0);
+    const dropMat = traceMaterial(0xc2d0d4, 0);
     const drops = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(dropPts), dropMat);
     drops.frustumCulled = false;
     field.add(drops);
@@ -530,6 +607,11 @@ function boot() {
     return smooth(b.near + b.fade, b.near, z) * smooth(b.far - b.fade, b.far, z);
   }
 
+  // 0 entering the band, 1 leaving it
+  function bandProgress(b, z) {
+    return Math.min(1, Math.max(0, (b.near - z) / Math.max(1, b.near - b.far)));
+  }
+
   function layout() {
     const doc = Math.max(1, site.doc);
     zRedaction = zAt(centreOf('redaction', doc * 0.32));
@@ -542,6 +624,7 @@ function boot() {
     bands.ceiling = band('ceiling', doc * 0.48, doc * 0.1);
     bands.contact = band('contact', doc * 0.92, doc * 0.08);
     bands.drift = band('lie', doc * 0.1, doc * 0.06);
+    bands.diagnosis = band('diagnosis', doc * 0.4, doc * 0.08);
 
     const work = site.stations.work;
     zWorkStart = zAt(work ? work.top : doc * 0.18);
@@ -578,6 +661,13 @@ function boot() {
   let fit = 1;        // set-piece scale for the current aspect
   let sideShift = 1;  // how far off-centre the trace runs
   let running = true;
+
+  // ── the hand-off. The ignition ends on a flat trace across the middle of
+  // the screen; the world picks that exact pose up and swings it away into
+  // depth while the bezel shrinks into place. No cut between the two.
+  let arriveT = 0, arriving = false;
+  window.addEventListener('ignition:done', () => { arriving = true; arriveT = 0; });
+  setTimeout(() => { arriving = true; }, 3600);   // if the ignition never ran
   let lastFrame = performance.now();
   const camPos = new THREE.Vector3();
 
@@ -611,13 +701,17 @@ function boot() {
 
     if (site.doc !== frame._doc) { frame._doc = site.doc; layout(); }
 
+    if (arriving && arriveT < 2) arriveT += dt;
+    // 0 while the ignition still owns the screen, 1 once the site has arrived
+    const arrive = site.reduced ? 1 : smooth(0, 1.15, arriveT);
+
     // ── camera: depth is scroll, with a little pointer parallax
     const zCam = zAt(site.y + site.vh * 0.5);
     const routeX = Math.sin(site.progress * Math.PI * 3.4) * 21;
     const routeY = Math.cos(site.progress * Math.PI * 2.2) * 9;
     camPos.set(site.pointer.x * 14 + routeX,
                -site.pointer.y * 9 + routeY + Math.sin(t * 0.21) * 1.6,
-               zCam + 30);
+               zCam + 30 + (1 - arrive) * 120);
     camera.position.lerp(camPos, site.reduced ? 1 : 0.09);
     camera.lookAt(camera.position.x * 0.35, camera.position.y * 0.35, camera.position.z - 200);
     // bank into the turn, and lean a little with the scroll
@@ -643,10 +737,12 @@ function boot() {
     bezel.children.forEach((c, i) => {
       if (c.material) c.material.opacity = bezelIn * (i === 0 ? 0.40 : i === 1 ? 0.14 : 0.11);
     });
+    // the gimbal is the last thing to appear, once the bezel has settled
+    const gimbalIn = bezelIn * smooth(0.45, 1, arrive);
     for (let i = 0; i < gimbalRings.length; i++) {
       const r = gimbalRings[i];
       r.pivot.rotation[r.axis] = t * r.speed;
-      r.mat.opacity = bezelIn * r.base;
+      r.mat.opacity = gimbalIn * r.base;
     }
 
     // ── the trace: signal and instrument, coming apart as you read why
@@ -654,10 +750,10 @@ function boot() {
     // 0 at the opening, 1 across the conviction section — the amount by which
     // the reported line has wandered off the real one
     const lie = bandFade(bands.drift, camera.position.z);
-    traceMat.uniforms.uOpacity.value = traceIn * (0.34 + lie * 0.46);
-    trace2Mat.uniforms.uOpacity.value = traceIn * (0.30 + lie * 0.22);
+    traceMat.uniforms.uOpacity.value = traceIn * (0.34 + lie * 0.46 + (1 - arrive) * 0.5);
+    trace2Mat.uniforms.uOpacity.value = traceIn * (0.30 + lie * 0.22 + (1 - arrive) * 0.35);
     errMat.uniforms.uOpacity.value = traceIn * lie * 0.42;
-    bezel.scale.setScalar(Math.max(0.62, fit) * (1 - closing * 0.6));
+    bezel.scale.setScalar(Math.max(0.62, fit) * (1 - closing * 0.6) * (1 + (1 - arrive) * 1.5));
     if (traceIn > 0.01) {
       const head = camera.position.z - 90;
       const spread = 8 + lie * 13;
@@ -666,17 +762,20 @@ function boot() {
       // is the only angle the gap between the two lines can be read from.
       const halfW = Math.min(142, 88 * camera.aspect);
       const zFace = camera.position.z - 250;
+      // flat and facing where the ignition left it, and flat again for the lie
+      const face = Math.max(lie, 1 - arrive);
       for (let i = 0; i < TRACE_N; i++) {
         const u = i / (TRACE_N - 1);
         const zRun = head - u * TRACE_LEN;
         const xRun = (60 + Math.sin(u * 2.2 + t * 0.15) * 15) * sideShift;
         const xFace = camera.position.x + (-halfW + u * halfW * 2);
-        const x = xRun + (xFace - xRun) * lie;
-        const z = zRun + (zFace - zRun) * lie;
+        const x = xRun + (xFace - xRun) * face;
+        const z = zRun + (zFace - zRun) * face;
         const w = waveform(u * 3.0, t, 0);
 
         // what is actually happening
-        const yTrue = 12 + w * (15 - lie * 4);
+        // the hand-off pose sits low, where the ignition left the flat trace
+        const yTrue = 12 - (1 - arrive) * 46 + w * (15 - lie * 4);
         trace2Pos[i * 3] = x;
         trace2Pos[i * 3 + 1] = yTrue + spread * 0.35;
         trace2Pos[i * 3 + 2] = z;
@@ -745,6 +844,21 @@ function boot() {
       else if (hovered) { hovered = null; if (roleEl) roleEl.textContent = '— hover a plate —'; }
     }
 
+    // ── the calibration: out of true on the way in, aligned on the way out
+    const diagIn = bandFade(bands.diagnosis, camera.position.z);
+    calib.visible = diagIn > 0.005;
+    if (calib.visible) {
+      const off = 1 - bandProgress(bands.diagnosis, camera.position.z);
+      calib.position.set(camera.position.x + 118 * fit, 8, camera.position.z - 265);
+      for (let i = 0; i < calibRings.length; i++) {
+        const c = calibRings[i];
+        c.ring.rotation.x = c.tx * off + Math.sin(t * 0.13 + i) * 0.03;
+        c.ring.rotation.y = c.ty * off + Math.cos(t * 0.11 + i) * 0.03;
+        c.ring.rotation.z = t * 0.05 * (1 + off * 2);
+        c.mat.opacity = diagIn * c.base;
+      }
+    }
+
     // ── field
     const fieldIn = bandFade(bands.ceiling, camera.position.z);
     field.visible = fieldIn > 0.005;
@@ -756,6 +870,12 @@ function boot() {
       field.rotation.y = t * 0.014 + site.pointer.x * 0.06;
       field.rotation.x = site.pointer.y * 0.03;
     }
+
+    // ── rails stream past the edges, and get out of the way of the set pieces
+    rails.position.z = camera.position.z
+      - (((camera.position.z % RUNG_GAP) + RUNG_GAP) % RUNG_GAP);
+    railMat.uniforms.uOpacity.value =
+      0.34 * arrive * (1 - topoIn * 0.9) * (1 - fieldIn * 0.9) * (1 - lie * 0.85);
 
     gl.render(scene, camera);
     requestAnimationFrame(frame);

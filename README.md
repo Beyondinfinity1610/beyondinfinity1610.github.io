@@ -77,6 +77,11 @@ The set pieces, each visible only inside its own section's depth band:
 
 - **the instrument** — a bezel with three rings tumbling inside it, behind the
   opening line. It comes back at the very end, drifts to centre and recedes.
+- **the calibration** — three rings beside the audit section that start out of
+  true and come into alignment as you scroll through it.
+- **the rails** — rungs streaming past at the edges of vision. They mean
+  nothing; they exist so the depth is legible while you read, and they fade out
+  wherever a real set piece is on screen.
 - **the trace** — two lines: the signal, and the signal as the instrument
   reports it. They leave the hero almost coincident, running away into depth.
   Across `[data-station="lie"]` they swing round to face the viewer and come
@@ -86,6 +91,26 @@ The set pieces, each visible only inside its own section's depth band:
 - **the field** — one point per run, crowding up under a ceiling they do not
   pass, with hairlines from the ceiling to the ones that got closest. No axes
   and no values, because there are none to show.
+
+## Colour
+
+Warm highlight, cool shadow. Brass and bone carry everything that matters; a
+desaturated petrol (`--cool`, and the cooler scene fog) sits in the shadows and
+the far distance. The cool tone never gets brighter than the warm one — its only
+job is to make the brass read warm by contrast. In the scene it also carries
+meaning: the true signal is cool, the instrument's reported signal is brass.
+
+## The hand-off
+
+The ignition does not cut to the site. It ends on a flat trace dropped below the
+middle of the screen; `js/world.js` picks that same pose up (`arrive`, driven
+from the `ignition:done` event), then swings the trace away into depth, pushes
+the camera in, shrinks the bezel into place and fades the gimbal up. Entrance
+animations are held until that event too, so the opening lines rise as the
+ignition dissolves instead of sitting fully formed behind it.
+
+If you retime the ignition, retime `arrive` with it, and check the trace does
+not sit across the headline on the way through.
 
 ## Things that have broken before — do not undo these
 

@@ -47,20 +47,25 @@
 }
 
 :root {
-  --ink:     #0a0908;
-  --ink-2:   #100e0c;
+  --ink:     #09090a;
+  --ink-2:   #0f0f11;
 
   --bone:    #ece7de;
-  --dim:     #a29a8e;
-  --faint:   #6d655b;
-  --ghost:   #4a443d;
+  --dim:     #a49c92;
+  --faint:   #6f6862;
+  --ghost:   #4b4741;
 
   --brass:   #c99a4e;
   --brass-d: #8d6a34;
   --brass-l: #e6c08a;
 
-  --line:    rgba(236, 231, 222, 0.085);
-  --line-2:  rgba(236, 231, 222, 0.16);
+  /* the cool side. Used for the true signal, for shadow, and for nothing
+     that needs to shout — it exists to make the brass look warm. */
+  --cool:    #93aab0;
+  --cool-d:  #3a4a4f;
+
+  --line:    rgba(214, 224, 226, 0.085);
+  --line-2:  rgba(214, 224, 226, 0.17);
 
   --ff-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
   --ff-sans:  'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
@@ -118,9 +123,11 @@ a { color: inherit; }
 .atmos {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
   background:
-    radial-gradient(120% 78% at 50% 46%, rgba(201,154,78,0.055) 0%, rgba(10,9,8,0) 58%),
-    radial-gradient(100% 62% at 50% 108%, rgba(10,9,8,0.92) 0%, rgba(10,9,8,0) 60%),
-    linear-gradient(180deg, rgba(10,9,8,0.86) 0%, rgba(10,9,8,0) 22%, rgba(10,9,8,0) 74%, rgba(10,9,8,0.72) 100%);
+    radial-gradient(78% 58% at 22% 12%, rgba(58,74,79,0.16) 0%, rgba(9,9,10,0) 62%),
+    radial-gradient(86% 62% at 86% 88%, rgba(58,74,79,0.13) 0%, rgba(9,9,10,0) 60%),
+    radial-gradient(120% 78% at 52% 46%, rgba(201,154,78,0.062) 0%, rgba(9,9,10,0) 58%),
+    radial-gradient(100% 62% at 50% 108%, rgba(9,9,10,0.92) 0%, rgba(9,9,10,0) 60%),
+    linear-gradient(180deg, rgba(9,9,10,0.86) 0%, rgba(9,9,10,0) 22%, rgba(9,9,10,0) 74%, rgba(9,9,10,0.72) 100%);
 }
 .grain {
   position: fixed; inset: -50%; z-index: 2; pointer-events: none;
@@ -150,7 +157,7 @@ a { color: inherit; }
 
 .ignition-read {
   position: absolute; left: 50%; top: 50%;
-  transform: translate(-50%, calc(-50% + clamp(64px, 12vh, 120px)));
+  transform: translate(-50%, calc(-50% - clamp(96px, 17vh, 158px)));
   display: flex; flex-direction: column; align-items: center; gap: 0.55rem;
   font-family: var(--ff-mono); font-size: 11px;
   letter-spacing: 0.34em; text-transform: uppercase;
@@ -253,6 +260,11 @@ main { position: relative; z-index: 10; }
   font-family: var(--ff-mono); font-size: 10.5px; font-weight: 400;
   letter-spacing: 0.34em; text-transform: uppercase;
   color: var(--brass-d); margin: 0 0 clamp(1.4rem, 3vw, 2.4rem);
+  display: flex; align-items: center; gap: 0.85rem;
+}
+.eyebrow::before {
+  content: ''; width: clamp(18px, 3vw, 42px); height: 1px; flex: none;
+  background: linear-gradient(90deg, rgba(141,106,52,0) 0%, var(--brass-d) 100%);
 }
 
 .display {
@@ -266,6 +278,14 @@ main { position: relative; z-index: 10; }
 .display em {
   font-style: italic;
   color: var(--brass-l);
+  background: linear-gradient(96deg, #d9ab68 0%, #f0d3a4 42%, #c9964a 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* a flat brass fill is the fallback wherever the clip is unsupported */
+  paint-order: stroke fill;
+}
+@supports not (background-clip: text) {
+  .display em { color: var(--brass-l); -webkit-text-fill-color: currentColor; }
 }
 .hero-title { max-width: 15ch; }
 .hero-title span { display: block; }
@@ -346,8 +366,10 @@ main { position: relative; z-index: 10; }
   margin-bottom: clamp(1.8rem, 4vw, 3rem);
 }
 .idx {
-  font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.2em;
-  color: var(--brass-d); padding-top: 0.5rem; flex: none;
+  font-family: var(--ff-serif); font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+  line-height: 1; letter-spacing: 0.01em;
+  color: var(--brass-d); padding-top: 0.15rem; flex: none;
+  font-feature-settings: 'lnum' 1;
 }
 .h3 {
   font-family: var(--ff-serif); font-weight: 400;
@@ -427,7 +449,7 @@ main { position: relative; z-index: 10; }
 .drift-hud.on { opacity: 1; }
 .dh-row { display: flex; align-items: center; gap: 0.6rem; }
 .dh-sw { width: 22px; height: 1px; flex: none; }
-.dh-true { background: var(--bone); }
+.dh-true { background: var(--cool); }
 .dh-meas { background: var(--brass); }
 .dh-note { color: var(--ghost); margin-top: 0.2rem; }
 /* narrow screens keep the legend — without it the two lines are just lines —
