@@ -410,6 +410,38 @@ main { position: relative; z-index: 10; }
 }
 #redaction .redact-foot em { color: var(--brass-l); font-style: italic; }
 
+/* the conviction section's clear stage, where the two lines come apart */
+.drift-stage { height: clamp(34rem, 148vh, 84rem); }
+
+.drift-hud {
+  position: fixed; left: var(--pad); top: 50%;
+  transform: translateY(-50%);
+  z-index: 20; pointer-events: none;
+  display: flex; flex-direction: column; gap: 0.55rem;
+  font-family: var(--ff-mono); font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim);
+  opacity: 0; transition: opacity 0.6s ease;
+  border-left: 1px solid var(--line-2); padding: 0.5rem 1.6rem 0.5rem 0.9rem;
+  background: linear-gradient(90deg, rgba(10,9,8,0.9) 0%, rgba(10,9,8,0.5) 62%, rgba(10,9,8,0) 100%);
+}
+.drift-hud.on { opacity: 1; }
+.dh-row { display: flex; align-items: center; gap: 0.6rem; }
+.dh-sw { width: 22px; height: 1px; flex: none; }
+.dh-true { background: var(--bone); }
+.dh-meas { background: var(--brass); }
+.dh-note { color: var(--ghost); margin-top: 0.2rem; }
+/* narrow screens keep the legend — without it the two lines are just lines —
+   but move it clear of the trace, which owns the middle of the viewport */
+@media (max-width: 900px) {
+  .drift-hud {
+    top: auto; bottom: 4.5rem; transform: none;
+    left: var(--pad); right: var(--pad);
+    font-size: 9px; letter-spacing: 0.16em;
+    background: linear-gradient(90deg, rgba(10,9,8,0.9) 0%, rgba(10,9,8,0.5) 80%, rgba(10,9,8,0) 100%);
+  }
+  .dh-note { display: none; }
+}
+
 .redact-hud {
   position: fixed; left: var(--pad); top: 50%;
   transform: translateY(-50%);
@@ -529,11 +561,85 @@ main { position: relative; z-index: 10; }
 /* ─────────────────────── entrance motion ───────────────────── */
 
 .rise {
-  opacity: 0; transform: translate3d(0, 26px, 0);
+  opacity: 0;
+  transform: translate3d(0, calc(26px + var(--par, 0px)), 0);
   transition: opacity 1.05s var(--ease), transform 1.05s var(--ease);
   will-change: opacity, transform;
 }
-.rise.in { opacity: 1; transform: none; }
+.rise.in { opacity: 1; transform: translate3d(0, var(--par, 0px), 0); }
+
+/* elements that only parallax, with no entrance of their own */
+.par:not(.rise) { transform: translate3d(0, var(--par, 0px), 0); }
+
+/* display type arrives a line at a time, from under its own baseline.
+   The padding gives descenders and italic overhang somewhere to live, and
+   the matching negative margin keeps the metrics where they were. */
+.mask {
+  display: block; overflow: hidden;
+  padding: 0.1em 0.09em 0.16em;
+  margin: -0.1em -0.09em -0.16em;
+}
+.mask > span {
+  display: block;
+  transform: translate3d(0, 108%, 0);
+  transition: transform 1.15s var(--ease);
+  transition-delay: var(--md, 0s);
+}
+.rise.in .mask > span { transform: none; }
+
+/* rows draw their own rule in as they arrive, so the static borders go */
+.throughline li, .quiet li, .method-list li, .facts > div, .clink {
+  position: relative;
+}
+.throughline li, .quiet li, .clink { border-bottom: 0; }
+.method-list li, .facts > div, .facts > div:last-child { border-top: 0; border-bottom: 0; }
+.throughline li::after, .quiet li::after, .clink::after,
+.method-list li::before, .facts > div::before {
+  content: ''; position: absolute; left: 0; right: 0; height: 1px;
+  background: rgba(236, 231, 222, 0.115);
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 1.05s var(--ease);
+  transition-delay: calc(var(--i, 0) * 0.07s);
+}
+.throughline li::after, .quiet li::after, .clink::after { bottom: -1px; }
+.method-list li::before, .facts > div::before { top: 0; }
+.facts > div:last-child::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+  background: rgba(236, 231, 222, 0.115);
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 1.05s var(--ease);
+  transition-delay: calc(var(--i, 0) * 0.07s + 0.07s);
+}
+.rise.in .throughline li::after,
+.rise.in::after,
+.rise.in::before,
+.rise.in .clink::after { transform: scaleX(1); }
+.throughline.in li::after,
+.quiet li.in::after,
+.method-list li.in::before,
+.rise.in .facts > div::before,
+.rise.in .facts > div:last-child::after,
+.contact-links.in .clink::after { transform: scaleX(1); }
+
+/* rows respond to the pointer */
+.quiet li { transition: padding-left 0.4s var(--ease); }
+.quiet li:hover { padding-left: 0.5rem; }
+.quiet li:hover .q-n { color: var(--brass-l); }
+.quiet li .q-n { transition: color 0.3s; }
+.tag { transition: border-color 0.35s, color 0.35s; }
+.tag:hover { border-color: var(--edge-warm, rgba(201,154,78,0.4)); color: var(--dim); }
+
+/* the nav marks where you are, and tightens once you leave the top */
+.topnav a { position: relative; padding-bottom: 3px; }
+.topnav a::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: currentColor; transform: scaleX(0); transform-origin: right center;
+  transition: transform 0.45s var(--ease);
+}
+.topnav a:hover::after, .topnav a.here::after { transform: scaleX(1); transform-origin: left center; }
+.topnav a.here { color: var(--dim); }
+.topbar { transition: opacity 0.8s ease, padding 0.5s var(--ease); }
+.topbar.compact { padding-top: clamp(0.6rem, 1.4vw, 0.9rem); padding-bottom: clamp(0.6rem, 1.4vw, 0.9rem); }
 .rise[data-d="1"] { transition-delay: 0.09s; }
 .rise[data-d="2"] { transition-delay: 0.18s; }
 .rise[data-d="3"] { transition-delay: 0.30s; }

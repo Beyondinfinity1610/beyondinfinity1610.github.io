@@ -167,6 +167,35 @@ function boot() {
   }
   scene.add(bezel);
 
+  // Three rings on three axes, tumbling slowly inside the bezel — the
+  // instrument the whole page is about, sitting behind the opening line.
+  const gimbal = new THREE.Group();
+  const gimbalRings = [];
+  {
+    const hoop = (radius, color) => {
+      const pts = [];
+      for (let i = 0; i <= 150; i++) {
+        const a = (i / 150) * Math.PI * 2;
+        pts.push(new THREE.Vector3(Math.cos(a) * radius, Math.sin(a) * radius, 0));
+      }
+      return new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false })
+      );
+    };
+    [[47, 'x', 0.34, BRASS], [35, 'y', 0.26, BONE], [23, 'z', 0.20, BRASS]]
+      .forEach(([r, axis, base, color], i) => {
+        const pivot = new THREE.Group();
+        const ring = hoop(r, color);
+        if (axis === 'x') ring.rotation.y = Math.PI / 2;
+        if (axis === 'y') ring.rotation.x = Math.PI / 2;
+        pivot.add(ring);
+        gimbal.add(pivot);
+        gimbalRings.push({ pivot, axis, mat: ring.material, base, speed: 0.13 + i * 0.09 });
+      });
+    bezel.add(gimbal);
+  }
+
   // ══════════════════════════════════════════════════════════
   //  the trace — a travelling waveform running away into depth
   // ══════════════════════════════════════════════════════════
@@ -216,6 +245,18 @@ function boot() {
   const trace2 = new THREE.Line(trace2Geo, trace2Mat);
   trace2.frustumCulled = false;
   scene.add(trace2);
+
+  // The two lines are the same signal: one as it is, one as the instrument
+  // reports it. They leave the opening almost coincident and come apart across
+  // the conviction section, with the residual drawn between them.
+  const ERR_N = 56;
+  const errGeo = new THREE.BufferGeometry();
+  const errPos = new Float32Array(ERR_N * 2 * 3);
+  errGeo.setAttribute('position', new THREE.BufferAttribute(errPos, 3));
+  const errMat = traceMaterial(0xc99a4e, 0);
+  const errors = new THREE.LineSegments(errGeo, errMat);
+  errors.frustumCulled = false;
+  scene.add(errors);
 
   function waveform(u, t, seed) {
     let v = 0;
@@ -305,6 +346,7 @@ function boot() {
       });
       const mesh = new THREE.Mesh(new THREE.PlaneGeometry(PLATE_W, PLATE_H), mat);
       mesh.position.set(p[0], p[1], stage.z);
+      mesh.userData.y0 = p[1];
       mesh.rotation.y = (p[0] > 0 ? -1 : 1) * 0.16;
       mesh.rotation.z = ((si + pi) % 3 - 1) * 0.012;
       mesh.userData.role = legible ? 'public dataset — legible' : stage.role;
@@ -372,6 +414,7 @@ function boot() {
   const RUNS = low ? 700 : 1600;
   const CEILING = 54;
   const fieldGeo = new THREE.BufferGeometry();
+  const dropPts = [];
   {
     const p = new Float32Array(RUNS * 3);
     const s = new Float32Array(RUNS);
@@ -387,6 +430,13 @@ function boot() {
       p[i * 3 + 2] = Math.sin(th) * rad * 0.85;
       s[i] = 0.55 + Math.random() * 1.1;
       b[i] = 1 - drop * 0.9;                            // dimmer the further below
+
+      // a few of the ones that got closest get a hairline up to the ceiling,
+      // so you can see what they ran into
+      if (drop < 0.1 && dropPts.length < 120 && Math.random() < 0.3) {
+        dropPts.push(new THREE.Vector3(p[i * 3], CEILING, p[i * 3 + 2]));
+        dropPts.push(new THREE.Vector3(p[i * 3], p[i * 3 + 1], p[i * 3 + 2]));
+      }
     }
     // the run that mattered — brighter, pressed right against the ceiling
     s[0] = 3.2; b[0] = 1.0;
@@ -449,12 +499,19 @@ function boot() {
     grid.frustumCulled = false;
     field.add(grid);
     field.userData.gridMat = gridMat;
+
+    const dropMat = traceMaterial(0xece7de, 0);
+    const drops = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(dropPts), dropMat);
+    drops.frustumCulled = false;
+    field.add(drops);
+    field.userData.dropMat = dropMat;
   }
 
   // ══════════════════════════════════════════════════════════
   //  layout — anchor each piece to its section
   // ══════════════════════════════════════════════════════════
   let zRedaction = 0, zField = 0, zTraceStart = 0, zTraceEnd = 0;
+  let zWorkStart = 0, zWorkEnd = 0;
   const bands = {};   // id -> { near, far, fade } in world z
 
   // A piece exists only inside its own section's depth, plus a short fade at
@@ -484,6 +541,11 @@ function boot() {
     bands.redaction = band('redaction', doc * 0.28, doc * 0.1);
     bands.ceiling = band('ceiling', doc * 0.48, doc * 0.1);
     bands.contact = band('contact', doc * 0.92, doc * 0.08);
+    bands.drift = band('lie', doc * 0.1, doc * 0.06);
+
+    const work = site.stations.work;
+    zWorkStart = zAt(work ? work.top : doc * 0.18);
+    zWorkEnd = zAt((work ? work.top + work.height * 0.75 : doc * 0.26));
   }
 
   // ══════════════════════════════════════════════════════════
@@ -551,15 +613,21 @@ function boot() {
 
     // ── camera: depth is scroll, with a little pointer parallax
     const zCam = zAt(site.y + site.vh * 0.5);
-    camPos.set(site.pointer.x * 14, -site.pointer.y * 9 + Math.sin(t * 0.21) * 1.6, zCam + 30);
+    const routeX = Math.sin(site.progress * Math.PI * 3.4) * 21;
+    const routeY = Math.cos(site.progress * Math.PI * 2.2) * 9;
+    camPos.set(site.pointer.x * 14 + routeX,
+               -site.pointer.y * 9 + routeY + Math.sin(t * 0.21) * 1.6,
+               zCam + 30);
     camera.position.lerp(camPos, site.reduced ? 1 : 0.09);
     camera.lookAt(camera.position.x * 0.35, camera.position.y * 0.35, camera.position.z - 200);
-    camera.rotation.z = site.velocity * 0.00035;
+    // bank into the turn, and lean a little with the scroll
+    camera.rotation.z = site.velocity * 0.00035
+                      + Math.cos(site.progress * Math.PI * 3.4) * 0.016;
 
     // ── motes wrap around the camera so the void is never empty
     motes.position.z = Math.round(camera.position.z / MOTE_SPAN) * MOTE_SPAN;
     moteMat.uniforms.uTime.value = t;
-    moteMat.uniforms.uOpacity.value = 0.55;
+    moteMat.uniforms.uOpacity.value = 0.55 + Math.min(0.28, Math.abs(site.velocity) * 0.006);
 
     // ── bezel: held ahead, present at the opening, gone by the work
     // it opens the page and it closes it: at the end the ring drifts back to
@@ -569,34 +637,73 @@ function boot() {
                        camera.position.z - 250 - closing * 150);
     bezel.rotation.z = t * 0.022;
     const bezelIn = Math.max(
-      1 - smooth(zTraceStart - 40, zTraceEnd, camera.position.z) * 0.92,
+      1 - smooth(zAt(site.vh * 0.2), zAt(site.vh * 1.5), camera.position.z),
       closing * 0.85
     );
     bezel.children.forEach((c, i) => {
-      c.material.opacity = bezelIn * (i === 0 ? 0.40 : i === 1 ? 0.14 : 0.11);
+      if (c.material) c.material.opacity = bezelIn * (i === 0 ? 0.40 : i === 1 ? 0.14 : 0.11);
     });
+    for (let i = 0; i < gimbalRings.length; i++) {
+      const r = gimbalRings[i];
+      r.pivot.rotation[r.axis] = t * r.speed;
+      r.mat.opacity = bezelIn * r.base;
+    }
 
-    // ── the trace, kept to the right of the type and drawn only while near
-    const traceIn = 1 - smooth(zTraceStart - 120, zTraceEnd - 60, camera.position.z);
-    traceMat.uniforms.uOpacity.value = traceIn * 0.8;
-    trace2Mat.uniforms.uOpacity.value = traceIn * 0.3;
-    bezel.scale.setScalar(Math.max(0.62, fit) * (1 - bandFade(bands.contact, camera.position.z) * 0.6));
+    // ── the trace: signal and instrument, coming apart as you read why
+    const traceIn = 1 - smooth(zWorkStart, zWorkEnd, camera.position.z);
+    // 0 at the opening, 1 across the conviction section — the amount by which
+    // the reported line has wandered off the real one
+    const lie = bandFade(bands.drift, camera.position.z);
+    traceMat.uniforms.uOpacity.value = traceIn * (0.34 + lie * 0.46);
+    trace2Mat.uniforms.uOpacity.value = traceIn * (0.30 + lie * 0.22);
+    errMat.uniforms.uOpacity.value = traceIn * lie * 0.42;
+    bezel.scale.setScalar(Math.max(0.62, fit) * (1 - closing * 0.6));
     if (traceIn > 0.01) {
       const head = camera.position.z - 90;
+      const spread = 8 + lie * 13;
+      // Running away into depth at the opening; as the conviction section
+      // arrives the pair swings round and lays itself across the view, which
+      // is the only angle the gap between the two lines can be read from.
+      const halfW = Math.min(142, 88 * camera.aspect);
+      const zFace = camera.position.z - 250;
       for (let i = 0; i < TRACE_N; i++) {
         const u = i / (TRACE_N - 1);
-        const z = head - u * TRACE_LEN;
+        const zRun = head - u * TRACE_LEN;
+        const xRun = (60 + Math.sin(u * 2.2 + t * 0.15) * 15) * sideShift;
+        const xFace = camera.position.x + (-halfW + u * halfW * 2);
+        const x = xRun + (xFace - xRun) * lie;
+        const z = zRun + (zFace - zRun) * lie;
         const w = waveform(u * 3.0, t, 0);
-        tracePos[i * 3]     = (52 + Math.sin(u * 2.2 + t * 0.15) * 16) * sideShift;
-        tracePos[i * 3 + 1] = 22 + w * 15;
-        tracePos[i * 3 + 2] = z;
-        const w2 = waveform(u * 3.0 + 1.7, t * 0.8, 2.4);
-        trace2Pos[i * 3]     = (78 + Math.sin(u * 1.7 - t * 0.11) * 14) * sideShift;
-        trace2Pos[i * 3 + 1] = -26 + w2 * 11;
+
+        // what is actually happening
+        const yTrue = 12 + w * (15 - lie * 4);
+        trace2Pos[i * 3] = x;
+        trace2Pos[i * 3 + 1] = yTrue + spread * 0.35;
         trace2Pos[i * 3 + 2] = z;
+
+        // what the instrument says: same signal, with a slow gain error and a
+        // baseline that walks away from it
+        const gain = 1 + lie * 0.5 * Math.sin(u * 1.7 + t * 0.23);
+        const walk = lie * (0.25 + u * u * 1.5) * 11;
+        tracePos[i * 3] = x;
+        tracePos[i * 3 + 1] = yTrue * gain - walk - spread * 0.35;
+        tracePos[i * 3 + 2] = z;
       }
       traceGeo.attributes.position.needsUpdate = true;
       trace2Geo.attributes.position.needsUpdate = true;
+
+      if (lie > 0.01) {
+        for (let k = 0; k < ERR_N; k++) {
+          const i = Math.round((k / (ERR_N - 1)) * (TRACE_N - 1));
+          errPos[k * 6]     = tracePos[i * 3];
+          errPos[k * 6 + 1] = tracePos[i * 3 + 1];
+          errPos[k * 6 + 2] = tracePos[i * 3 + 2];
+          errPos[k * 6 + 3] = trace2Pos[i * 3];
+          errPos[k * 6 + 4] = trace2Pos[i * 3 + 1];
+          errPos[k * 6 + 5] = trace2Pos[i * 3 + 2];
+        }
+        errGeo.attributes.position.needsUpdate = true;
+      }
     }
 
     // ── topology
@@ -614,6 +721,10 @@ function boot() {
         p.material.opacity = topoIn * near;
         const e = p.userData.edge;
         const isHot = p === hovered;
+        // the plates hang rather than sit — each drifts on its own phase
+        const bob = Math.sin(t * 0.32 + i * 1.7) * 1.4 + (isHot ? 2.2 : 0);
+        p.position.y = p.userData.y0 + bob;
+        e.position.y = p.userData.y0 + bob;
         e.material.opacity = topoIn * near * (p.userData.legible ? 0.7 : 0.28) + (isHot ? 0.45 : 0);
         e.scale.setScalar(isHot ? 1.035 : 1.0);
       }
@@ -641,6 +752,7 @@ function boot() {
       fieldMat.uniforms.uTime.value = t;
       fieldMat.uniforms.uOpacity.value = fieldIn;
       field.userData.gridMat.uniforms.uOpacity.value = fieldIn * 0.30;
+      field.userData.dropMat.uniforms.uOpacity.value = fieldIn * 0.16;
       field.rotation.y = t * 0.014 + site.pointer.x * 0.06;
       field.rotation.x = site.pointer.y * 0.03;
     }

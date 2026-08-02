@@ -135,6 +135,12 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- a clear stage: the same signal, and the same signal as reported -->
+  <div class="drift-stage" data-station="lie" aria-hidden="true"></div>
+
+  <div class="wrap">
     <ul class="throughline rise">
       <li><span class="tl-k">in hardware</span><span class="tl-v">the sensor corrects itself before the control loop ever sees the fault</span></li>
       <li><span class="tl-k">in wearable EEG</span><span class="tl-v">a second physiology tells you when to distrust the first</span></li>
@@ -207,7 +213,13 @@
     </p>
   </div>
 
-  <div class="redact-hud" aria-hidden="true">
+  <div class="drift-hud" aria-hidden="true">
+  <div class="dh-row"><i class="dh-sw dh-true"></i><span>what is happening</span></div>
+  <div class="dh-row"><i class="dh-sw dh-meas"></i><span>what the instrument reports</span></div>
+  <div class="dh-note">the gap is the whole job</div>
+</div>
+
+<div class="redact-hud" aria-hidden="true">
     <div class="rh-row"><span class="rh-k">document</span><span class="rh-v">system topology · rev 7</span></div>
     <div class="rh-row"><span class="rh-k">classification</span><span class="rh-v rh-stamp">withheld pending peer review</span></div>
     <div class="rh-row"><span class="rh-k">plate</span><span class="rh-v" id="rh-role">— hover a plate —</span></div>

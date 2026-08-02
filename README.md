@@ -73,13 +73,19 @@ position, and each set piece is anchored to the section it belongs to. Reflow
 the layout, change the copy, resize the window: the scene follows, with no
 hard-coded scroll offsets anywhere.
 
-Three set pieces, each visible only inside its own section's depth band:
+The set pieces, each visible only inside its own section's depth band:
 
-- **the trace** — two channels running away into depth, hero through the first
-  work entry
+- **the instrument** — a bezel with three rings tumbling inside it, behind the
+  opening line. It comes back at the very end, drifts to centre and recedes.
+- **the trace** — two lines: the signal, and the signal as the instrument
+  reports it. They leave the hero almost coincident, running away into depth.
+  Across `[data-station="lie"]` they swing round to face the viewer and come
+  apart, with the residual drawn between them. That stage is deliberately empty
+  of copy; the legend is the fixed `.drift-hud`.
 - **the topology** — the redacted plates, flown through
 - **the field** — one point per run, crowding up under a ceiling they do not
-  pass. No axes and no values, because there are none to show.
+  pass, with hairlines from the ceiling to the ones that got closest. No axes
+  and no values, because there are none to show.
 
 ## Things that have broken before — do not undo these
 
@@ -103,6 +109,12 @@ Three set pieces, each visible only inside its own section's depth band:
 - **Each set piece is bound to its own section's depth band**, not to distance
   from a centre point. Distance alone let the ceiling field bleed three sections
   backwards and read as debris behind the topology.
+- **Stations nest, and the tightest one wins.** The `lie` stage sits inside the
+  conviction section; picking the first match instead of the smallest meant its
+  band never became current and its legend never appeared.
+- **A line pointing at the camera is a dot.** The trace only reads as two
+  diverging curves once it has swung side-on — that is what the `lie` blend is
+  for, and why the pair is never simply slid toward the centre of the view.
 
 ## Before you push
 

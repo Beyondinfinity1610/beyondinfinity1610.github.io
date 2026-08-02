@@ -35,9 +35,11 @@
   var rail        = document.querySelector('.rail');
   var topbar      = document.querySelector('.topbar');
   var redactHud   = document.querySelector('.redact-hud');
+  var driftHud    = document.querySelector('.drift-hud');
 
   var STATION_LABEL = {
-    hero: 'ignition', drift: 'the conviction', work: 'selected work',
+    hero: 'ignition', drift: 'the conviction', lie: 'signal vs instrument',
+    work: 'selected work',
     redaction: 'redacted topology', diagnosis: 'the audit', ceiling: 'ceiling map',
     work2: 'selected work', method: 'method', else: 'appendix',
     him: 'him', contact: 'contact'
@@ -84,6 +86,87 @@
     }
   }
 
+  // ── display type arrives a line at a time, from under its own baseline
+  function maskify() {
+    var targets = [];
+    Array.prototype.forEach.call(document.querySelectorAll('.display'), function (el) {
+      var lines = el.querySelectorAll(':scope > span.rise');
+      if (lines.length) targets.push.apply(targets, Array.prototype.slice.call(lines));
+      else targets.push(el);
+    });
+    targets.forEach(function (el) {
+      var parts = el.innerHTML.split(/<br\s*\/?>/i);
+      el.innerHTML = parts.map(function (part, i) {
+        var d = i ? ' style="--md:' + (i * 0.09).toFixed(2) + 's"' : '';
+        return '<span class="mask"' + d + '><span>' + part + '</span></span>';
+      }).join('');
+    });
+  }
+
+  // ── parallax. Amounts are peak travel in px across a full viewport; the
+  // value lands on --par, which composes with the entrance transform.
+  var PARALLAX = [
+    ['.entry .idx', 44],
+    ['.facts', 22],
+    ['.hold', 14],
+    ['.hero-foot', -20],
+    ['.skills .sk', 16],
+    ['.contact-links', 16],
+    ['.throughline', 12],
+    ['.creds', 10]
+  ];
+  var parallax = [];
+  function collectParallax() {
+    PARALLAX.forEach(function (pair) {
+      Array.prototype.forEach.call(document.querySelectorAll(pair[0]), function (el, i) {
+        // alternate direction down a set so the column breathes rather than slides
+        var amt = pair[1] * (i % 2 ? -0.7 : 1);
+        el.style.willChange = 'transform';
+        el.classList.add('par');
+        parallax.push({ el: el, amt: amt });
+      });
+    });
+  }
+  function runParallax() {
+    if (reduced) return;
+    var vh = state.vh;
+    for (var i = 0; i < parallax.length; i++) {
+      var p = parallax[i];
+      var r = p.el.getBoundingClientRect();
+      if (r.bottom < -240 || r.top > vh + 240) continue;
+      var off = ((r.top + r.height * 0.5) - vh * 0.5) / vh;
+      p.el.style.setProperty('--par', (off * p.amt).toFixed(1) + 'px');
+    }
+  }
+
+  // ── stagger indices for the rows that draw their own rule in
+  function indexRows() {
+    var sets = ['.throughline li', '.quiet li', '.method-list li', '.facts > div', '.clink'];
+    sets.forEach(function (sel) {
+      var last = null, n = 0;
+      Array.prototype.forEach.call(document.querySelectorAll(sel), function (el) {
+        if (el.parentNode !== last) { last = el.parentNode; n = 0; }
+        el.style.setProperty('--i', n++);
+      });
+    });
+  }
+
+  // ── the nav marks where you are
+  var NAV_FOR = {
+    work: 'work', redaction: 'work', diagnosis: 'work', ceiling: 'work', work2: 'work',
+    method: 'method', else: 'method', him: 'him', contact: 'contact'
+  };
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.topnav a'));
+  var navCurrent = '';
+  function markNav(station) {
+    var want = NAV_FOR[station] || '';
+    if (want === navCurrent) return;
+    navCurrent = want;
+    navLinks.forEach(function (a) {
+      a.classList.toggle('here', a.getAttribute('href') === '#' + want);
+    });
+  }
+
   var lastY = 0, vel = 0;
 
   function tick() {
@@ -101,13 +184,14 @@
 
     // which station holds the middle of the viewport
     var mid = y + state.vh * 0.5;
-    var current = 'hero', sp = 0;
+    // stations can nest — a stage inside a section — so the tightest one wins
+    var current = 'hero', sp = 0, best = Infinity;
     for (var key in state.stations) {
       var s = state.stations[key];
-      if (mid >= s.top && mid < s.top + s.height) {
+      if (mid >= s.top && mid < s.top + s.height && s.height < best) {
+        best = s.height;
         current = key;
         sp = (mid - s.top) / Math.max(1, s.height);
-        break;
       }
     }
     if (mid >= (state.stations.contact ? state.stations.contact.top : Infinity)) {
@@ -123,7 +207,11 @@
       if (railStation.textContent !== label) railStation.textContent = label;
     }
     if (redactHud) redactHud.classList.toggle('on', current === 'redaction');
+    if (driftHud) driftHud.classList.toggle('on', current === 'lie');
+    markNav(current);
+    if (topbar) topbar.classList.toggle('compact', y > 80);
 
+    runParallax();
     sweepRisers();
   }
 
@@ -131,6 +219,9 @@
 
   // ── boot
   function start() {
+    if (!reduced) maskify();
+    indexRows();
+    collectParallax();
     measure();
     lastY = window.scrollY || 0;
     state.ready = true;
