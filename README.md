@@ -42,48 +42,52 @@ Grep the site for red-list terms before pushing.
 
 An instrument cluster: blue-black, a cold backlight (`--ice`) as the primary
 accent and one warm warning colour (`--warn`) used sparingly, the way a car's
-dash uses amber. Instrument Serif for display against Space Grotesk and
-JetBrains Mono. Generous air, unequal weight by section. The page should read as
-a researcher's, not a project expo — the reader ought to conclude the work is
-serious rather than be told so.
+dash uses amber. Instrument Serif for display against JetBrains Mono. The
+written content rides over the 3D world on smoked-glass panels with corner
+ticks, so it stays legible against anything behind it.
 
-## The visuals
+## How the page works
 
-Each one has a job. Nothing here is decoration, and nothing here is measured
-data — it is all generated geometry.
+**It is one continuous flight through one 3D space.** There are no separate
+scenes and no sticky canvases. `js/world.js` builds a single scene; scroll
+position drives a camera along a spline through it, and the regions arrive in
+order:
 
-- **The montage** (`js/scenes/instrument.js`) — canvas 2D, behind the hero. A
-  stack of recording channels receding toward a vanishing point. Canvas rather
-  than WebGL so the page is drawn on the first frame; there is no preloader, by
-  design. It fades out as the hero leaves and is **wiped once** when it stops
-  updating, or its last painted frame sits over the rest of the page.
-- **The rail** (same file) — one hairline running down the left margin for the
-  whole document, like paper feeding through a chart recorder. Its deflection is
-  a function of *document* position, so it is anchored to the page rather than
-  the screen, and its agitation is set per section by `REGIONS` in `main.js`.
-  Over the redaction section it becomes a struck-out line.
-- **The morph** (`js/scenes/morph.js`) — one point cloud, two arrangements.
-  An inline four becomes the 10-20 montage as you scroll: same points, nothing
-  added, nothing removed. It is the cars-to-electrodes argument made literal.
-  Draggable once it settles. The adjacency in `js/data/eeg.js` is **generated
-  geometry for the visual, not measured connectivity** — keep it that way, real
-  connectivity from the research would be a disclosure.
-- **The search** (`js/scenes/search.js`) — one dot per run in a sweep, arriving
-  as you scroll, with a route drawn through the few that were kept and a ceiling
-  the route never clears. Showing that a large systematic search happened, and
-  that it ended at a limit, is permitted. **There are no axes, no labels, no
-  experiment names and no values in this scene, and there must not be** — the
-  heights come from a fixed seed and encode nothing.
-- **The redacted architecture** (`js/scenes/redaction.js`) — three.js, lazily
-  imported so the library is only fetched near the section. The real stage count
-  and flow of a multi-stage system with every label struck out. As the camera
-  closes, the bars retract just far enough to show there is something under them,
-  then snap back. Hovering reports a **generic role only**.
+| region | what it is |
+|---|---|
+| ignition | an inline four, turning over, then letting go |
+| montage | the 10-20 electrode network, wired |
+| corridor | a tunnel of recordings the camera flies down |
+| archive | the redacted architecture, passed through |
+| volume | the search — a field of runs you are *inside*, not looking at |
+| settle | open space |
 
-  The file contains no component names to redact: the labels are generated as
-  abstract bars and glyph-shaped rectangles, so nothing confidential exists in
-  the source, the DOM or the network tab. **Keep it that way.** The one legible
-  plate is the input, because the input is a public dataset.
+**Regions are positioned by `layout()`, not by hand.** `measure()` in `main.js`
+computes where each section sits as a fraction of total scroll and passes those
+marks in; `layout()` places each landmark at the depth the camera reaches when
+its own section is on screen, offset a little further on so you approach it
+rather than spawning inside it. This means the world can never drift out of sync
+with the writing when copy is edited. **Do not go back to hard-coded z values.**
+
+**The intro is not a preloader.** `js/intro.js` paints on the first frame with
+plain DOM while three.js loads in parallel; nothing waits on anything. Any
+intent to move — wheel, touch, key, or the skip button — ends it immediately.
+
+## Disclosure rules baked into the code
+
+Both are stated in the header of `world.js` and must survive any edit:
+
+- **The archive carries no component names.** Its labels are generated bars and
+  glyph-shaped rectangles, so nothing confidential exists in the source, the DOM
+  or the network tab. The single legible plate is the input, because the input is
+  a public dataset.
+- **The volume has no axes, no labels, no experiment names and no values.**
+  Heights come from a fixed seed and encode nothing. It may show that a large
+  systematic search happened and that it ended at a limit. Nothing more.
+
+The adjacency in `js/data/eeg.js` is generated geometry for the visual, **not
+measured connectivity** — real connectivity from the research would be a
+disclosure.
 
 ## Stack
 
@@ -96,26 +100,25 @@ Test with `python -m http.server` from the repo root — opening `index.html` ov
 
 ## Notes for future edits
 
-- **Entrances do not use IntersectionObserver.** IO callbacks are suspended in
+- **Entrances do not use IntersectionObserver.** Its callbacks are suspended in
   throttled and background tabs, and a suspended callback means content that
   never appears. Everything goes through `onEnter()` in `main.js`, driven from
   the scroll handler and the frame loop. The check has no lower bound on purpose:
   anything already above the viewport must resolve immediately, or a restored
   scroll position leaves the page blank.
-- **`offsetTop` is not used for scroll maths** — several sections sit inside
-  positioned ancestors. Use `docTop()`.
-- **Do not bottom-align the hero with `justify-content` and an auto margin at the
-  same time.** It is a grid with an explicit footer row for that reason.
-- **Watch `padding` shorthands on elements that are also `.wrap`.** `padding: X 0
-  Y` silently wipes the gutters `.wrap` sets; use `padding-block`.
-- Scenes are registered in the `SCENES` array in `main.js`: each one is lazily
-  imported when its section is close, driven by its own scroll span, rendered
-  only while visible, and wrapped so that one failing cannot take the page with
-  it. Adding a scene means adding an entry there and a `.stage` section.
-- `prefers-reduced-motion` and missing WebGL both fall back to `body.flat-scene`,
-  which swaps the canvas for the static CSS plate diagram and collapses the
-  scroll stage. Reduced motion still tracks the scroll — that motion is the
-  reader's — but freezes time so nothing self-animates.
+- **`offsetTop` is not used for scroll maths** — sections sit inside positioned
+  ancestors. Use `docTop()`.
+- **Clamp `gl_PointSize`.** The camera flies *through* the point clouds; without
+  a ceiling, a point a metre from the lens fills the screen with bokeh. Both
+  custom shaders clamp, and the `PointsMaterial` clouds keep an inner radius
+  clear of the flight line for the same reason.
+- **Landmarks are lifted and shrunk on tall viewports** (`this.narrow` in
+  `layout()`), because on a phone the copy owns the lower two thirds. `resize()`
+  re-runs `layout()` since narrow can flip.
+- The HUD is hidden below 760px; it would sit on the copy.
+- `prefers-reduced-motion` and missing WebGL both set `body.flat`: no intro, no
+  world, a static gradient, and every entrance resolved. The page reads fully
+  without any of the 3D.
 - When verifying in headless Chrome over CDP, **disable the cache**
   (`Network.setCacheDisabled`). Module scripts are cached hard enough that edits
   appear not to have taken effect.

@@ -1,21 +1,24 @@
 /* ============================================================
-   main.js — scroll engine, entrances, and the frame loop.
+   main.js — scroll, entrances, HUD, and the frame loop.
 
-   Two rules that have already caused visible bugs on this page and
-   should not be relearned:
+   The page is a single flight through one 3D world (see world.js).
+   Scroll position maps to a position along that flight; the written
+   content rides over it. There is one WebGL context and one loop.
+
+   Rules that have already cost visible bugs here:
 
    1. Entrances do not use IntersectionObserver. Its callbacks are
       suspended in throttled and background tabs, and a suspended
       callback means content that never appears. Everything runs from
-      onEnter(), which is driven by the scroll handler and the frame
-      loop, and anything already above the viewport resolves at once —
-      otherwise a restored scroll position lands on a blank page.
+      onEnter(), driven by the scroll handler and the frame loop, and
+      anything already above the viewport resolves at once — otherwise
+      a restored scroll position lands on a blank page.
 
-   2. offsetTop is not used for scroll maths. Several sections sit in
+   2. offsetTop is not used for scroll maths. Sections sit inside
       positioned ancestors. Use docTop().
    ============================================================ */
 
-import { Instrument } from './scenes/instrument.js';
+import { runIntro } from './intro.js';
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const docTop = (el) => el.getBoundingClientRect().top + window.scrollY;
@@ -26,7 +29,7 @@ const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const revealables = Array.from(document.querySelectorAll('[data-r]'));
 
 function onEnter() {
-  const limit = window.scrollY + window.innerHeight * 0.88;
+  const limit = window.scrollY + window.innerHeight * 0.9;
   for (let i = revealables.length - 1; i >= 0; i--) {
     const el = revealables[i];
     /* No lower bound on purpose: anything above the fold must resolve. */
@@ -37,14 +40,13 @@ function onEnter() {
   }
 }
 
-/* ---------------------------------------------------------- device tier */
+/* ---------------------------------------------------------- capability */
 
 function deviceTier() {
   const mem = navigator.deviceMemory || 4;
   const cores = navigator.hardwareConcurrency || 4;
-  const small = window.innerWidth < 760;
   if (mem <= 2 || cores <= 2) return 'low';
-  return small ? 'mid' : 'high';
+  return window.innerWidth < 760 ? 'mid' : 'high';
 }
 
 function hasWebGL() {
@@ -54,165 +56,119 @@ function hasWebGL() {
   } catch (_) { return false; }
 }
 
-/* ---------------------------------------------------------- setup */
+const webglOK = hasWebGL() && !reduced;
+if (!webglOK) document.body.classList.add('flat');
 
-const instrument = new Instrument(
-  document.getElementById('montage'),
-  document.getElementById('rail')
-);
+/* ---------------------------------------------------------- elements */
 
 const nav = document.getElementById('nav');
 const navLinks = Array.from(document.querySelectorAll('.nav-sec a'));
-const heroEl = document.getElementById('hero');
-const roleOut = document.getElementById('ru-role');
+const hudRegion = document.getElementById('hud-region');
+const hudDepth = document.getElementById('hud-depth');
+const hudBar = document.getElementById('hud-bar');
+const introRoot = document.getElementById('boot');
 
-const DEFAULT_ROLE = 'Two manuscripts in preparation';
-
-/* Signal agitation per section — the rail is calm where the writing is
-   calm and busy where the subject is. */
+/* The HUD names where in the flight you are. */
 const REGIONS = [
-  { id: 'conviction', busy: 0.22, redact: 0 },
-  { id: 'morph',      busy: 0.62, redact: 0 },
-  { id: 'work',       busy: 0.55, redact: 0 },
-  { id: 'redaction',  busy: 0.75, redact: 1 },
-  { id: 'work-2',     busy: 0.45, redact: 0 },
-  { id: 'search',     busy: 0.70, redact: 0 },
-  { id: 'search-note',busy: 0.35, redact: 0 },
-  { id: 'method',     busy: 0.30, redact: 0 },
-  { id: 'about',      busy: 0.18, redact: 0 },
-  { id: 'contact',    busy: 0.10, redact: 0 },
-].map((r) => ({ ...r, el: document.getElementById(r.id) })).filter((r) => r.el);
+  ['top', 'ignition'],
+  ['conviction', 'the conviction'],
+  ['work', 'selected work'],
+  ['archive', 'withheld'],
+  ['work-2', 'selected work'],
+  ['search', 'the search'],
+  ['method', 'method'],
+  ['about', 'about'],
+  ['contact', 'contact'],
+].map(([id, name]) => ({ id, name, el: document.getElementById(id) }))
+ .filter((r) => r.el);
 
-let webglOK = hasWebGL();
-if (!webglOK) document.body.classList.add('no-webgl');
+/* ---------------------------------------------------------- world */
 
-/* Reduced motion does not mean "show nothing": the redacted diagram is
-   the argument of that section, so it falls back to the static plate
-   version rather than leaving three viewports of empty scroll. */
-if (reduced || !webglOK) document.body.classList.add('flat-scene');
+let world = null;
+let introDone = false;
+let introEase = 1;      // 1 = held on the engine, eases to 0
 
-/* Every WebGL scene is registered here and loaded only when its section
-   is close. Each is scroll-driven, rendered only while visible, and
-   optional — the page reads without any of them. */
-const SCENES = [
-  {
-    id: 'morph', canvas: 'morph-canvas', module: './scenes/morph.js', export: 'Morph',
-    states: () => document.querySelectorAll('#morph .state'),
-    stateAt: (p) => (p < 0.3 ? 0 : p < 0.72 ? 1 : 2),
-  },
-  {
-    id: 'redaction', canvas: 'redact-canvas', module: './scenes/redaction.js', export: 'Redaction',
-    stage: '.redaction-stage',
-    opts: () => ({
-      onRole: (role) => {
-        roleOut.textContent = role || DEFAULT_ROLE;
-        roleOut.classList.toggle('on', !!role);
-      },
-    }),
-  },
-  {
-    id: 'search', canvas: 'search-canvas', module: './scenes/search.js', export: 'Search',
-    states: () => document.querySelectorAll('#search .state'),
-    stateAt: (p) => (p < 0.46 ? 0 : p < 0.74 ? 1 : 2),
-  },
-];
-
-for (const sc of SCENES) {
-  sc.el = document.getElementById(sc.id);
-  sc.stageEl = sc.stage ? sc.el.querySelector(sc.stage) : sc.el;
-  sc.instance = null;
-  sc.loading = false;
-  sc.visible = false;
-  sc.top = 0;
-  sc.span = 1;
-  sc.state = -1;
-}
-
-async function ensureScene(sc) {
-  if (sc.instance || sc.loading || !webglOK || reduced || !sc.el) return;
-  sc.loading = true;
+async function bootWorld() {
+  if (!webglOK) return;
   try {
-    const mod = await import(sc.module);
-    const Ctor = mod[sc.export];
-    sc.instance = new Ctor(document.getElementById(sc.canvas), {
-      tier: deviceTier(),
-      ...(sc.opts ? sc.opts() : {}),
-    });
-    sc.instance.resize();
-    sc.instance.setProgress((window.scrollY - sc.top) / sc.span);
+    const { World } = await import('./world.js');
+    world = new World(document.getElementById('world'), { tier: deviceTier() });
+    measure();
+    world.setProgress(pageProgress());
+    document.body.classList.add('world-on');
   } catch (err) {
-    /* One scene failing must not take the others, or the page, with it. */
-    sc.failed = true;
+    document.body.classList.add('flat');
   }
 }
 
-/* ---------------------------------------------------------- scroll state */
+/* ---------------------------------------------------------- scroll */
 
-let scrollY = window.scrollY;
 let vh = window.innerHeight;
-let heroBottom = vh;
+let docH = 1;
 let navMarks = [];
+
+function pageProgress() {
+  return clamp01(window.scrollY / Math.max(1, docH - vh));
+}
+
+/* Where a section sits as a fraction of the whole flight. */
+function markOf(id, bias = 0.5) {
+  const el = document.getElementById(id);
+  if (!el) return 0;
+  const r = el.getBoundingClientRect();
+  const y = r.top + window.scrollY + r.height * bias - vh * 0.5;
+  return clamp01(y / Math.max(1, docH - vh));
+}
 
 function measure() {
   vh = window.innerHeight;
-  heroBottom = Math.max(1, heroEl.getBoundingClientRect().height);
+  docH = document.documentElement.scrollHeight;
   navMarks = navLinks.map((a) => {
     const el = document.querySelector(a.getAttribute('href'));
     return { a, top: el ? docTop(el) - vh * 0.35 : Infinity };
   });
-  for (const r of REGIONS) {
-    r.top = docTop(r.el);
-    r.bottom = r.top + r.el.getBoundingClientRect().height;
+  for (const r of REGIONS) r.top = docTop(r.el) - vh * 0.5;
+
+  if (world) {
+    world.resize();
+    /* The world follows the writing: each region is placed at the depth
+       the camera reaches when its own section is on screen. */
+    world.layout({
+      ignition: 0,
+      montage: markOf('conviction'),
+      corridor: [markOf('work', 0.4), markOf('archive', 0.1)],
+      archive: markOf('archive'),
+      volume: [markOf('search', -0.15), markOf('search', 1.15)],
+      settle: markOf('about'),
+    });
   }
-  for (const sc of SCENES) {
-    if (!sc.stageEl) continue;
-    sc.top = docTop(sc.stageEl);
-    sc.span = Math.max(1, sc.stageEl.getBoundingClientRect().height - vh);
-    if (sc.instance) sc.instance.resize();
-  }
-  instrument.resize();
 }
 
+let lastRegion = null;
+
 function onScroll() {
-  scrollY = window.scrollY;
-  instrument.scroll = scrollY;
-  instrument.heroP = clamp01(scrollY / (heroBottom * 0.85));
+  const y = window.scrollY;
+  const p = pageProgress();
 
-  nav.classList.toggle('is-stuck', scrollY > vh * 0.6);
+  nav.classList.toggle('is-stuck', y > vh * 0.55);
+  if (world) world.setProgress(p);
 
-  /* section signature for the rail */
-  const eye = scrollY + vh * 0.45;
-  let busy = 0.2, redact = 0;
-  for (const r of REGIONS) {
-    if (eye >= r.top && eye < r.bottom) { busy = r.busy; redact = r.redact; break; }
-  }
-  instrument.targetBusy = busy;
-  instrument.targetRedact = redact;
+  hudDepth.textContent = String(Math.round(p * 100)).padStart(3, '0');
+  hudBar.style.transform = `scaleY(${0.015 + p * 0.985})`;
 
-  /* scenes: load when near, render only while on screen */
-  for (const sc of SCENES) {
-    if (!sc.stageEl) continue;
-    const p = (scrollY - sc.top) / sc.span;
-    sc.visible = p > -0.6 && p < 1.6;
-    if (p > -1.1 && p < 2) ensureScene(sc);
-    if (sc.instance) sc.instance.setProgress(p);
-
-    /* Caption states track the same progress, whether or not the scene
-       itself ever loaded. */
-    if (sc.stateAt) {
-      const want = sc.stateAt(clamp01(p));
-      if (want !== sc.state) {
-        sc.state = want;
-        const nodes = sc.nodes || (sc.nodes = sc.states());
-        nodes.forEach((n, i) => n.classList.toggle('on', i === want));
-      }
-    }
+  let cur = REGIONS[0];
+  for (const r of REGIONS) if (y >= r.top) cur = r;
+  if (cur !== lastRegion) {
+    lastRegion = cur;
+    hudRegion.textContent = cur.name;
+    hudRegion.classList.remove('flip');
+    void hudRegion.offsetWidth;   // restart the transition
+    hudRegion.classList.add('flip');
   }
 
-  /* nav current section */
-  let cur = null;
-  for (const m of navMarks) if (scrollY >= m.top) cur = m.a;
-  for (const m of navMarks) m.a.classList.toggle('on', m.a === cur);
+  let na = null;
+  for (const m of navMarks) if (y >= m.top) na = m.a;
+  for (const m of navMarks) m.a.classList.toggle('on', m.a === na);
 
   onEnter();
 }
@@ -220,44 +176,32 @@ function onScroll() {
 /* ---------------------------------------------------------- loop */
 
 let last = performance.now();
-let t = 0;
 
 function loop(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
-  t += dt;
 
-  /* Ease the rail's character between sections in the loop, not the
-     scroll handler, so it keeps moving when the scroll stops. */
-  const k = Math.min(1, dt * 3);
-  instrument.busy += ((instrument.targetBusy ?? 0.2) - instrument.busy) * k;
-  instrument.redact += ((instrument.targetRedact ?? 0) - instrument.redact) * k;
-
-  /* Under reduced motion the instrument still tracks the scroll — that
-     motion is the reader's — but time is frozen so nothing self-animates. */
-  instrument.frame(reduced ? 0 : t);
-  for (const sc of SCENES) {
-    if (sc.instance && sc.visible) sc.instance.frame(t, dt);
+  if (world) {
+    /* Release the camera from the engine smoothly once the intro ends. */
+    if (introDone && introEase > 0) introEase = Math.max(0, introEase - dt * 0.85);
+    world.setIntro(introEase < 0.001 ? 0 : introEase * introEase);
+    world.frame(dt);
   }
 
-  /* The scroll handler covers normal use; this covers the cases it does
-     not — momentum settling, tab restore, anchor jumps. */
   if (revealables.length) onEnter();
-
   requestAnimationFrame(loop);
 }
 
 /* ---------------------------------------------------------- clock */
 
 function tickClock() {
-  const el = document.getElementById('clock');
+  const el = document.getElementById('hud-clock');
   if (!el) return;
   try {
-    const time = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit',
+    el.textContent = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit',
     }).format(new Date());
-    el.textContent = `Chennai ${time}`;
-  } catch (_) { /* leave the static label */ }
+  } catch (_) { /* leave it */ }
 }
 
 /* ---------------------------------------------------------- boot */
@@ -270,21 +214,34 @@ window.addEventListener('resize', () => {
 
 window.addEventListener('scroll', onScroll, { passive: true });
 
-roleOut.textContent = DEFAULT_ROLE;
-
 measure();
 onScroll();
 onEnter();
 tickClock();
-setInterval(tickClock, 30000);
+setInterval(tickClock, 1000);
+
+/* The world loads in parallel with the intro; neither waits on the other. */
+bootWorld();
+
+if (introRoot && webglOK && window.scrollY < 40) {
+  runIntro(introRoot, (immediate) => {
+    introDone = true;
+    /* A deliberate skip should feel instant, not merely faster. */
+    if (immediate) introEase = Math.min(introEase, 0.5);
+    document.body.classList.add('lit');
+  });
+} else {
+  if (introRoot) introRoot.remove();
+  introDone = true;
+  introEase = 0;
+  document.body.classList.add('lit');
+}
 
 requestAnimationFrame(() => {
   document.body.classList.add('ready');
-  if (reduced) instrument.frame(0);
   requestAnimationFrame(loop);
 });
 
-/* A late web-font load shifts layout; re-measure once it settles. */
 if (document.fonts && document.fonts.ready) {
   document.fonts.ready.then(() => { measure(); onScroll(); });
 }
