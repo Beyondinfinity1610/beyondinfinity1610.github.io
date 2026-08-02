@@ -64,8 +64,6 @@ const instrument = new Instrument(
 const nav = document.getElementById('nav');
 const navLinks = Array.from(document.querySelectorAll('.nav-sec a'));
 const heroEl = document.getElementById('hero');
-const redactSection = document.getElementById('redaction');
-const redactStage = redactSection.querySelector('.redaction-stage');
 const roleOut = document.getElementById('ru-role');
 
 const DEFAULT_ROLE = 'Two manuscripts in preparation';
@@ -74,16 +72,17 @@ const DEFAULT_ROLE = 'Two manuscripts in preparation';
    calm and busy where the subject is. */
 const REGIONS = [
   { id: 'conviction', busy: 0.22, redact: 0 },
+  { id: 'morph',      busy: 0.62, redact: 0 },
   { id: 'work',       busy: 0.55, redact: 0 },
   { id: 'redaction',  busy: 0.75, redact: 1 },
   { id: 'work-2',     busy: 0.45, redact: 0 },
+  { id: 'search',     busy: 0.70, redact: 0 },
+  { id: 'search-note',busy: 0.35, redact: 0 },
   { id: 'method',     busy: 0.30, redact: 0 },
   { id: 'about',      busy: 0.18, redact: 0 },
   { id: 'contact',    busy: 0.10, redact: 0 },
 ].map((r) => ({ ...r, el: document.getElementById(r.id) })).filter((r) => r.el);
 
-let redaction = null;
-let redactionLoading = false;
 let webglOK = hasWebGL();
 if (!webglOK) document.body.classList.add('no-webgl');
 
@@ -92,23 +91,58 @@ if (!webglOK) document.body.classList.add('no-webgl');
    version rather than leaving three viewports of empty scroll. */
 if (reduced || !webglOK) document.body.classList.add('flat-scene');
 
-async function ensureRedaction() {
-  if (redaction || redactionLoading || !webglOK || reduced) return;
-  redactionLoading = true;
-  try {
-    const { Redaction } = await import('./scenes/redaction.js');
-    redaction = new Redaction(document.getElementById('redact-canvas'), {
-      tier: deviceTier(),
+/* Every WebGL scene is registered here and loaded only when its section
+   is close. Each is scroll-driven, rendered only while visible, and
+   optional — the page reads without any of them. */
+const SCENES = [
+  {
+    id: 'morph', canvas: 'morph-canvas', module: './scenes/morph.js', export: 'Morph',
+    states: () => document.querySelectorAll('#morph .state'),
+    stateAt: (p) => (p < 0.3 ? 0 : p < 0.72 ? 1 : 2),
+  },
+  {
+    id: 'redaction', canvas: 'redact-canvas', module: './scenes/redaction.js', export: 'Redaction',
+    stage: '.redaction-stage',
+    opts: () => ({
       onRole: (role) => {
         roleOut.textContent = role || DEFAULT_ROLE;
         roleOut.classList.toggle('on', !!role);
       },
+    }),
+  },
+  {
+    id: 'search', canvas: 'search-canvas', module: './scenes/search.js', export: 'Search',
+    states: () => document.querySelectorAll('#search .state'),
+    stateAt: (p) => (p < 0.46 ? 0 : p < 0.74 ? 1 : 2),
+  },
+];
+
+for (const sc of SCENES) {
+  sc.el = document.getElementById(sc.id);
+  sc.stageEl = sc.stage ? sc.el.querySelector(sc.stage) : sc.el;
+  sc.instance = null;
+  sc.loading = false;
+  sc.visible = false;
+  sc.top = 0;
+  sc.span = 1;
+  sc.state = -1;
+}
+
+async function ensureScene(sc) {
+  if (sc.instance || sc.loading || !webglOK || reduced || !sc.el) return;
+  sc.loading = true;
+  try {
+    const mod = await import(sc.module);
+    const Ctor = mod[sc.export];
+    sc.instance = new Ctor(document.getElementById(sc.canvas), {
+      tier: deviceTier(),
+      ...(sc.opts ? sc.opts() : {}),
     });
-    redaction.resize();
-    redaction.setProgress((window.scrollY - redactTop) / redactSpan);
+    sc.instance.resize();
+    sc.instance.setProgress((window.scrollY - sc.top) / sc.span);
   } catch (err) {
-    webglOK = false;
-    document.body.classList.add('no-webgl');
+    /* One scene failing must not take the others, or the page, with it. */
+    sc.failed = true;
   }
 }
 
@@ -117,15 +151,11 @@ async function ensureRedaction() {
 let scrollY = window.scrollY;
 let vh = window.innerHeight;
 let heroBottom = vh;
-let redactTop = 0, redactSpan = 1;
 let navMarks = [];
-let redactVisible = false;
 
 function measure() {
   vh = window.innerHeight;
   heroBottom = Math.max(1, heroEl.getBoundingClientRect().height);
-  redactTop = docTop(redactStage);
-  redactSpan = Math.max(1, redactStage.getBoundingClientRect().height - vh);
   navMarks = navLinks.map((a) => {
     const el = document.querySelector(a.getAttribute('href'));
     return { a, top: el ? docTop(el) - vh * 0.35 : Infinity };
@@ -134,8 +164,13 @@ function measure() {
     r.top = docTop(r.el);
     r.bottom = r.top + r.el.getBoundingClientRect().height;
   }
+  for (const sc of SCENES) {
+    if (!sc.stageEl) continue;
+    sc.top = docTop(sc.stageEl);
+    sc.span = Math.max(1, sc.stageEl.getBoundingClientRect().height - vh);
+    if (sc.instance) sc.instance.resize();
+  }
   instrument.resize();
-  if (redaction) redaction.resize();
 }
 
 function onScroll() {
@@ -154,11 +189,25 @@ function onScroll() {
   instrument.targetBusy = busy;
   instrument.targetRedact = redact;
 
-  /* redaction scene */
-  const p = (scrollY - redactTop) / redactSpan;
-  redactVisible = p > -0.6 && p < 1.6;
-  if (p > -1 && p < 2) ensureRedaction();
-  if (redaction) redaction.setProgress(p);
+  /* scenes: load when near, render only while on screen */
+  for (const sc of SCENES) {
+    if (!sc.stageEl) continue;
+    const p = (scrollY - sc.top) / sc.span;
+    sc.visible = p > -0.6 && p < 1.6;
+    if (p > -1.1 && p < 2) ensureScene(sc);
+    if (sc.instance) sc.instance.setProgress(p);
+
+    /* Caption states track the same progress, whether or not the scene
+       itself ever loaded. */
+    if (sc.stateAt) {
+      const want = sc.stateAt(clamp01(p));
+      if (want !== sc.state) {
+        sc.state = want;
+        const nodes = sc.nodes || (sc.nodes = sc.states());
+        nodes.forEach((n, i) => n.classList.toggle('on', i === want));
+      }
+    }
+  }
 
   /* nav current section */
   let cur = null;
@@ -187,7 +236,9 @@ function loop(now) {
   /* Under reduced motion the instrument still tracks the scroll — that
      motion is the reader's — but time is frozen so nothing self-animates. */
   instrument.frame(reduced ? 0 : t);
-  if (redaction && redactVisible) redaction.frame(t, dt);
+  for (const sc of SCENES) {
+    if (sc.instance && sc.visible) sc.instance.frame(t, dt);
+  }
 
   /* The scroll handler covers normal use; this covers the cases it does
      not — momentum settling, tab restore, anchor jumps. */

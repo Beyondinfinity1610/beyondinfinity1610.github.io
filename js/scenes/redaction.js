@@ -18,8 +18,8 @@
 
 import * as THREE from '../../vendor/three.module.js';
 
-const INK = 0x0a0908;
-const BRASS = 0xc69a5e;
+const INK = 0x05070b;
+const BRASS = 0x8ec5f0;
 
 /* Layout: five inputs → one weighting stage → two combining stages →
    two outputs. Shape and flow only. */
@@ -76,7 +76,7 @@ function glyphTexture(key, w, h) {
   const rows = c.height > 150 ? 4 : c.height > 90 ? 2 : 1;
   const rh = Math.min(15, (c.height - pad * 2) / (rows * 1.9));
 
-  x.fillStyle = 'rgba(232,200,158,0.92)';
+  x.fillStyle = 'rgba(190,222,250,0.92)';
   let y = (c.height - (rows * rh * 1.85 - rh * 0.85)) / 2;
   for (let r = 0; r < rows; r++) {
     let cx = pad;
@@ -107,7 +107,7 @@ function plainTexture(lines, w, h) {
   let y = c.height / 2 - total / 2 + size * 0.68;
   lines.forEach((ln, i) => {
     x.font = `${i === 0 ? 500 : 400} ${i === 0 ? size : size * 0.8}px "JetBrains Mono", monospace`;
-    x.fillStyle = i === 0 ? 'rgba(236,229,218,0.95)' : 'rgba(198,154,94,0.85)';
+    x.fillStyle = i === 0 ? 'rgba(233,238,244,0.95)' : 'rgba(142,197,240,0.85)';
     x.fillText(ln, c.width / 2, y);
     y += size * 1.35;
   });
@@ -175,8 +175,8 @@ export class Redaction {
     gc.width = gc.height = 256;
     const gx = gc.getContext('2d');
     const rg = gx.createRadialGradient(128, 128, 0, 128, 128, 128);
-    rg.addColorStop(0, 'rgba(198,154,94,0.55)');
-    rg.addColorStop(0.45, 'rgba(150,108,62,0.16)');
+    rg.addColorStop(0, 'rgba(142,197,240,0.42)');
+    rg.addColorStop(0.45, 'rgba(90,140,190,0.14)');
     rg.addColorStop(1, 'rgba(0,0,0,0)');
     gx.fillStyle = rg;
     gx.fillRect(0, 0, 256, 256);
@@ -197,7 +197,7 @@ export class Redaction {
     });
     /* The plate is deliberately lighter than the page. A redaction only
        reads as a redaction if the bar is darker than what it covers. */
-    const faceMat = new THREE.MeshBasicMaterial({ color: 0x2a2419 });
+    const faceMat = new THREE.MeshBasicMaterial({ color: 0x1d242e });
 
     let key = 1;
     LAYOUT.forEach((stage, si) => {
@@ -307,7 +307,7 @@ export class Redaction {
     this.particles = new THREE.Points(
       flowGeo,
       new THREE.PointsMaterial({
-        color: 0xe2c093, size: 0.07, transparent: true, opacity: 0.7,
+        color: 0xc5e2fb, size: 0.07, transparent: true, opacity: 0.7,
         sizeAttenuation: true, depthWrite: false,
         blending: THREE.AdditiveBlending,
       })

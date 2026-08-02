@@ -40,12 +40,14 @@ Grep the site for red-list terms before pushing.
 
 ## Design
 
-Warm near-black, a single brass accent, Instrument Serif for display against
-Space Grotesk and JetBrains Mono. Generous air, unequal weight by section. The
-page should read as a researcher's, not a project expo — the reader ought to
-conclude the work is serious rather than be told so.
+An instrument cluster: blue-black, a cold backlight (`--ice`) as the primary
+accent and one warm warning colour (`--warn`) used sparingly, the way a car's
+dash uses amber. Instrument Serif for display against Space Grotesk and
+JetBrains Mono. Generous air, unequal weight by section. The page should read as
+a researcher's, not a project expo — the reader ought to conclude the work is
+serious rather than be told so.
 
-## The three visuals
+## The visuals
 
 Each one has a job. Nothing here is decoration, and nothing here is measured
 data — it is all generated geometry.
@@ -60,6 +62,18 @@ data — it is all generated geometry.
   a function of *document* position, so it is anchored to the page rather than
   the screen, and its agitation is set per section by `REGIONS` in `main.js`.
   Over the redaction section it becomes a struck-out line.
+- **The morph** (`js/scenes/morph.js`) — one point cloud, two arrangements.
+  An inline four becomes the 10-20 montage as you scroll: same points, nothing
+  added, nothing removed. It is the cars-to-electrodes argument made literal.
+  Draggable once it settles. The adjacency in `js/data/eeg.js` is **generated
+  geometry for the visual, not measured connectivity** — keep it that way, real
+  connectivity from the research would be a disclosure.
+- **The search** (`js/scenes/search.js`) — one dot per run in a sweep, arriving
+  as you scroll, with a route drawn through the few that were kept and a ceiling
+  the route never clears. Showing that a large systematic search happened, and
+  that it ended at a limit, is permitted. **There are no axes, no labels, no
+  experiment names and no values in this scene, and there must not be** — the
+  heights come from a fixed seed and encode nothing.
 - **The redacted architecture** (`js/scenes/redaction.js`) — three.js, lazily
   imported so the library is only fetched near the section. The real stage count
   and flow of a multi-stage system with every label struck out. As the camera
@@ -94,6 +108,10 @@ Test with `python -m http.server` from the repo root — opening `index.html` ov
   same time.** It is a grid with an explicit footer row for that reason.
 - **Watch `padding` shorthands on elements that are also `.wrap`.** `padding: X 0
   Y` silently wipes the gutters `.wrap` sets; use `padding-block`.
+- Scenes are registered in the `SCENES` array in `main.js`: each one is lazily
+  imported when its section is close, driven by its own scroll span, rendered
+  only while visible, and wrapped so that one failing cannot take the page with
+  it. Adding a scene means adding an entry there and a `.stage` section.
 - `prefers-reduced-motion` and missing WebGL both fall back to `body.flat-scene`,
   which swaps the canvas for the static CSS plate diagram and collapses the
   scroll stage. Reduced motion still tracks the scroll — that motion is the

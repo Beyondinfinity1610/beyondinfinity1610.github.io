@@ -131,18 +131,18 @@ export class Instrument {
       /* Edges of each trace dissolve rather than stopping abruptly. */
       const grad = x.createLinearGradient(cx - half, 0, cx + half, 0);
       const a = 0.85 * near * fade;
-      grad.addColorStop(0, 'rgba(198,154,94,0)');
-      grad.addColorStop(0.18, `rgba(214,178,132,${a * 0.55})`);
-      grad.addColorStop(0.52, `rgba(236,229,218,${a})`);
-      grad.addColorStop(0.85, `rgba(214,178,132,${a * 0.5})`);
-      grad.addColorStop(1, 'rgba(198,154,94,0)');
+      grad.addColorStop(0, 'rgba(142,197,240,0)');
+      grad.addColorStop(0.18, `rgba(142,197,240,${a * 0.55})`);
+      grad.addColorStop(0.52, `rgba(233,238,244,${a})`);
+      grad.addColorStop(0.85, `rgba(142,197,240,${a * 0.5})`);
+      grad.addColorStop(1, 'rgba(142,197,240,0)');
 
       x.strokeStyle = grad;
       x.lineWidth = Math.max(0.65, 1.5 * near);
       x.lineJoin = 'round';
 
       if (i === 0) {
-        x.shadowColor = 'rgba(198,154,94,0.5)';
+        x.shadowColor = 'rgba(142,197,240,0.5)';
         x.shadowBlur = 18 * fade;
       }
       x.stroke();
@@ -158,8 +158,8 @@ export class Instrument {
     const my = base0 + signal(u, 0, this.busy) * H * 0.075 * s0;
     x.beginPath();
     x.arc(mx, my, 1.9, 0, TAU);
-    x.fillStyle = `rgba(240,214,178,${0.85 * fade})`;
-    x.shadowColor = 'rgba(198,154,94,0.9)';
+    x.fillStyle = `rgba(255,190,140,${0.9 * fade})`;
+    x.shadowColor = 'rgba(255,170,110,0.9)';
     x.shadowBlur = 14 * fade;
     x.fill();
     x.shadowBlur = 0;
@@ -196,7 +196,7 @@ export class Instrument {
     /* Scale ticks every 120 document pixels, so they travel with the page. */
     x.save();
     x.globalAlpha = appear * 0.5;
-    x.strokeStyle = 'rgba(214,178,132,0.22)';
+    x.strokeStyle = 'rgba(142,197,240,0.22)';
     x.lineWidth = 1;
     const first = Math.floor(sc / 120) * 120;
     for (let d = first; d < sc + H + 120; d += 120) {
@@ -224,10 +224,10 @@ export class Instrument {
         if (y === -4) x.moveTo(px, y); else x.lineTo(px, y);
       }
       const g = x.createLinearGradient(0, 0, 0, H);
-      g.addColorStop(0, 'rgba(214,178,132,0.10)');
-      g.addColorStop(0.35, 'rgba(232,226,217,0.42)');
-      g.addColorStop(0.65, 'rgba(232,226,217,0.42)');
-      g.addColorStop(1, 'rgba(214,178,132,0.10)');
+      g.addColorStop(0, 'rgba(142,197,240,0.10)');
+      g.addColorStop(0.35, 'rgba(233,238,244,0.44)');
+      g.addColorStop(0.65, 'rgba(233,238,244,0.44)');
+      g.addColorStop(1, 'rgba(142,197,240,0.10)');
       x.strokeStyle = g;
       x.lineWidth = 1.15;
       x.lineJoin = 'round';
@@ -237,7 +237,7 @@ export class Instrument {
     /* Under redaction the recording continues, struck out. */
     if (r > 0.02) {
       x.globalAlpha = appear * r;
-      x.fillStyle = 'rgba(232,226,217,0.30)';
+      x.fillStyle = 'rgba(233,238,244,0.32)';
       const start = Math.floor((sc - 60) / 26) * 26;
       for (let d = start; d < sc + H + 60; d += 26) {
         const y = d - sc;
@@ -249,7 +249,7 @@ export class Instrument {
     /* The present moment — a fixed reference mark at eye level. */
     x.globalAlpha = appear;
     const my = H * 0.5;
-    x.strokeStyle = 'rgba(198,154,94,0.75)';
+    x.strokeStyle = 'rgba(255,157,77,0.8)';
     x.lineWidth = 1;
     x.beginPath();
     x.moveTo(X - 14, my + 0.5);

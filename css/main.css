@@ -1,6 +1,7 @@
 /* ============================================================
    Thejeshwaar Sathishkumar
-   Warm dark, one brass accent, instrument typography, a lot of air.
+   Instrument-cluster dark: cold backlight, one warm warning accent,
+   serif display, a lot of air.
    ============================================================ */
 
 @font-face {
@@ -47,19 +48,21 @@
 }
 
 :root {
-  --ink:    #0a0908;
-  --ink-1:  #0f0d0b;
-  --ink-2:  #15120f;
+  --ink:    #05070b;
+  --ink-1:  #090c12;
+  --ink-2:  #0e131a;
 
-  --line:   rgba(214, 178, 132, 0.12);
-  --line-2: rgba(214, 178, 132, 0.26);
+  --line:   rgba(142, 197, 240, 0.11);
+  --line-2: rgba(142, 197, 240, 0.26);
 
-  --fg:     #ece5da;
-  --fg-2:   #9c9287;
-  --fg-3:   #6d655c;
+  --fg:     #e9eef4;
+  --fg-2:   #94a3b3;
+  --fg-3:   #5f6b79;
 
-  --brass:  #c69a5e;
-  --brass-b:#e2c093;
+  /* Instrument backlight, and the one warm accent a cluster is allowed. */
+  --ice:    #8ec5f0;
+  --ice-b:  #c5e2fb;
+  --warn:   #ff9d4d;
 
   --ff-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
   --ff-sans:  'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
@@ -101,10 +104,10 @@ ol, ul { list-style: none; }
 img, canvas, svg { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 
-::selection { background: rgba(198, 154, 94, 0.28); color: #fff; }
+::selection { background: rgba(142, 197, 240, 0.28); color: #fff; }
 
 :focus-visible {
-  outline: 1px solid var(--brass);
+  outline: 1px solid var(--ice);
   outline-offset: 4px;
   border-radius: 2px;
 }
@@ -156,7 +159,7 @@ main { position: relative; z-index: 2; }
 .h2 { font-size: clamp(1.9rem, 4vw, 3.3rem); line-height: 1.1; }
 .h3 { font-size: clamp(1.35rem, 2.2vw, 1.95rem); line-height: 1.16; }
 
-em { font-style: italic; color: var(--brass-b); }
+em { font-style: italic; color: var(--ice-b); }
 
 .body {
   font-size: clamp(1rem, 1.08vw, 1.09rem);
@@ -176,7 +179,7 @@ em { font-style: italic; color: var(--brass-b); }
   text-transform: uppercase;
   color: var(--fg-3);
 }
-.label--brass { color: var(--brass); }
+.label--key { color: var(--ice); }
 
 .link {
   display: inline-flex; align-items: center; gap: 0.55rem;
@@ -188,7 +191,7 @@ em { font-style: italic; color: var(--brass-b); }
   transition: color 0.4s var(--ease), border-color 0.4s var(--ease);
 }
 .link svg { width: 13px; height: 13px; transition: transform 0.45s var(--ease); }
-.link:hover { color: var(--brass-b); border-color: var(--brass); }
+.link:hover { color: var(--ice-b); border-color: var(--ice); }
 .link:hover svg { transform: translate(2px, -2px); }
 
 /* ---------------------------------------------------------- layout */
@@ -234,14 +237,14 @@ section { position: relative; }
 }
 .nav-name { color: var(--fg); white-space: nowrap; }
 .nav-name span { color: var(--fg-3); transition: color 0.4s var(--ease); }
-.nav-name:hover span { color: var(--brass); }
+.nav-name:hover span { color: var(--ice); }
 
 .nav-right { display: flex; align-items: center; gap: clamp(1.2rem, 3vw, 2.6rem); }
 .nav-sec { display: flex; gap: clamp(1.2rem, 2.4vw, 2.2rem); }
 .nav-sec a, .nav-cta { color: var(--fg-3); transition: color 0.4s var(--ease); }
 .nav-sec a:hover, .nav-sec a.on { color: var(--fg); }
-.nav-cta { color: var(--brass); }
-.nav-cta:hover { color: var(--brass-b); }
+.nav-cta { color: var(--ice); }
+.nav-cta:hover { color: var(--ice-b); }
 
 @media (max-width: 620px) { .nav-sec { display: none; } }
 
@@ -294,7 +297,7 @@ body.ready .hero-title .ln > span { transform: none; opacity: 1; }
 .scroll-cue span {
   position: absolute; left: 0; bottom: 0;
   display: block; width: 1px; height: 46px;
-  background: linear-gradient(to bottom, transparent, var(--brass));
+  background: linear-gradient(to bottom, transparent, var(--ice));
   transform-origin: bottom;
   animation: cue 2.8s var(--ease) infinite;
   opacity: 0.6;
@@ -329,7 +332,7 @@ body.ready .hero-title .ln > span { transform: none; opacity: 1; }
 .entry-n {
   font-family: var(--ff-mono);
   font-size: 11px; letter-spacing: 0.16em;
-  color: var(--brass);
+  color: var(--ice);
   opacity: 0.75;
 }
 
@@ -371,7 +374,7 @@ body.ready .hero-title .ln > span { transform: none; opacity: 1; }
 a.also-row:hover { border-color: var(--line-2); }
 
 .also-t { color: var(--fg); font-size: 1rem; transition: color 0.4s var(--ease); }
-a.also-row:hover .also-t { color: var(--brass-b); }
+a.also-row:hover .also-t { color: var(--ice-b); }
 .also-d { color: var(--fg-3); font-size: 0.92rem; line-height: 1.5; }
 .also-k {
   font-family: var(--ff-mono); font-size: 10px;
@@ -440,8 +443,8 @@ a.also-row:hover .also-t { color: var(--brass-b); }
 .ru-status .mono { color: var(--fg-2); letter-spacing: 0.22em; }
 .ru-status .dot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: var(--brass);
-  box-shadow: 0 0 12px var(--brass);
+  background: var(--ice);
+  box-shadow: 0 0 12px var(--ice);
   animation: pulse 3.4s ease-in-out infinite;
 }
 @keyframes pulse { 0%,100% { opacity: 0.25; } 50% { opacity: 1; } }
@@ -453,7 +456,7 @@ a.also-row:hover .also-t { color: var(--brass-b); }
   min-height: 1.2em;
   transition: color 0.4s var(--ease);
 }
-.ru-role.on { color: var(--brass); }
+.ru-role.on { color: var(--ice); }
 
 /* This element is itself a .wrap — use padding-block so the shorthand
    does not wipe out the gutters .wrap sets on the inline axis. */
@@ -473,8 +476,8 @@ a.also-row:hover .also-t { color: var(--brass-b); }
 .redaction-fallback i {
   display: block;
   width: clamp(48px, 7vw, 92px); height: clamp(26px, 4vh, 40px);
-  background: #2a2419;
-  border: 1px solid rgba(214, 178, 132, 0.5);
+  background: #1d242e;
+  border: 1px solid rgba(142, 197, 240, 0.5);
   position: relative;
 }
 .redaction-fallback i::after {
@@ -488,6 +491,113 @@ a.also-row:hover .also-t { color: var(--brass-b); }
 body.flat-scene #redact-canvas { display: none; }
 body.flat-scene .redaction-fallback { display: flex; }
 body.flat-scene .redaction-stage { height: 100svh; }
+body.flat-scene .stage { height: auto; min-height: 100svh; }
+body.flat-scene .stage > canvas { display: none; }
+body.flat-scene .stage-ui {
+  position: static; height: auto; margin-top: 0;
+  min-height: 60svh; gap: 3rem;
+}
+
+/* ------------------------------------------------- full-bleed scenes */
+
+/* Shared shell for the scroll-driven WebGL sections. The stage is tall,
+   the canvas sticks, and the copy rides over it in its own sticky layer. */
+.stage {
+  position: relative;
+  height: 300vh;
+}
+.stage > canvas {
+  position: sticky; top: 0;
+  width: 100%; height: 100svh;
+  z-index: 0;
+}
+.stage::after {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 1;
+  background: linear-gradient(to bottom, var(--ink) 0%, transparent 10%, transparent 91%, var(--ink) 100%);
+}
+
+.stage-ui {
+  position: sticky; top: 0;
+  height: 100svh;
+  margin-top: -100svh;
+  z-index: 3;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: clamp(6rem, 14vh, 9rem) var(--pad) clamp(2rem, 5vh, 3.5rem);
+  padding-left: calc(var(--pad) + var(--rail));
+  max-width: var(--max);
+  margin-left: auto; margin-right: auto;
+  pointer-events: none;
+}
+.stage-ui a, .stage-ui button { pointer-events: auto; }
+.stage-ui .label { display: block; margin-bottom: 1.2rem; }
+
+.stage-lede {
+  max-width: 34ch;
+  font-size: clamp(1rem, 1.15vw, 1.15rem);
+  color: var(--fg-2);
+  line-height: 1.6;
+  text-shadow: 0 1px 22px rgba(5,7,11,0.92);
+}
+
+.stage-foot {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap;
+}
+.stage-note { color: var(--fg-3); letter-spacing: 0.2em; text-align: right; }
+
+/* A caption that swaps as the scene passes through its states. */
+.states { position: relative; min-height: 3.2em; width: min(38ch, 46vw); }
+.state {
+  position: absolute; inset: 0;
+  color: var(--ice);
+  letter-spacing: 0.2em;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.state.on { opacity: 1; transform: none; }
+
+.hint {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  color: var(--fg-3); letter-spacing: 0.18em;
+}
+.hint::before {
+  content: ''; width: 18px; height: 1px; background: var(--line-2);
+}
+
+/* ---------------------------------------------------------- index */
+
+.index { margin-top: clamp(3rem, 7vw, 5rem); }
+.index-group + .index-group { margin-top: clamp(2.6rem, 5vw, 4rem); }
+.index-group > .label { display: block; margin-bottom: 1.2rem; color: var(--ice); }
+
+.ix {
+  display: grid;
+  grid-template-columns: minmax(13rem, 1fr) minmax(0, 1.7fr) 9rem;
+  gap: 0.4rem 2rem;
+  align-items: baseline;
+  padding: 1.15rem 0;
+  border-top: 1px solid var(--line);
+  transition: border-color 0.5s var(--ease), padding-left 0.5s var(--ease);
+}
+.index-group .ix:last-child { border-bottom: 1px solid var(--line); }
+a.ix:hover { border-color: var(--line-2); padding-left: 0.5rem; }
+.ix-t { color: var(--fg); font-size: 0.98rem; transition: color 0.4s var(--ease); }
+a.ix:hover .ix-t { color: var(--ice-b); }
+.ix-d { color: var(--fg-3); font-size: 0.9rem; line-height: 1.5; }
+.ix-k {
+  font-family: var(--ff-mono); font-size: 10px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--fg-3); text-align: right;
+}
+@media (max-width: 880px) {
+  .ix { grid-template-columns: 1fr; }
+  .ix-k { text-align: left; }
+}
+
+#search-note { padding: clamp(4rem, 9vh, 7rem) 0 clamp(2rem, 5vh, 4rem); }
 
 /* ---------------------------------------------------------- method */
 
@@ -503,7 +613,7 @@ body.flat-scene .redaction-stage { height: 100svh; }
   display: block;
   font-family: var(--ff-mono);
   font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--brass); opacity: 0.8;
+  color: var(--ice); opacity: 0.8;
   margin-bottom: 1.1rem;
 }
 .principle .h3 { margin-bottom: 1rem; max-width: 20ch; }
@@ -565,9 +675,9 @@ body.flat-scene .redaction-stage { height: 100svh; }
   transition: color 0.4s var(--ease);
   overflow-wrap: anywhere;
 }
-.c-row:hover .c-v { color: var(--brass-b); }
+.c-row:hover .c-v { color: var(--ice-b); }
 .c-row svg { width: 16px; height: 16px; color: var(--fg-3); transition: transform 0.45s var(--ease), color 0.4s var(--ease); }
-.c-row:hover svg { transform: translate(3px, -3px); color: var(--brass); }
+.c-row:hover svg { transform: translate(3px, -3px); color: var(--ice); }
 
 @media (max-width: 560px) { .c-row { grid-template-columns: 1fr auto; } .c-k { grid-column: 1 / -1; } }
 

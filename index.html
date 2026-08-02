@@ -92,7 +92,7 @@
 <!-- ─────────────────────────── THE CONVICTION ─────────────────────────── -->
 <section id="conviction">
   <div class="wrap">
-    <p class="label label--brass" data-r>The conviction</p>
+    <p class="label label--key" data-r>The conviction</p>
     <h2 class="h1 lead" data-r>Every instrument is <em>lying</em>.</h2>
 
     <div class="two-col">
@@ -124,11 +124,36 @@
   </div>
 </section>
 
+<!-- ───────────────────── ENGINE → MONTAGE (scene) ───────────────────── -->
+<section id="morph" class="stage" aria-labelledby="morph-h">
+  <canvas id="morph-canvas"></canvas>
+
+  <div class="stage-ui">
+    <div>
+      <p class="label label--key" id="morph-h">Same problem, different clothes</p>
+      <p class="stage-lede">
+        An inline four and a scalp montage, drawn with the same points. Nothing is
+        added between them and nothing is taken away — the arrangement changes and
+        the problem does not.
+      </p>
+    </div>
+
+    <div class="stage-foot">
+      <div class="states mono">
+        <span class="state on" data-state="0">Four cylinders</span>
+        <span class="state" data-state="1">The same points, rearranging</span>
+        <span class="state" data-state="2">Nineteen electrodes</span>
+      </div>
+      <p class="mono hint">Drag to turn it</p>
+    </div>
+  </div>
+</section>
+
 <!-- ───────────────────────────── SELECTED WORK ───────────────────────────── -->
 <section id="work">
   <div class="wrap">
     <div class="head" data-r>
-      <p class="label label--brass">Selected work</p>
+      <p class="label label--key">Selected work</p>
       <h2 class="h2">Weighted, not catalogued.</h2>
     </div>
 
@@ -175,7 +200,7 @@
 
     <div class="redaction-ui">
       <div class="ru-top">
-        <p class="label label--brass" id="redaction-h">The system, withheld</p>
+        <p class="label label--key" id="redaction-h">The system, withheld</p>
         <p class="ru-lede">
           You can see how many stages there are, how the signal moves through them, and where it
           splits. Nothing else — not until the reviewers have seen it first.
@@ -327,39 +352,107 @@
       </div>
     </article>
 
-    <div class="also" data-r>
-      <p class="label" style="margin-bottom:1.6rem">Also</p>
+    <div class="index" data-r>
+      <div class="index-group">
+        <p class="label">Systems and infrastructure</p>
+        <div class="ix">
+          <span class="ix-t">Federated multi-modal infrastructure monitoring</span>
+          <span class="ix-d">Ultrasonic, fibre-optic and vision fused at the edge, so raw sensor data never leaves the node — a bandwidth argument as much as a privacy one</span>
+          <span class="ix-k">Pre-publication</span>
+        </div>
+        <div class="ix">
+          <span class="ix-t">Academic project management platform</span>
+          <span class="ix-d">Panels, rubrics, review cycles, scheduling and workload allocation for a university. Real institutional software, real users, requirements that move</span>
+          <span class="ix-k">Deployed · MERN</span>
+        </div>
+        <div class="ix">
+          <span class="ix-t">Club platform and dashboard</span>
+          <span class="ix-d">Membership, events and internal coordination for a university technical society, plus its public site</span>
+          <span class="ix-k">Deployed</span>
+        </div>
+      </div>
 
-      <div class="also-row">
-        <span class="also-t">Federated multi-modal infrastructure monitoring</span>
-        <span class="also-d">Ultrasonic, fibre-optic and vision, fused at the edge so raw data never leaves the node</span>
-        <span class="also-k">Pre-publication</span>
+      <div class="index-group">
+        <p class="label">Signals and vision</p>
+        <a class="ix" href="https://github.com/Beyondinfinity1610/EEG-Motor-Imagery-Classification-using-ERD-Features-Beginner-Neuro-AI-Project-" target="_blank" rel="noopener">
+          <span class="ix-t">Motor-imagery classification from ERD features</span>
+          <span class="ix-d">The first one. Deliberately classical, and where I learned that preprocessing decides the result and the classifier mostly reports it</span>
+          <span class="ix-k">Repository</span>
+        </a>
+        <a class="ix" href="https://github.com/Beyondinfinity1610/Plate-Vision--AI" target="_blank" rel="noopener">
+          <span class="ix-t">Plate Vision</span>
+          <span class="ix-d">Plate detection and recognition from real footage — motion blur, oblique angles, poor light. The cars project</span>
+          <span class="ix-k">Repository</span>
+        </a>
       </div>
-      <a class="also-row" href="https://github.com/Beyondinfinity1610/EEG-Motor-Imagery-Classification-using-ERD-Features-Beginner-Neuro-AI-Project-" target="_blank" rel="noopener">
-        <span class="also-t">Motor-imagery classification from ERD features</span>
-        <span class="also-d">The first one. Where I learned that preprocessing decides the result and the classifier mostly reports it</span>
-        <span class="also-k">Repository</span>
-      </a>
-      <a class="also-row" href="https://github.com/Beyondinfinity1610/Plate-Vision--AI" target="_blank" rel="noopener">
-        <span class="also-t">Plate Vision</span>
-        <span class="also-d">Plate detection and recognition from real footage — motion blur, oblique angles, poor light</span>
-        <span class="also-k">Repository</span>
-      </a>
-      <a class="also-row" href="https://github.com/Beyondinfinity1610/Code-AI-Plus" target="_blank" rel="noopener">
-        <span class="also-t">Code AI Plus</span>
-        <span class="also-d">Multi-language editor with sandboxed execution and model-assisted diagnosis, not a decorated stack trace</span>
-        <span class="also-k">Repository</span>
-      </a>
-      <div class="also-row">
-        <span class="also-t">Academic project management platform</span>
-        <span class="also-d">Panels, rubrics, review cycles and workload allocation for a university — real institutional software with real users</span>
-        <span class="also-k">Deployed</span>
+
+      <div class="index-group">
+        <p class="label">Tools</p>
+        <a class="ix" href="https://github.com/Beyondinfinity1610/Code-AI-Plus" target="_blank" rel="noopener">
+          <span class="ix-t">Code AI Plus</span>
+          <span class="ix-d">Multi-language editor with sandboxed execution. The hard part was running untrusted code safely and returning a diagnosis rather than a decorated stack trace</span>
+          <span class="ix-k">Repository</span>
+        </a>
+        <div class="ix">
+          <span class="ix-t">Word-to-IEEE converter</span>
+          <span class="ix-d">Manuscripts into two-column conference format — figures, tables, references, code blocks. Ships with an MCP server so an assistant can drive it</span>
+          <span class="ix-k">Tool</span>
+        </div>
+        <div class="ix">
+          <span class="ix-t">Proposal deck generator</span>
+          <span class="ix-d">A script that builds the research proposal presentation programmatically, because doing it by hand twice was once too many</span>
+          <span class="ix-k">Script</span>
+        </div>
       </div>
-      <div class="also-row">
-        <span class="also-t">Word-to-IEEE converter</span>
-        <span class="also-d">Manuscripts into two-column conference format — figures, tables, references. Ships with an MCP server</span>
-        <span class="also-k">Tool</span>
+    </div>
+  </section>
+
+<!-- ─────────────────────── THE SEARCH (scene) ─────────────────────── -->
+<section id="search" class="stage" aria-labelledby="search-h">
+  <canvas id="search-canvas"></canvas>
+
+  <div class="stage-ui">
+    <div>
+      <p class="label label--key" id="search-h">How I learned to stop</p>
+      <p class="stage-lede">
+        One dot per run in a systematic sweep. Most of them settle low — that is
+        what a sweep looks like when you keep the failures. The line is the route
+        through the few that survived.
+      </p>
+    </div>
+
+    <div class="stage-foot">
+      <div class="states mono">
+        <span class="state on" data-state="0">The sweep, arriving</span>
+        <span class="state" data-state="1">The route through what was kept</span>
+        <span class="state" data-state="2">The ceiling, which did not move</span>
       </div>
+      <p class="mono stage-note">Unlabelled, on purpose</p>
+    </div>
+  </div>
+</section>
+
+<section id="search-note">
+  <div class="wrap two-col">
+    <div data-r>
+      <p class="body">
+        When a model stops improving, the useful question is not which knob to turn
+        next. It is whether the gap that remains is addressable at all. So I sweep
+        the levers systematically — scale, fusion, ensembling, post-processing,
+        features, band selection — and record what each one actually did, including
+        and especially the ones that made it worse.
+      </p>
+    </div>
+    <div data-r data-delay="1">
+      <p class="body">
+        Then I go and find what a trained human achieves on the same signal, because
+        that is what tells you whether you are looking at a modelling problem or a
+        hardware one. In this case it was hardware, and saying so plainly is worth
+        more than another point of performance would have been.
+      </p>
+      <p class="body dim">
+        No axes and no values here — those are the paper. The shape is the point.
+      </p>
     </div>
   </div>
 </section>
@@ -368,7 +461,7 @@
 <section id="method">
   <div class="wrap">
     <div class="head" data-r>
-      <p class="label label--brass">How I work</p>
+      <p class="label label--key">How I work</p>
       <h2 class="h2">Diagnostic before <em>architectural</em>.</h2>
       <p class="body head-sub">
         The best result I have produced did not come from a new module. It came from stopping, and
@@ -446,7 +539,7 @@
 <section id="about">
   <div class="wrap about">
     <div class="about-body" data-r>
-      <p class="label label--brass">About</p>
+      <p class="label label--key">About</p>
       <h2 class="h2">Twenty-one, final year, mostly nocturnal.</h2>
       <p class="body">
         I am in my final year of computer science at VIT Chennai. Most of the research happens
@@ -503,7 +596,7 @@
 <section id="contact">
   <div class="wrap">
     <div class="head" data-r>
-      <p class="label label--brass">Contact</p>
+      <p class="label label--key">Contact</p>
       <h2 class="h1 lead">If the instrument is unreliable, <em>that is the interesting one</em>.</h2>
     </div>
 
@@ -534,7 +627,9 @@
   <style>
     [data-r]{opacity:1 !important;transform:none !important;clip-path:none !important}
     .hero-title .ln>span{transform:none !important;opacity:1 !important}
-    #montage,#rail,#redact-canvas,.scroll-cue{display:none}
+    #montage,#rail,#redact-canvas,#morph-canvas,#search-canvas,.scroll-cue{display:none}
+    .stage{height:auto}
+    .stage-ui{position:static;height:auto;margin-top:0;gap:2rem}
     #redaction .redaction-stage{min-height:auto;padding:12vh 0}
     .redaction-fallback{display:flex !important}
     .redaction-stage{height:100svh !important}
