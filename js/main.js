@@ -1,260 +1,160 @@
 /* ============================================================
-   main.js — scroll, entrances, HUD, and the frame loop.
+   The frame loop. Owns scroll state, entrance motion and the
+   instrument rail, and publishes both to the 3D world.
 
-   The page is a single flight through one 3D world (see world.js).
-   Scroll position maps to a position along that flight; the written
-   content rides over it. There is one WebGL context and one loop.
-
-   Rules that have already cost visible bugs here:
-
-   1. Entrances do not use IntersectionObserver. Its callbacks are
-      suspended in throttled and background tabs, and a suspended
-      callback means content that never appears. Everything runs from
-      onEnter(), driven by the scroll handler and the frame loop, and
-      anything already above the viewport resolves at once — otherwise
-      a restored scroll position lands on a blank page.
-
-   2. offsetTop is not used for scroll maths. Sections sit inside
-      positioned ancestors. Use docTop().
+   Entrances are driven from this loop rather than from an
+   IntersectionObserver — observer callbacks are suspended in
+   throttled tabs, which has left content invisible here before.
    ============================================================ */
+(function () {
+  'use strict';
 
-/* Assets are served with a ten-minute cache and no filename hashing, so a
-   redeploy can otherwise be masked by a stale stylesheet or module. The
-   stamp in index.html is mirrored here for the lazily imported world. */
-const V = new URL(import.meta.url).searchParams.get('v') || '';
-const withV = (u) => (V ? `${u}?v=${V}` : u);
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-import { runIntro } from './intro.js';
+  // ── shared state, read by js/world.js every frame
+  var state = window.__site = {
+    y: 0,            // scrollY
+    vh: 0,           // viewport height
+    doc: 0,          // scrollable distance
+    progress: 0,     // 0..1 through the document
+    velocity: 0,     // smoothed scroll velocity, px/frame
+    pointer: { x: 0, y: 0 },   // -1..1, smoothed
+    station: 'hero',
+    stationProgress: 0,        // 0..1 through the current station
+    stations: {},              // id -> { top, height }
+    reduced: reduced,
+    ready: false
+  };
 
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const docTop = (el) => el.getBoundingClientRect().top + window.scrollY;
-const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+  var sections = Array.prototype.slice.call(document.querySelectorAll('[data-station]'));
+  var risers   = Array.prototype.slice.call(document.querySelectorAll('.rise'));
 
-/* ---------------------------------------------------------- entrances */
+  var railFill    = document.getElementById('rail-fill');
+  var railStation = document.getElementById('rail-station');
+  var railDepth   = document.getElementById('rail-depth');
+  var rail        = document.querySelector('.rail');
+  var topbar      = document.querySelector('.topbar');
+  var redactHud   = document.querySelector('.redact-hud');
 
-const revealables = Array.from(document.querySelectorAll('[data-r]'));
+  var STATION_LABEL = {
+    hero: 'ignition', drift: 'the conviction', work: 'selected work',
+    redaction: 'redacted topology', diagnosis: 'the audit', ceiling: 'ceiling map',
+    work2: 'selected work', method: 'method', else: 'appendix',
+    him: 'him', contact: 'contact'
+  };
 
-function onEnter() {
-  const limit = window.scrollY + window.innerHeight * 0.9;
-  for (let i = revealables.length - 1; i >= 0; i--) {
-    const el = revealables[i];
-    /* No lower bound on purpose: anything above the fold must resolve. */
-    if (docTop(el) < limit) {
-      el.classList.add('in');
-      revealables.splice(i, 1);
+  // ── measurement. offsetTop lies here (positioned ancestors), so use rects.
+  function measure() {
+    state.vh = window.innerHeight;
+    state.doc = Math.max(1, document.documentElement.scrollHeight - state.vh);
+    var y = window.scrollY || window.pageYOffset || 0;
+    for (var i = 0; i < sections.length; i++) {
+      var el = sections[i];
+      var r = el.getBoundingClientRect();
+      state.stations[el.dataset.station] = { top: r.top + y, height: r.height, el: el };
     }
   }
-}
 
-/* ---------------------------------------------------------- capability */
-
-function deviceTier() {
-  const mem = navigator.deviceMemory || 4;
-  const cores = navigator.hardwareConcurrency || 4;
-  if (mem <= 2 || cores <= 2) return 'low';
-  return window.innerWidth < 760 ? 'mid' : 'high';
-}
-
-function hasWebGL() {
-  try {
-    const c = document.createElement('canvas');
-    return !!(c.getContext('webgl2') || c.getContext('webgl'));
-  } catch (_) { return false; }
-}
-
-/* Reduced motion calms the flight — it does not delete it. Tying the whole
-   3D world to this setting meant anyone with "reduce animations" enabled in
-   their OS silently got a completely different, much plainer site. Only a
-   real lack of WebGL falls back to flat. */
-const webglOK = hasWebGL();
-if (!webglOK) document.body.classList.add('flat');
-if (reduced) document.body.classList.add('calm');
-
-/* ---------------------------------------------------------- elements */
-
-const nav = document.getElementById('nav');
-const navLinks = Array.from(document.querySelectorAll('.nav-sec a'));
-const hudRegion = document.getElementById('hud-region');
-const hudDepth = document.getElementById('hud-depth');
-const hudBar = document.getElementById('hud-bar');
-const introRoot = document.getElementById('boot');
-
-/* The HUD names where in the flight you are. */
-const REGIONS = [
-  ['top', 'ignition'],
-  ['conviction', 'the conviction'],
-  ['work', 'selected work'],
-  ['archive', 'withheld'],
-  ['work-2', 'selected work'],
-  ['search', 'the search'],
-  ['order', 'the order'],
-  ['method', 'method'],
-  ['about', 'about'],
-  ['contact', 'contact'],
-].map(([id, name]) => ({ id, name, el: document.getElementById(id) }))
- .filter((r) => r.el);
-
-/* ---------------------------------------------------------- world */
-
-let world = null;
-let introDone = false;
-let introEase = 1;      // 1 = held on the engine, eases to 0
-
-async function bootWorld() {
-  if (!webglOK) return;
-  try {
-    const { World } = await import(withV('./world.js'));
-    world = new World(document.getElementById('world'), { tier: deviceTier(), calm: reduced });
-    measure();
-    world.setProgress(pageProgress());
-    document.body.classList.add('world-on');
-  } catch (err) {
-    document.body.classList.add('flat');
-  }
-}
-
-/* ---------------------------------------------------------- scroll */
-
-let vh = window.innerHeight;
-let docH = 1;
-let navMarks = [];
-
-function pageProgress() {
-  return clamp01(window.scrollY / Math.max(1, docH - vh));
-}
-
-/* Where a section sits as a fraction of the whole flight. */
-function markOf(id, bias = 0.5) {
-  const el = document.getElementById(id);
-  if (!el) return 0;
-  const r = el.getBoundingClientRect();
-  const y = r.top + window.scrollY + r.height * bias - vh * 0.5;
-  return clamp01(y / Math.max(1, docH - vh));
-}
-
-function measure() {
-  vh = window.innerHeight;
-  docH = document.documentElement.scrollHeight;
-  navMarks = navLinks.map((a) => {
-    const el = document.querySelector(a.getAttribute('href'));
-    return { a, top: el ? docTop(el) - vh * 0.35 : Infinity };
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { measure(); tick(); }, 120);
   });
-  for (const r of REGIONS) r.top = docTop(r.el) - vh * 0.5;
 
-  if (world) {
-    world.resize();
-    /* The world follows the writing: each region is placed at the depth
-       the camera reaches when its own section is on screen. */
-    world.layout({
-      ignition: 0,
-      montage: markOf('conviction'),
-      corridor: [markOf('work', 0.4), markOf('archive', 0.1)],
-      archive: markOf('archive'),
-      volume: [markOf('search', -0.15), markOf('search', 1.15)],
-      settle: markOf('about'),
-    });
-  }
-}
+  // ── pointer parallax, gentle
+  var pxTarget = 0, pyTarget = 0;
+  window.addEventListener('pointermove', function (e) {
+    pxTarget = (e.clientX / window.innerWidth) * 2 - 1;
+    pyTarget = (e.clientY / window.innerHeight) * 2 - 1;
+  }, { passive: true });
 
-let lastRegion = null;
-
-function onScroll() {
-  const y = window.scrollY;
-  const p = pageProgress();
-
-  nav.classList.toggle('is-stuck', y > vh * 0.55);
-  if (world) world.setProgress(p);
-
-  hudDepth.textContent = String(Math.round(p * 100)).padStart(3, '0');
-  hudBar.style.transform = `scaleY(${0.015 + p * 0.985})`;
-
-  let cur = REGIONS[0];
-  for (const r of REGIONS) if (y >= r.top) cur = r;
-  if (cur !== lastRegion) {
-    lastRegion = cur;
-    hudRegion.textContent = cur.name;
-    hudRegion.classList.remove('flip');
-    void hudRegion.offsetWidth;   // restart the transition
-    hudRegion.classList.add('flip');
+  // ── entrances
+  function sweepRisers() {
+    if (reduced) return;
+    var vh = state.vh;
+    for (var i = risers.length - 1; i >= 0; i--) {
+      var el = risers[i];
+      var top = el.getBoundingClientRect().top;
+      // anything already above the fold counts as entered — covers deep links
+      // and restored scroll positions where nothing ever crosses the threshold
+      if (top < vh * 0.88) {
+        el.classList.add('in');
+        risers.splice(i, 1);
+      }
+    }
   }
 
-  let na = null;
-  for (const m of navMarks) if (y >= m.top) na = m.a;
-  for (const m of navMarks) m.a.classList.toggle('on', m.a === na);
+  var lastY = 0, vel = 0;
 
-  onEnter();
-}
+  function tick() {
+    var y = window.scrollY || window.pageYOffset || 0;
+    var dy = y - lastY;
+    lastY = y;
+    vel += (dy - vel) * 0.16;
 
-/* ---------------------------------------------------------- loop */
+    state.y = y;
+    state.velocity = vel;
+    state.progress = Math.min(1, Math.max(0, y / state.doc));
 
-let last = performance.now();
+    state.pointer.x += (pxTarget - state.pointer.x) * 0.055;
+    state.pointer.y += (pyTarget - state.pointer.y) * 0.055;
 
-function loop(now) {
-  const dt = Math.min(0.05, (now - last) / 1000);
-  last = now;
+    // which station holds the middle of the viewport
+    var mid = y + state.vh * 0.5;
+    var current = 'hero', sp = 0;
+    for (var key in state.stations) {
+      var s = state.stations[key];
+      if (mid >= s.top && mid < s.top + s.height) {
+        current = key;
+        sp = (mid - s.top) / Math.max(1, s.height);
+        break;
+      }
+    }
+    if (mid >= (state.stations.contact ? state.stations.contact.top : Infinity)) {
+      current = 'contact';
+    }
+    state.station = current;
+    state.stationProgress = sp;
 
-  if (world) {
-    /* Release the camera from the engine smoothly once the intro ends. */
-    if (introDone && introEase > 0) introEase = Math.max(0, introEase - dt * 0.85);
-    world.setIntro(introEase < 0.001 ? 0 : introEase * introEase);
-    world.frame(dt);
+    if (railFill) railFill.style.width = (state.progress * 100).toFixed(2) + '%';
+    if (railDepth) railDepth.textContent = (state.progress * 9.99).toFixed(2);
+    if (railStation) {
+      var label = STATION_LABEL[current] || current;
+      if (railStation.textContent !== label) railStation.textContent = label;
+    }
+    if (redactHud) redactHud.classList.toggle('on', current === 'redaction');
+
+    sweepRisers();
   }
 
-  if (revealables.length) onEnter();
-  requestAnimationFrame(loop);
-}
+  function loop() { tick(); requestAnimationFrame(loop); }
 
-/* ---------------------------------------------------------- clock */
+  // ── boot
+  function start() {
+    measure();
+    lastY = window.scrollY || 0;
+    state.ready = true;
+    sweepRisers();
+    requestAnimationFrame(loop);
+    // fonts change layout; re-measure once they land
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { measure(); sweepRisers(); });
+    }
+    setTimeout(measure, 900);
+  }
 
-function tickClock() {
-  const el = document.getElementById('hud-clock');
-  if (!el) return;
-  try {
-    el.textContent = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit',
-    }).format(new Date());
-  } catch (_) { /* leave it */ }
-}
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
 
-/* ---------------------------------------------------------- boot */
-
-let resizeTimer = 0;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => { measure(); onScroll(); }, 120);
-}, { passive: true });
-
-window.addEventListener('scroll', onScroll, { passive: true });
-
-measure();
-onScroll();
-onEnter();
-tickClock();
-setInterval(tickClock, 1000);
-
-/* The world loads in parallel with the intro; neither waits on the other. */
-bootWorld();
-
-if (introRoot && webglOK && window.scrollY < 40) {
-  runIntro(introRoot, (immediate) => {
-    introDone = true;
-    /* A deliberate skip should feel instant, not merely faster. */
-    if (immediate) introEase = Math.min(introEase, 0.5);
-    document.body.classList.add('lit');
-  }, reduced);
-} else {
-  if (introRoot) introRoot.remove();
-  introDone = true;
-  introEase = 0;
-  document.body.classList.add('lit');
-}
-
-requestAnimationFrame(() => {
-  document.body.classList.add('ready');
-  requestAnimationFrame(loop);
-});
-
-if (document.fonts && document.fonts.ready) {
-  document.fonts.ready.then(() => { measure(); onScroll(); });
-}
-window.addEventListener('load', () => { measure(); onScroll(); });
+  function revealChrome() {
+    if (rail) rail.classList.add('on');
+    if (topbar) topbar.classList.add('on');
+    sweepRisers();
+  }
+  window.addEventListener('ignition:done', function () { setTimeout(revealChrome, 120); });
+  // if the ignition never runs (reduced motion, or it was removed early)
+  setTimeout(revealChrome, 3200);
+})();
