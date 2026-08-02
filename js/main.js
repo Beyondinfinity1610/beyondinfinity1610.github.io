@@ -18,6 +18,12 @@
       positioned ancestors. Use docTop().
    ============================================================ */
 
+/* Assets are served with a ten-minute cache and no filename hashing, so a
+   redeploy can otherwise be masked by a stale stylesheet or module. The
+   stamp in index.html is mirrored here for the lazily imported world. */
+const V = new URL(import.meta.url).searchParams.get('v') || '';
+const withV = (u) => (V ? `${u}?v=${V}` : u);
+
 import { runIntro } from './intro.js';
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -56,8 +62,13 @@ function hasWebGL() {
   } catch (_) { return false; }
 }
 
-const webglOK = hasWebGL() && !reduced;
+/* Reduced motion calms the flight — it does not delete it. Tying the whole
+   3D world to this setting meant anyone with "reduce animations" enabled in
+   their OS silently got a completely different, much plainer site. Only a
+   real lack of WebGL falls back to flat. */
+const webglOK = hasWebGL();
 if (!webglOK) document.body.classList.add('flat');
+if (reduced) document.body.classList.add('calm');
 
 /* ---------------------------------------------------------- elements */
 
@@ -76,6 +87,7 @@ const REGIONS = [
   ['archive', 'withheld'],
   ['work-2', 'selected work'],
   ['search', 'the search'],
+  ['order', 'the order'],
   ['method', 'method'],
   ['about', 'about'],
   ['contact', 'contact'],
@@ -91,8 +103,8 @@ let introEase = 1;      // 1 = held on the engine, eases to 0
 async function bootWorld() {
   if (!webglOK) return;
   try {
-    const { World } = await import('./world.js');
-    world = new World(document.getElementById('world'), { tier: deviceTier() });
+    const { World } = await import(withV('./world.js'));
+    world = new World(document.getElementById('world'), { tier: deviceTier(), calm: reduced });
     measure();
     world.setProgress(pageProgress());
     document.body.classList.add('world-on');
@@ -229,7 +241,7 @@ if (introRoot && webglOK && window.scrollY < 40) {
     /* A deliberate skip should feel instant, not merely faster. */
     if (immediate) introEase = Math.min(introEase, 0.5);
     document.body.classList.add('lit');
-  });
+  }, reduced);
 } else {
   if (introRoot) introRoot.remove();
   introDone = true;

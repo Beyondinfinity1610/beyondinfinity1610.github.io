@@ -139,6 +139,9 @@ export class World {
     this.canvas = canvas;
     this.tier = opts.tier || 'high';
     this.low = this.tier === 'low';
+    /* Calm: no idle drift and no pointer parallax. The scroll-driven
+       camera stays — that motion is the reader's own. */
+    this.calm = !!opts.calm;
 
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -718,8 +721,9 @@ export class World {
     this.p += (this.pTarget - this.p) * Math.min(1, dt * 2.6);
     const p = this.p;
 
-    this.mx += (this.tmx - this.mx) * Math.min(1, dt * 2.0);
-    this.my += (this.tmy - this.my) * Math.min(1, dt * 2.0);
+    const par = this.calm ? 0 : 1;
+    this.mx += (this.tmx * par - this.mx) * Math.min(1, dt * 2.0);
+    this.my += (this.tmy * par - this.my) * Math.min(1, dt * 2.0);
 
     /* ---- camera along the path, held back during the intro ---- */
     const tt = Math.min(0.999, p * (1 - this.intro * 0.999));
@@ -747,8 +751,9 @@ export class World {
 
     /* ---- ignition ---- */
     const camZ = this.camera.position.z;
-    this.ignition.rotation.y = this.t * 0.13;
-    this.ignition.rotation.x = Math.sin(this.t * 0.19) * 0.06;
+    const idle = this.calm ? 0 : 1;
+    this.ignition.rotation.y = this.t * 0.13 * idle;
+    this.ignition.rotation.x = Math.sin(this.t * 0.19) * 0.06 * idle;
     /* it lets go once the flight begins, and is gone by the corridor */
     /* It holds together while the intro holds the camera, and lets go
        only once the flight has actually started past it. */
@@ -763,7 +768,7 @@ export class World {
     this.nodes.material.opacity = mON * 0.95;
     this.nodeLinks.material.opacity = mON * 0.42;
     this.montage.visible = mON > 0.01;
-    this.montage.rotation.y = this.t * 0.1;
+    this.montage.rotation.y = this.t * 0.1 * idle;
 
     /* ---- corridor ---- */
     this.corridor.visible = camZ < this.zCorridor[0] + 120 && camZ > this.zCorridor[1] - 120;

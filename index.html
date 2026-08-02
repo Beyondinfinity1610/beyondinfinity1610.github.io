@@ -17,7 +17,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305070b'/%3E%3Cpath d='M3 17h6l2-6 3 11 3-8 2 4 2-2h8' fill='none' stroke='%238ec5f0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <link rel="preload" href="vendor/fonts/instrument-serif.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="vendor/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="stylesheet" href="css/main.css" />
+<link rel="stylesheet" href="css/main.css?v=202608020901" />
 
 <script type="application/ld+json">
 {
@@ -72,6 +72,7 @@
   <div class="nav-right">
     <div class="nav-sec">
       <a href="#work">Work</a>
+      <a href="#order">Thinking</a>
       <a href="#method">Method</a>
       <a href="#about">About</a>
     </div>
@@ -162,6 +163,7 @@
       <div class="entry-rule"><span class="entry-n">01</span></div>
       <div class="entry-main">
         <h3 class="h3">Wearable focal-seizure detection</h3>
+        <p class="evidence mono"><i></i>Research taste · self-audit · evaluation held to a deployment bar</p>
         <div class="entry-meta">
           <span class="stat">Lead researcher</span>
           <span>SeizeIT2 · 125 patients · 2,912 recording-hours</span>
@@ -226,6 +228,7 @@
       <div class="entry-rule"><span class="entry-n">02</span></div>
       <div class="entry-main">
         <h3 class="h3">Band-wise graph attention networks for EEG</h3>
+        <p class="evidence mono"><i></i>Hypothesis before architecture · domain generalisation</p>
         <div class="entry-meta">
           <span class="stat">Lead researcher</span>
           <span>121 subjects · 19 channels · leave-one-subject-out</span>
@@ -256,6 +259,7 @@
       <div class="entry-rule"><span class="entry-n">03</span></div>
       <div class="entry-main">
         <h3 class="h3">Self-healing sensor architecture</h3>
+        <p class="evidence mono"><i></i>Systems thinking below the application layer · embedded ML</p>
         <div class="entry-meta">
           <span class="stat">Patent 202541081235</span>
           <span>Published</span>
@@ -279,6 +283,7 @@
       <div class="entry-rule"><span class="entry-n">04</span></div>
       <div class="entry-main">
         <h3 class="h3">Synthetic population and life-event engine</h3>
+        <p class="evidence mono"><i></i>Ships production ML infrastructure · adversarial quality gates</p>
         <div class="entry-meta">
           <span class="stat">Applied ML · industry</span>
           <span>Shipped</span>
@@ -310,6 +315,7 @@
       <div class="entry-rule"><span class="entry-n">05</span></div>
       <div class="entry-main">
         <h3 class="h3">Quantum-Hilbert encoding for EEG</h3>
+        <p class="evidence mono"><i></i>Representation-level reasoning · claims only what is defensible</p>
         <div class="entry-meta">
           <span class="stat">Lead research intern · CADS, VIT</span>
           <span>With co-authors at VIT and Yonsei University</span>
@@ -418,11 +424,93 @@
   </div>
 </section>
 
+<!-- ────────────────────────────── THE ORDER ────────────────────────────── -->
+<section id="order">
+  <div class="wrap">
+    <div class="panel panel--wide" data-r>
+      <p class="label label--key">05 · the order I go in</p>
+      <h2 class="h2">A model stops improving. <em>Now what?</em></h2>
+      <p class="body head-sub">
+        This is the sequence, and I do not skip ahead — every expensive mistake I have
+        made lived near the top of it, disguised as a modelling problem.
+      </p>
+    </div>
+
+    <ol class="ladder">
+      <li class="rung" data-r>
+        <span class="rung-n">01</span>
+        <div>
+          <h3 class="h3">Is it seeing what I think it is seeing?</h3>
+          <p class="body">
+            Read the data path end to end and confirm the tensor arriving at the network is
+            the tensor I believe I am sending. Unglamorous, and it has moved more for me than
+            any module I have ever added.
+          </p>
+        </div>
+      </li>
+      <li class="rung" data-r>
+        <span class="rung-n">02</span>
+        <div>
+          <h3 class="h3">Is every part I built actually training?</h3>
+          <p class="body">
+            Open the checkpoint and prove the weights moved. A component can sit in a network
+            for months, appear in every diagram I draw, and contribute nothing — with no sign
+            of it in the loss curve.
+          </p>
+        </div>
+      </li>
+      <li class="rung" data-r>
+        <span class="rung-n">03</span>
+        <div>
+          <h3 class="h3">Is the number I am reading measuring what I think?</h3>
+          <p class="body">
+            Read the evaluation code with more suspicion than the model code. Split by subject,
+            score the continuous stream, and treat a good result as a bug until it has survived
+            being attacked. I have thrown out my own headline result this way.
+          </p>
+        </div>
+      </li>
+      <li class="rung" data-r>
+        <span class="rung-n">04</span>
+        <div>
+          <h3 class="h3">Is the signal there at all?</h3>
+          <p class="body">
+            Test for it directly before modelling it, under honest multiple-comparison control.
+            If it is not separable, no architecture rescues it — and if it is, that tells me
+            what kind of problem I am actually solving.
+          </p>
+        </div>
+      </li>
+      <li class="rung" data-r>
+        <span class="rung-n">05</span>
+        <div>
+          <h3 class="h3">What does a trained human reach on this signal?</h3>
+          <p class="body">
+            This is the difference between a modelling problem and a hardware one, and it is
+            what decides whether to keep going. Knowing when to stop is harder than continuing.
+          </p>
+        </div>
+      </li>
+      <li class="rung" data-r>
+        <span class="rung-n">06</span>
+        <div>
+          <h3 class="h3">Only now, change the architecture.</h3>
+          <p class="body">
+            And give every component a physical reason to exist — volume conduction, phase,
+            the shape of the artifact I am trying to survive. Where no such reason exists, the
+            component comes out rather than getting tuned.
+          </p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
 <!-- ───────────────────────────────  METHOD  ─────────────────────────────── -->
 <section id="method">
   <div class="wrap">
     <div class="panel" data-r>
-      <p class="label label--key">05 · method</p>
+      <p class="label label--key">06 · method</p>
       <h2 class="h2">Diagnostic before <em>architectural</em>.</h2>
       <p class="body head-sub">
         The best result I have produced did not come from a new module. It came from stopping,
@@ -499,7 +587,7 @@
   <div class="wrap">
     <div class="panel panel--wide about" data-r>
       <div class="about-body">
-        <p class="label label--key">06 · about</p>
+        <p class="label label--key">07 · about</p>
         <h2 class="h2">Twenty-one, final year, mostly nocturnal.</h2>
         <p class="body">
           I am in my final year of computer science at VIT Chennai. Most of the research happens
@@ -555,8 +643,14 @@
 <section id="contact">
   <div class="wrap">
     <div class="panel" data-r>
-      <p class="label label--key">07 · contact</p>
+      <p class="label label--key">08 · contact</p>
       <h2 class="h1">If the instrument is unreliable, <em>that is the interesting one</em>.</h2>
+
+      <ul class="targets">
+        <li><span class="t-k">Graduate research</span><span class="t-v">Neurotechnology, biosignal machine learning, domain generalisation</span></li>
+        <li><span class="t-k">Applied ML</span><span class="t-v">Medical devices and wearables — anywhere the clinical bar, not the leaderboard, decides</span></li>
+        <li><span class="t-k">Sensor intelligence</span><span class="t-v">Predictive maintenance, automotive sensing, any system whose instruments drift</span></li>
+      </ul>
 
       <div class="contact-rows">
         <a class="c-row" href="mailto:thejeshwaarsathishkumar@gmail.com">
@@ -591,6 +685,6 @@
   </style>
 </noscript>
 
-<script type="module" src="js/main.js"></script>
+<script type="module" src="js/main.js?v=202608020901"></script>
 </body>
 </html>

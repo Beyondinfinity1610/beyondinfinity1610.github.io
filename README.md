@@ -116,9 +116,18 @@ Test with `python -m http.server` from the repo root — opening `index.html` ov
   `layout()`), because on a phone the copy owns the lower two thirds. `resize()`
   re-runs `layout()` since narrow can flip.
 - The HUD is hidden below 760px; it would sit on the copy.
-- `prefers-reduced-motion` and missing WebGL both set `body.flat`: no intro, no
-  world, a static gradient, and every entrance resolved. The page reads fully
-  without any of the 3D.
+- **`prefers-reduced-motion` must not delete the world.** It sets `body.calm`
+  and passes `calm` to `World`, which turns off idle drift and pointer parallax
+  and shortens the intro; the scroll-driven camera stays, because that motion is
+  the reader's own. Only a genuine lack of WebGL sets `body.flat`. An earlier
+  version gated the entire 3D world on this media query, which meant anyone with
+  "reduce animations" enabled in their OS silently got a completely different,
+  much plainer site — and could not tell that anything was missing.
+- **Assets carry a version stamp.** GitHub Pages serves css/js with
+  `max-age=600` and no filename hashing, so a redeploy can be masked for ten
+  minutes by a stale stylesheet against new HTML. `index.html` stamps
+  `main.css` and `main.js`, and `main.js` mirrors its own stamp onto the lazily
+  imported `world.js`. Bump the stamp on any deploy whose look changes.
 - When verifying in headless Chrome over CDP, **disable the cache**
   (`Network.setCacheDisabled`). Module scripts are cached hard enough that edits
   appear not to have taken effect.

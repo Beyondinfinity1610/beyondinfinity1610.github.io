@@ -20,7 +20,9 @@ const LINES = [
   'all instruments suspect',
 ];
 
-export function runIntro(root, onDone) {
+export function runIntro(root, onDone, calm) {
+  const step = calm ? 90 : 240;
+  const hold = calm ? 1100 : 2500;
   const list = root.querySelector('.boot-lines');
   const skip = root.querySelector('.boot-skip');
 
@@ -52,11 +54,11 @@ export function runIntro(root, onDone) {
     el.className = 'boot-line';
     el.textContent = text;
     list.appendChild(el);
-    timers.push(setTimeout(() => el.classList.add('on'), 180 + i * 240));
+    timers.push(setTimeout(() => el.classList.add('on'), 180 + i * step));
   });
 
   timers.push(setTimeout(() => root.classList.add('is-lit'), 180));
-  timers.push(setTimeout(() => finish(false), 2500));
+  timers.push(setTimeout(() => finish(false), hold));
 
   return { finish };
 }
