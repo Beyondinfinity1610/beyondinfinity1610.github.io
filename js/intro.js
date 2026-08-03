@@ -77,9 +77,38 @@
   var lastPhrase = -1;
   var SEG = 90;
 
+  // a calm, unhurried uncertainty rather than static: a handful of control
+  // points per line drift toward slowly-changing targets, and the segments
+  // between them are smoothstepped, so the line wavers instead of buzzing
+  var CTRL = 7;
+  var noiseLines = [0, 1].map(function () {
+    var pts = [];
+    for (var c = 0; c < CTRL; c++) pts.push({ v: 0, target: 0, wait: Math.random() * 0.5 });
+    return pts;
+  });
+  function stepNoise(pts, dt) {
+    pts.forEach(function (c) {
+      c.wait -= dt;
+      if (c.wait <= 0) { c.target = Math.random() * 2 - 1; c.wait = 0.5 + Math.random() * 0.55; }
+      c.v += (c.target - c.v) * Math.min(1, dt * 1.6);
+    });
+  }
+  function sampleNoise(pts, u) {
+    var f = u * (pts.length - 1);
+    var i = Math.min(pts.length - 2, Math.floor(f));
+    var frac = f - i;
+    var s = frac * frac * (3 - 2 * frac);
+    return pts[i].v + (pts[i + 1].v - pts[i].v) * s;
+  }
+
+  var lastNow = performance.now();
+  var numSmooth = 0;
+
   function frame(now) {
     var t = clamp01((now - t0) / DUR);
     var time = (now - t0) / 1000;
+    var dt = Math.min(0.05, (now - lastNow) / 1000);
+    lastNow = now;
 
     ctx.clearRect(0, 0, W, H);
 
@@ -91,20 +120,6 @@
     // 0 at the start (pure noise), 1 once the signal has resolved
     var resolve = easeIO(span(t, 0.10, 0.74));
     var out = span(t, 0.88, 1.00);
-
-    // an oscilloscope trigger sweep, only while there is nothing locked yet
-    if (resolve < 0.94) {
-      var sweepX = cx - halfW + ((time * 260) % (halfW * 2));
-      ctx.save();
-      ctx.globalAlpha = (1 - resolve) * 0.22;
-      ctx.strokeStyle = 'rgba(200,224,220,0.7)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(sweepX, baseY - 70);
-      ctx.lineTo(sweepX, baseY + 70);
-      ctx.stroke();
-      ctx.restore();
-    }
 
     // the lock — a brief bloom the instant the signal settles in
     var lock = span(t, 0.70, 0.75) * (1 - span(t, 0.75, 0.86));
@@ -122,20 +137,21 @@
     }
 
     [0, 1].forEach(function (li) {
-      var noiseAmp = Math.min(H * 0.34, 260) * (1 - resolve);
+      stepNoise(noiseLines[li], dt);
+      var noiseAmp = Math.min(H * 0.14, 100) * (1 - resolve);
       var signalAmp = Math.min(H * 0.05, 40);
       var pts = [];
       for (var s = 0; s <= SEG; s++) {
         var u = s / SEG;
         var x = cx - halfW + u * halfW * 2;
         var clean = eeg(u + li * 0.37, time) * signalAmp * resolve;
-        var noise = (Math.random() * 2 - 1) * noiseAmp;
+        var noise = sampleNoise(noiseLines[li], u) * noiseAmp;
         pts.push([x, baseY + clean + noise]);
       }
       ctx.save();
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      ctx.globalAlpha = (0.5 + resolve * 0.4) * (1 - out);
+      ctx.globalAlpha = (0.55 + resolve * 0.35) * (1 - out);
       ctx.beginPath();
       ctx.moveTo(pts[0][0], pts[0][1]);
       for (var p = 1; p < pts.length; p++) ctx.lineTo(pts[p][0], pts[p][1]);
@@ -151,8 +167,11 @@
     for (var i = 0; i < phrases.length; i++) if (t >= phrases[i][0]) phraseIdx = i;
     if (phraseIdx !== lastPhrase) { lineEl.textContent = phrases[phraseIdx][1]; lastPhrase = phraseIdx; }
 
-    var jitter = (1 - resolve) * (Math.random() * 90 - 45);
-    numEl.textContent = (eeg(0.5, time) * 42 * resolve + jitter).toFixed(1) + '  µV';
+    // the readout drifts toward its target rather than snapping, so it
+    // reads as an unsteady reading settling down, not a flickering counter
+    var target = eeg(0.5, time) * 42 * resolve + sampleNoise(noiseLines[0], 0.5) * 30 * (1 - resolve);
+    numSmooth += (target - numSmooth) * Math.min(1, dt * 5);
+    numEl.textContent = numSmooth.toFixed(1) + '  µV';
     root.style.opacity = String(1 - out);
 
     if (t >= 1) { finish(); return; }
