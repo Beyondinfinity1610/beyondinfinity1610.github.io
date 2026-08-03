@@ -488,7 +488,7 @@ function boot() {
   const field = new THREE.Group();
   scene.add(field);
 
-  const RUNS = low ? 700 : 1600;
+  const RUNS = low ? 1000 : 2400;
   const CEILING = 54;
   // seven levers pulled, independently — data scale, fusion strategy,
   // ensembling, false-alarm filtering, persistence, hand-crafted features,
@@ -499,6 +499,7 @@ function boot() {
   const SECTOR = (Math.PI * 2) / CATS;
   const fieldGeo = new THREE.BufferGeometry();
   const dropPts = [];
+  const pointCat = new Int8Array(RUNS);   // which of the seven spokes each run belongs to
   {
     const p = new Float32Array(RUNS * 3);
     const s = new Float32Array(RUNS);
@@ -509,14 +510,15 @@ function boot() {
       // even split across the seven spokes — a gap between them keeps each
       // one legible as its own arm rather than a blurred disc
       const cat = i % CATS;
+      pointCat[i] = cat;
       const th = (cat + 0.5) * SECTOR + (Math.random() - 0.5) * SECTOR * 0.72;
       const rad = 40 + Math.pow(Math.random(), 0.6) * 330;
       const drop = Math.pow(Math.random(), 2.3);       // most sit just below
       p[i * 3]     = Math.cos(th) * rad;
       p[i * 3 + 1] = CEILING - drop * 210 - Math.random() * 6;
       p[i * 3 + 2] = Math.sin(th) * rad * 0.85;
-      s[i] = 0.55 + Math.random() * 1.1;
-      b[i] = 1 - drop * 0.9;                            // dimmer the further below
+      s[i] = 0.85 + Math.random() * 1.5;
+      b[i] = 0.3 + (1 - drop * 0.9) * 0.7;              // dimmer the further below, never dark
 
       // a few of the ones that got closest get a hairline up to the ceiling,
       // so you can see what they ran into
@@ -531,6 +533,7 @@ function boot() {
     fieldGeo.setAttribute('position', new THREE.BufferAttribute(p, 3));
     fieldGeo.setAttribute('aScale', new THREE.BufferAttribute(s, 1));
     fieldGeo.setAttribute('aBright', new THREE.BufferAttribute(b, 1));
+    fieldGeo.setAttribute('aHi', new THREE.BufferAttribute(new Float32Array(RUNS), 1));
   }
   const fieldMat = new THREE.ShaderMaterial({
     uniforms: {
@@ -540,9 +543,9 @@ function boot() {
       uCool: { value: new THREE.Color(0xd8cba9) }
     },
     vertexShader: `
-      attribute float aScale; attribute float aBright;
+      attribute float aScale; attribute float aBright; attribute float aHi;
       uniform float uTime; uniform float uProj;
-      varying float vFade; varying float vBright;
+      varying float vFade; varying float vBright; varying float vHi;
       void main() {
         vec3 pos = position;
         pos.x += sin(uTime * 0.16 + position.y * 0.03) * 2.4;
@@ -550,19 +553,20 @@ function boot() {
         vec4 mv = modelViewMatrix * vec4(pos, 1.0);
         float d = -mv.z;
         vBright = aBright;
-        vFade = smoothstep(760.0, 120.0, d) * smoothstep(3.0, 30.0, d);
+        vHi = aHi;
+        vFade = smoothstep(980.0, 140.0, d) * smoothstep(3.0, 30.0, d);
         float pulse = aScale > 3.0 ? (0.75 + 0.45 * sin(uTime * 2.1)) : 1.0;
-        gl_PointSize = aScale * pulse * 0.55 * uProj / max(d, 1.0);
+        gl_PointSize = (aScale * pulse + aHi * 3.4) * 0.72 * uProj / max(d, 1.0);
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: `
       uniform sampler2D uMap; uniform float uOpacity;
       uniform vec3 uWarm; uniform vec3 uCool;
-      varying float vFade; varying float vBright;
+      varying float vFade; varying float vBright; varying float vHi;
       void main() {
         vec4 t = texture2D(uMap, gl_PointCoord);
-        vec3 c = mix(uCool, uWarm, vBright);
-        gl_FragColor = vec4(c, t.a * vFade * uOpacity * (0.46 + vBright * 0.54));
+        vec3 c = mix(mix(uCool, uWarm, vBright), vec3(1.0), vHi * 0.6);
+        gl_FragColor = vec4(c, t.a * vFade * uOpacity * (0.62 + vBright * 0.6 + vHi * 0.5));
         if (gl_FragColor.a < 0.01) discard;
       }`,
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
@@ -662,6 +666,7 @@ function boot() {
     ndc.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
     ndc.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
     pickPlate();
+    pickPoint();
   }, { passive: true });
 
   function pickPlate() {
@@ -673,6 +678,28 @@ function boot() {
     if (hovered) hovered.userData.hover = 0;
     hovered = mesh;
     if (roleEl) roleEl.textContent = mesh ? mesh.userData.role : '— hover a plate —';
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  hover — a run in the ceiling map lights up and names its spoke.
+  //  It answers the same question the static legend does; hovering just
+  //  ties the answer to the point you're actually looking at.
+  // ══════════════════════════════════════════════════════════
+  const fhRows = Array.prototype.slice.call(document.querySelectorAll('.fh-row'));
+  let hoveredPoint = -1;
+  ray.params.Points = { threshold: 7 };
+
+  function pickPoint() {
+    ray.setFromCamera(ndc, camera);
+    const hit = ray.intersectObject(runs, false)[0];
+    const idx = hit ? hit.index : -1;
+    canvas.classList.toggle('hover-point', idx >= 0);
+    if (idx === hoveredPoint) return;
+    if (hoveredPoint >= 0) fieldGeo.attributes.aHi.setX(hoveredPoint, 0);
+    hoveredPoint = idx;
+    if (idx >= 0) fieldGeo.attributes.aHi.setX(idx, 1);
+    fieldGeo.attributes.aHi.needsUpdate = true;
+    fhRows.forEach((row, i) => row.classList.toggle('active', idx >= 0 && pointCat[idx] === i));
   }
 
   // ══════════════════════════════════════════════════════════
@@ -893,6 +920,16 @@ function boot() {
       field.userData.dropMat.uniforms.uOpacity.value = fieldIn * 0.16;
       field.rotation.y = t * 0.014 + site.pointer.x * 0.06;
       field.rotation.x = site.pointer.y * 0.03;
+      field.updateMatrixWorld();
+
+      if (fieldIn > 0.15 && !site.reduced) pickPoint();
+      else if (hoveredPoint >= 0) {
+        fieldGeo.attributes.aHi.setX(hoveredPoint, 0);
+        fieldGeo.attributes.aHi.needsUpdate = true;
+        hoveredPoint = -1;
+        canvas.classList.remove('hover-point');
+        fhRows.forEach((row) => row.classList.remove('active'));
+      }
     }
 
     // ── rails stream past the edges, and get out of the way of the set pieces

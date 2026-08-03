@@ -129,21 +129,36 @@
       var reach = rise * (halfW - Math.abs(originX - cx));
       var wedge = (1 - morph) * (18 + rise * 46) * flicker;   // beam cone half-angle, in px at full reach
 
+      // a soft glowing beam rather than a flat-shaded wedge: a wide blurred
+      // stroke for the spill, a thin bright stroke for the filament at its
+      // core, and a small bloom at the origin for the lamp itself
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      ctx.globalAlpha = (rise * 0.8 + hold * 0.2) * (1 - out) * flicker;
+      ctx.lineCap = 'round';
       var gx = originX + side * reach;
-      var grad = ctx.createLinearGradient(originX, originY, gx, originY);
-      grad.addColorStop(0,   'rgba(224,236,233,0.55)');
-      grad.addColorStop(0.5, 'rgba(190,222,217,0.22)');
-      grad.addColorStop(1,   'rgba(190,222,217,0)');
-      ctx.fillStyle = grad;
+      var a = (rise * 0.8 + hold * 0.2) * (1 - out) * flicker;
+
+      ctx.strokeStyle = 'rgba(190,222,217,' + (0.30 * a).toFixed(3) + ')';
+      ctx.lineWidth = Math.max(3, wedge * 1.7);
+      ctx.shadowColor = 'rgba(190,222,217,0.85)';
+      ctx.shadowBlur = 34;
       ctx.beginPath();
-      ctx.moveTo(originX, originY - wedge * 0.25);
-      ctx.lineTo(gx, originY - wedge);
-      ctx.lineTo(gx, originY + wedge);
-      ctx.lineTo(originX, originY + wedge * 0.25);
-      ctx.closePath();
+      ctx.moveTo(originX, originY);
+      ctx.lineTo(gx, originY);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(255,255,255,' + (0.55 * a).toFixed(3) + ')';
+      ctx.lineWidth = Math.max(1.2, wedge * 0.34);
+      ctx.shadowBlur = 14;
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      var bloom = ctx.createRadialGradient(originX, originY, 0, originX, originY, 16 + wedge * 0.4);
+      bloom.addColorStop(0, 'rgba(255,255,255,' + (0.6 * a).toFixed(3) + ')');
+      bloom.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = bloom;
+      ctx.beginPath();
+      ctx.arc(originX, originY, 16 + wedge * 0.4, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 

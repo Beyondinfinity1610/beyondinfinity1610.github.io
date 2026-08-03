@@ -110,8 +110,8 @@ html { scrollbar-color: var(--brass-d) var(--ink); scrollbar-width: thin; }
 ::-webkit-scrollbar-thumb { background: var(--brass-d); border: 2px solid var(--ink); border-radius: 6px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--brass); }
 
-/* set by js/world.js while a redaction plate is under the pointer */
-#world.hover-plate { cursor: pointer; }
+/* set by js/world.js while a redaction plate or field run is under the pointer */
+#world.hover-plate, #world.hover-point { cursor: pointer; }
 
 .skip {
   position: fixed; top: -60px; left: var(--pad); z-index: 999;
@@ -520,8 +520,10 @@ main { position: relative; z-index: 10; }
   background: linear-gradient(270deg, rgba(10,9,8,0.9) 0%, rgba(10,9,8,0.55) 60%, rgba(10,9,8,0) 100%);
 }
 .field-hud.on { opacity: 1; }
-.fh-row { display: flex; align-items: center; justify-content: flex-end; gap: 0.55rem; }
-.fh-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--brass-d); flex: none; }
+.fh-row { display: flex; align-items: center; justify-content: flex-end; gap: 0.55rem; transition: color 0.2s; }
+.fh-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--brass-d); flex: none; transition: background 0.2s, box-shadow 0.2s; }
+.fh-row.active { color: var(--bone); }
+.fh-row.active .fh-dot { background: var(--brass); box-shadow: 0 0 6px 1px rgba(79,176,168,0.7); }
 .fh-note { color: var(--ghost); margin-top: 0.2rem; }
 @media (max-width: 900px) {
   .field-hud {
