@@ -36,6 +36,7 @@
   var topbar      = document.querySelector('.topbar');
   var redactHud   = document.querySelector('.redact-hud');
   var driftHud    = document.querySelector('.drift-hud');
+  var fieldHud    = document.querySelector('.field-hud');
 
   var STATION_LABEL = {
     hero: 'ignition', drift: 'the conviction', lie: 'signal vs instrument',
@@ -210,6 +211,7 @@
     }
     if (redactHud) redactHud.classList.toggle('on', current === 'redaction');
     if (driftHud) driftHud.classList.toggle('on', current === 'lie');
+    if (fieldHud) fieldHud.classList.toggle('on', current === 'ceiling');
     markNav(current);
     if (topbar) topbar.classList.toggle('compact', y > 80);
 

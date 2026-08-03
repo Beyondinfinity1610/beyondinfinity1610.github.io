@@ -55,14 +55,16 @@
   --faint:   #6f6862;
   --ghost:   #4b4741;
 
-  --brass:   #c99a4e;
-  --brass-d: #8d6a34;
-  --brass-l: #e6c08a;
+  /* the accent — a refined phosphor teal. Research-instrument colour rather
+     than automotive brass: an oscilloscope trace, not a tachometer needle. */
+  --brass:   #4fb0a8;
+  --brass-d: #2c6b64;
+  --brass-l: #9fe0d6;
 
-  /* the cool side. Used for the true signal, for shadow, and for nothing
-     that needs to shout — it exists to make the brass look warm. */
-  --cool:    #93aab0;
-  --cool-d:  #3a4a4f;
+  /* the warm side. Used for the true signal, for shadow, and for nothing
+     that needs to shout — it exists to make the teal look cool. */
+  --cool:    #cbbfa8;
+  --cool-d:  #4a4234;
 
   --line:    rgba(214, 224, 226, 0.085);
   --line-2:  rgba(214, 224, 226, 0.17);
@@ -96,9 +98,20 @@ body {
 }
 body.locked { overflow: hidden; }
 
-::selection { background: rgba(201, 154, 78, 0.28); color: #fff; }
+::selection { background: rgba(79, 176, 168, 0.28); color: #fff; }
 
 a { color: inherit; }
+
+/* the default system scrollbar is light grey and breaks the dark chamber the
+   instant a scrollbar shows — style it to match rather than let the OS pick */
+html { scrollbar-color: var(--brass-d) var(--ink); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: var(--brass-d); border: 2px solid var(--ink); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: var(--brass); }
+
+/* set by js/world.js while a redaction plate is under the pointer */
+#world.hover-plate { cursor: pointer; }
 
 .skip {
   position: fixed; top: -60px; left: var(--pad); z-index: 999;
@@ -123,9 +136,9 @@ a { color: inherit; }
 .atmos {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
   background:
-    radial-gradient(78% 58% at 22% 12%, rgba(58,74,79,0.16) 0%, rgba(9,9,10,0) 62%),
-    radial-gradient(86% 62% at 86% 88%, rgba(58,74,79,0.13) 0%, rgba(9,9,10,0) 60%),
-    radial-gradient(120% 78% at 52% 46%, rgba(201,154,78,0.062) 0%, rgba(9,9,10,0) 58%),
+    radial-gradient(78% 58% at 22% 12%, rgba(74,66,52,0.16) 0%, rgba(9,9,10,0) 62%),
+    radial-gradient(86% 62% at 86% 88%, rgba(74,66,52,0.13) 0%, rgba(9,9,10,0) 60%),
+    radial-gradient(120% 78% at 52% 46%, rgba(79,176,168,0.055) 0%, rgba(9,9,10,0) 58%),
     radial-gradient(100% 62% at 50% 108%, rgba(9,9,10,0.92) 0%, rgba(9,9,10,0) 60%),
     linear-gradient(180deg, rgba(9,9,10,0.86) 0%, rgba(9,9,10,0) 22%, rgba(9,9,10,0) 74%, rgba(9,9,10,0.72) 100%);
 }
@@ -196,7 +209,7 @@ a { color: inherit; }
 }
 .rail-bar i {
   position: absolute; left: 0; top: 0; height: 100%; width: 0%;
-  background: linear-gradient(90deg, rgba(201,154,78,0.25), var(--brass));
+  background: linear-gradient(90deg, rgba(79,176,168,0.25), var(--brass));
   transition: width 0.14s linear;
 }
 @media (max-width: 640px) { .rail-mark:not(.rail-r) { display: none; } }
@@ -264,7 +277,7 @@ main { position: relative; z-index: 10; }
 }
 .eyebrow::before {
   content: ''; width: clamp(18px, 3vw, 42px); height: 1px; flex: none;
-  background: linear-gradient(90deg, rgba(141,106,52,0) 0%, var(--brass-d) 100%);
+  background: linear-gradient(90deg, rgba(44,107,100,0) 0%, var(--brass-d) 100%);
 }
 
 .display {
@@ -278,7 +291,7 @@ main { position: relative; z-index: 10; }
 .display em {
   font-style: italic;
   color: var(--brass-l);
-  background: linear-gradient(96deg, #d9ab68 0%, #f0d3a4 42%, #c9964a 100%);
+  background: linear-gradient(96deg, #57c2b8 0%, #a9ece2 42%, #3f9f96 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
   /* a flat brass fill is the fallback wherever the clip is unsupported */
@@ -406,7 +419,7 @@ main { position: relative; z-index: 10; }
   display: inline-block; margin-top: 1.4rem;
   font-family: var(--ff-mono); font-size: 10.5px; letter-spacing: 0.2em;
   text-transform: uppercase; color: var(--brass);
-  text-decoration: none; border-bottom: 1px solid rgba(201,154,78,0.3);
+  text-decoration: none; border-bottom: 1px solid rgba(79,176,168,0.3);
   padding-bottom: 2px; transition: border-color 0.25s, color 0.25s;
 }
 .lnk:hover { color: var(--brass-l); border-color: var(--brass-l); }
@@ -480,7 +493,47 @@ main { position: relative; z-index: 10; }
 .rh-k { color: var(--ghost); }
 .rh-v { color: var(--dim); }
 .rh-stamp { color: var(--brass); }
-@media (max-width: 900px) { .redact-hud { display: none; } }
+/* narrow screens keep the legend rather than losing it outright — the
+   redaction plates are still hoverable (and tappable) at any width */
+@media (max-width: 900px) {
+  .redact-hud {
+    left: var(--pad); right: var(--pad); top: auto; bottom: 4.5rem;
+    transform: none; font-size: 9px; letter-spacing: 0.16em;
+    flex-direction: row; flex-wrap: wrap; gap: 0.3rem 1.4rem;
+    background: linear-gradient(90deg, rgba(10,9,8,0.92) 0%, rgba(10,9,8,0.6) 75%, rgba(10,9,8,0) 100%);
+  }
+  .rh-row { flex-direction: row; gap: 0.5rem; }
+}
+
+/* ─────────────────── the field, read as an approach ────────────────── */
+
+.field-hud {
+  position: fixed; right: var(--pad); top: 50%;
+  transform: translateY(-50%);
+  z-index: 20; pointer-events: none;
+  display: flex; flex-direction: column; gap: 0.5rem;
+  font-family: var(--ff-mono); font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  opacity: 0; transition: opacity 0.6s ease;
+  border-right: 1px solid var(--line-2); padding: 0.4rem 0.9rem 0.4rem 1.4rem;
+  text-align: right;
+  background: linear-gradient(270deg, rgba(10,9,8,0.9) 0%, rgba(10,9,8,0.55) 60%, rgba(10,9,8,0) 100%);
+}
+.field-hud.on { opacity: 1; }
+.fh-row { display: flex; align-items: center; justify-content: flex-end; gap: 0.55rem; }
+.fh-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--brass-d); flex: none; }
+.fh-note { color: var(--ghost); margin-top: 0.2rem; }
+@media (max-width: 900px) {
+  .field-hud {
+    left: var(--pad); right: var(--pad); top: auto; bottom: 4.5rem;
+    transform: none; text-align: left; border-right: 0; border-left: 1px solid var(--line-2);
+    padding: 0.4rem 1.4rem 0.4rem 0.9rem;
+    flex-direction: row; flex-wrap: wrap; gap: 0.3rem 1.2rem;
+    background: linear-gradient(90deg, rgba(10,9,8,0.9) 0%, rgba(10,9,8,0.5) 80%, rgba(10,9,8,0) 100%);
+  }
+  .fh-row { justify-content: flex-start; }
+  .fh-note { display: none; }
+}
 
 /* ─────────────────────────── method ────────────────────────── */
 
@@ -649,7 +702,7 @@ main { position: relative; z-index: 10; }
 .quiet li:hover .q-n { color: var(--brass-l); }
 .quiet li .q-n { transition: color 0.3s; }
 .tag { transition: border-color 0.35s, color 0.35s; }
-.tag:hover { border-color: var(--edge-warm, rgba(201,154,78,0.4)); color: var(--dim); }
+.tag:hover { border-color: var(--edge-warm, rgba(79,176,168,0.4)); color: var(--dim); }
 
 /* the nav marks where you are, and tightens once you leave the top */
 .topnav a { position: relative; padding-bottom: 3px; }

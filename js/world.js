@@ -51,7 +51,7 @@ function boot() {
 
   const DEPTH = 1500;        // world units spanned by the whole document
   const BONE  = new THREE.Color(0xece7de);
-  const BRASS = new THREE.Color(0xc99a4e);
+  const BRASS = new THREE.Color(0x4fb0a8);   // the accent — phosphor teal, not amber
 
   // depth of a document position, in world units
   const zAt = (px) => -(px / Math.max(1, site.doc)) * DEPTH;
@@ -234,7 +234,7 @@ function boot() {
   const traceGeo = new THREE.BufferGeometry();
   const tracePos = new Float32Array(TRACE_N * 3);
   traceGeo.setAttribute('position', new THREE.BufferAttribute(tracePos, 3));
-  const traceMat = traceMaterial(0xc99a4e, 0);
+  const traceMat = traceMaterial(0x4fb0a8, 0);
   const trace = new THREE.Line(traceGeo, traceMat);
   trace.frustumCulled = false;
   scene.add(trace);
@@ -243,7 +243,7 @@ function boot() {
   const trace2Geo = new THREE.BufferGeometry();
   const trace2Pos = new Float32Array(TRACE_N * 3);
   trace2Geo.setAttribute('position', new THREE.BufferAttribute(trace2Pos, 3));
-  const trace2Mat = traceMaterial(0xd2e0e4, 0);
+  const trace2Mat = traceMaterial(0xd8cba9, 0);
   const trace2 = new THREE.Line(trace2Geo, trace2Mat);
   trace2.frustumCulled = false;
   scene.add(trace2);
@@ -255,7 +255,7 @@ function boot() {
   const errGeo = new THREE.BufferGeometry();
   const errPos = new Float32Array(ERR_N * 2 * 3);
   errGeo.setAttribute('position', new THREE.BufferAttribute(errPos, 3));
-  const errMat = traceMaterial(0xc99a4e, 0);
+  const errMat = traceMaterial(0x4fb0a8, 0);
   const errors = new THREE.LineSegments(errGeo, errMat);
   errors.frustumCulled = false;
   scene.add(errors);
@@ -400,7 +400,7 @@ function boot() {
   for (let i = 0; i < FLOW_N; i++) flowSeed[i] = Math.random();
   flowGeo.setAttribute('position', new THREE.BufferAttribute(flowPos, 3));
   const flowMat = new THREE.PointsMaterial({
-    color: 0xe6c08a, size: 2.6, map: DOT, transparent: true, opacity: 0,
+    color: 0x9fe0d6, size: 2.6, map: DOT, transparent: true, opacity: 0,
     depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: false
   });
   const flow = new THREE.Points(flowGeo, flowMat);
@@ -415,7 +415,7 @@ function boot() {
   const RUNG_SPAN = RUNG_GAP * 26;
   const rails = new THREE.Group();
   const railMat = new THREE.ShaderMaterial({
-    uniforms: { uColor: { value: new THREE.Color(0xc99a4e) }, uOpacity: { value: 0 } },
+    uniforms: { uColor: { value: new THREE.Color(0x4fb0a8) }, uOpacity: { value: 0 } },
     vertexShader: `
       varying float vD;
       void main() {
@@ -473,7 +473,7 @@ function boot() {
         new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false })
       );
     };
-    [[52, 0xc99a4e, 0.9, -0.7], [38, 0xd7e0e2, -1.1, 0.5], [24, 0xc99a4e, 0.6, 1.2]]
+    [[52, 0x4fb0a8, 0.9, -0.7], [38, 0xd8cba9, -1.1, 0.5], [24, 0x4fb0a8, 0.6, 1.2]]
       .forEach(([r, color, tx, ty], i) => {
         const ring = hoop(r, color);
         calib.add(ring);
@@ -490,6 +490,13 @@ function boot() {
 
   const RUNS = low ? 700 : 1600;
   const CEILING = 54;
+  // seven levers pulled, independently — data scale, fusion strategy,
+  // ensembling, false-alarm filtering, persistence, hand-crafted features,
+  // band selection (named in the copy and in .field-hud). Each gets its own
+  // angular spoke so the *shape* of a structured search is legible — which
+  // axes were pulled, and how many times — without a single value on it.
+  const CATS = 7;
+  const SECTOR = (Math.PI * 2) / CATS;
   const fieldGeo = new THREE.BufferGeometry();
   const dropPts = [];
   {
@@ -499,7 +506,10 @@ function boot() {
     // Runs crowd up under a ceiling and stop. Nothing is labelled and there
     // are no axes — the only thing being said is "they all stop here".
     for (let i = 0; i < RUNS; i++) {
-      const th = Math.random() * Math.PI * 2;
+      // even split across the seven spokes — a gap between them keeps each
+      // one legible as its own arm rather than a blurred disc
+      const cat = i % CATS;
+      const th = (cat + 0.5) * SECTOR + (Math.random() - 0.5) * SECTOR * 0.72;
       const rad = 40 + Math.pow(Math.random(), 0.6) * 330;
       const drop = Math.pow(Math.random(), 2.3);       // most sit just below
       p[i * 3]     = Math.cos(th) * rad;
@@ -526,8 +536,8 @@ function boot() {
     uniforms: {
       uMap: { value: DOT }, uTime: { value: 0 },
       uProj: { value: 1000 }, uOpacity: { value: 0 },
-      uWarm: { value: new THREE.Color(0xc99a4e) },
-      uCool: { value: new THREE.Color(0xc2d0d4) }
+      uWarm: { value: new THREE.Color(0x4fb0a8) },
+      uCool: { value: new THREE.Color(0xd8cba9) }
     },
     vertexShader: `
       attribute float aScale; attribute float aBright;
@@ -571,13 +581,13 @@ function boot() {
       pts.push(new THREE.Vector3(-R, CEILING, o), new THREE.Vector3(R, CEILING, o));
       pts.push(new THREE.Vector3(o, CEILING, -R), new THREE.Vector3(o, CEILING, R));
     }
-    const gridMat = traceMaterial(0xc99a4e, 0);
+    const gridMat = traceMaterial(0x4fb0a8, 0);
     const grid = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), gridMat);
     grid.frustumCulled = false;
     field.add(grid);
     field.userData.gridMat = gridMat;
 
-    const dropMat = traceMaterial(0xc2d0d4, 0);
+    const dropMat = traceMaterial(0xd8cba9, 0);
     const drops = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(dropPts), dropMat);
     drops.frustumCulled = false;
     field.add(drops);
@@ -644,10 +654,21 @@ function boot() {
     ndc.y = -(e.clientY / window.innerHeight) * 2 + 1;
   }, { passive: true });
 
+  // touch has no hover: a tap picks a plate the same way, and it stays picked
+  // (the raycast re-runs every frame against the same coordinate) until the
+  // next tap moves it, so the legend still answers something on a phone
+  canvas.addEventListener('touchstart', (e) => {
+    if (!e.touches[0]) return;
+    ndc.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+    ndc.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+    pickPlate();
+  }, { passive: true });
+
   function pickPlate() {
     ray.setFromCamera(ndc, camera);
     const hit = ray.intersectObjects(plates, false)[0];
     const mesh = hit ? hit.object : null;
+    canvas.classList.toggle('hover-plate', !!mesh);
     if (mesh === hovered) return;
     if (hovered) hovered.userData.hover = 0;
     hovered = mesh;
@@ -840,8 +861,11 @@ function boot() {
       }
       flowGeo.attributes.position.needsUpdate = true;
 
-      if (site.station === 'redaction' && !site.reduced) pickPlate();
-      else if (hovered) { hovered = null; if (roleEl) roleEl.textContent = '— hover a plate —'; }
+      // interactive for the whole visible fade, not just while the station
+      // label reads "redaction" — the plates were visible well outside that
+      // narrow window with no way to explain why hovering did nothing there
+      if (topoIn > 0.15 && !site.reduced) pickPlate();
+      else if (hovered) { hovered = null; canvas.classList.remove('hover-plate'); if (roleEl) roleEl.textContent = '— hover a plate —'; }
     }
 
     // ── the calibration: out of true on the way in, aligned on the way out
