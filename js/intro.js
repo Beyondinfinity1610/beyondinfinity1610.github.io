@@ -153,9 +153,10 @@
     var resolve = easeIO(span(t, 0.12, 0.76));
     var out = span(t, 0.90, 1.00);
 
-    // the camera dollies in and sways gently — it never stops moving,
-    // which is most of what reads as "3D" rather than a flat scene
-    var dolly = easeIO(span(t, 0, 1)) * 150;
+    // the camera opens on a wide establishing pull-back, then dollies in
+    // through the whole run and never stops moving — which is most of what
+    // reads as "3D" rather than a flat scene with things drifting on it
+    var dolly = -70 + easeIO(span(t, 0, 1)) * 220;
     var yaw = Math.sin(time * 0.22) * 0.05;
     var camY = Math.sin(time * 0.17) * 8;
     var cosY = Math.cos(yaw), sinY = Math.sin(yaw);
@@ -185,20 +186,44 @@
     }
     ctx.restore();
 
-    // the lock — a brief bloom in world space at the moment of formation
-    var lock = span(t, 0.72, 0.77) * (1 - span(t, 0.77, 0.88));
-    if (lock > 0.001) {
+    // the lock — a bloom, an expanding ring, and a soft frame-wide flash,
+    // all keyed to the same instant the signal settles in
+    var lockPeak = span(t, 0.72, 0.77);
+    var lock = lockPeak * (1 - span(t, 0.77, 0.88));
+    var ringT = span(t, 0.72, 0.90);
+    if (lock > 0.001 || ringT > 0) {
       var ls = toScreen(0, DROP_WORLD, (LINE_Z[0] + LINE_Z[1]) / 2);
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      var rad = (140 * lock + 10) * Math.max(0.4, ls[2]);
-      var g = ctx.createRadialGradient(ls[0], ls[1], 0, ls[0], ls[1], rad);
-      g.addColorStop(0, 'rgba(159,224,214,' + (0.55 * lock).toFixed(3) + ')');
-      g.addColorStop(1, 'rgba(159,224,214,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(ls[0], ls[1], rad, 0, Math.PI * 2);
-      ctx.fill();
+      if (lock > 0.001) {
+        var rad = (150 * lock + 10) * Math.max(0.4, ls[2]);
+        var g = ctx.createRadialGradient(ls[0], ls[1], 0, ls[0], ls[1], rad);
+        g.addColorStop(0, 'rgba(159,224,214,' + (0.6 * lock).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(159,224,214,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(ls[0], ls[1], rad, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // a hairline ring expanding outward from the point of lock
+      if (ringT > 0 && ringT < 1) {
+        var ringR = ringT * 420 * Math.max(0.4, ls[2]);
+        ctx.globalAlpha = (1 - ringT) * 0.5;
+        ctx.strokeStyle = 'rgba(159,224,214,0.8)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(ls[0], ls[1], ringR, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    // a single soft, brief brightening of the whole frame at the instant of
+    // lock — restrained (never past ~12% white), so it reads as punctuation
+    if (lockPeak > 0.001) {
+      ctx.save();
+      ctx.globalAlpha = lockPeak * 0.12;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, W, H);
       ctx.restore();
     }
 
@@ -256,6 +281,14 @@
         ctx.restore();
       }
     }
+
+    // a vignette — the one cheap trick that makes a canvas scene read as
+    // "shot" rather than "drawn": darken the corners, leave the centre alone
+    var vig = ctx.createRadialGradient(cx, cy, Math.min(W, H) * 0.28, cx, cy, Math.max(W, H) * 0.72);
+    vig.addColorStop(0, 'rgba(0,0,0,0)');
+    vig.addColorStop(1, 'rgba(0,0,0,0.55)');
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, W, H);
 
     var phraseIdx = 0;
     for (var q = 0; q < phrases.length; q++) if (t >= phrases[q][0]) phraseIdx = q;
