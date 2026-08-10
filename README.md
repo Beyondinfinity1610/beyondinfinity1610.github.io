@@ -37,114 +37,82 @@ Method vocabulary in the skills list ("graph attention", "domain adaptation",
 "phase-based connectivity") is fine: that is capability, not a description of a
 specific unpublished system.
 
-The redacted topology in the 3D scene is the deliberate expression of this rule.
-Stage count, block shapes and flow direction are visible; every label is a bar.
-Keep it that way — the moment real text goes on those plates, the rule is broken.
+**Movement 03 (`try`) generates its data synthetically in the browser from a
+fixed seed, and is driven by a textbook 2001 line-length detector attributed by
+name — Esteller et al.** It is a demonstration of the problem's difficulty, not
+a result. The redacted topology in movement 04 (`withheld`) is the deliberate
+expression of the same rule for the real system: stage count, block shapes and
+flow direction are visible; every label is a bar.
+
+This is enforced mechanically by `scripts/disclosure-check.mjs` — see
+[`docs/SPEC.md`](docs/SPEC.md) §7.3 for how the checker works without ever
+storing the banned vocabulary in plaintext in this repo. Run it yourself:
+
+```
+node scripts/disclosure-check.mjs
+```
+
+It runs again automatically via `.githooks/pre-commit` and `.githooks/commit-msg`
+(installed by `npm install` via the `prepare` script), and in CI before every
+deploy.
 
 ## Running it
 
-Static, no build step, no bundler, no framework. Editing a file and pushing to
-`main` is the whole deploy.
+Vite + TypeScript, as of the 2026-08 rebuild — see `docs/SPEC.md` for why the
+static/no-build era ended.
 
 ```
-python -m http.server 8000
+npm install
+npm run dev
 ```
 
-Everything is vendored under `vendor/` — three.js and all four font files. The
-page makes **zero third-party requests**. Do not add a CDN link, a Google Fonts
-`<link>`, or analytics.
+`npm run build` produces `dist/`. `npm run verify` runs the full gate:
+disclosure check → typecheck → unit tests → build → bundle size budgets → the
+Playwright screenshot harness. Deploy is still "push to `main`" — GitHub Actions
+builds and publishes it (Settings → Pages → Source must be **GitHub Actions**).
+
+Zero third-party requests at runtime: fonts are self-hosted under
+`public/fonts/`, and the Playwright harness asserts this mechanically (spec
+§7.5). Do not add a CDN link, a Google Fonts `<link>`, or analytics.
 
 ## Structure
 
-| File | What it does |
+The full repo layout and the reasoning behind each piece is
+[`docs/SPEC.md`](docs/SPEC.md) §7.2. In short:
+
+| Path | What it is |
 |---|---|
-| `index.html` | All copy. Sections carry `data-station`, which is what the 3D scene anchors to. |
-| `css/main.css` | Type, layout, the fixed chrome, entrance states. |
-| `js/intro.js` | The ignition: a tachometer sweep that unrolls into an electrode trace. Canvas 2D, under three seconds, any input skips it. |
-| `js/main.js` | The frame loop. Owns scroll state and entrances, publishes both on `window.__site`. |
-| `js/world.js` | The 3D chamber. ES module, imports vendored three.js. |
+| `index.html` | All long-form copy, semantic markup only. Source of truth — works with JS off. |
+| `src/main.ts` | Entry: boot, register plugins, schedule lazy chunks. |
+| `src/core/` | The single rAF loop, Lenis↔ScrollTrigger bridge, viewport/tier state. |
+| `src/pieces/` | Each movement's set-piece: mount/unmount/fit/frame, isolated per-scene. |
+| `src/signal/` | The synthetic-EEG generator for movement 03. No DOM. |
+| `src/content/strings.ts` | JS-injected micro-copy only — everything longer than a phrase lives in `index.html`. |
+| `disclosure/` | The hash-based red-list and the allow-list. See above. |
+| `scripts/` | Disclosure checker, bundle-size checker, contact-sheet generator. |
+| `tests/` | `signal.spec.ts` (pure-logic unit tests), `shots.spec.ts` (the screenshot harness). |
 
 ## How the page and the scene stay locked together
 
-`js/main.js` measures every `[data-station]` section and puts the result on
-`window.__site`. `js/world.js` maps document pixels to world depth —
-`z = -(scroll / doc) * DEPTH` — so the camera's position *is* the scroll
-position, and each set piece is anchored to the section it belongs to. Reflow
-the layout, change the copy, resize the window: the scene follows, with no
-hard-coded scroll offsets anywhere.
+One `WebGLRenderer` on one canvas, but independent `Scene`/`Camera` pairs per
+piece, each with a local 0..1 progress driven by its own `ScrollTrigger`
+(measurement only — it never animates the canvas directly). A `Director`
+gates which piece is active and hides the canvas the instant none are — see
+`docs/SPEC.md` §5.3–§5.4 for why the old single-corridor depth architecture
+(`js/world.js`, now removed) was abandoned rather than repaired.
 
-The set pieces, each visible only inside its own section's depth band:
+## Things that used to break, and how the new stack handles them
 
-- **the instrument** — a bezel with three rings tumbling inside it, behind the
-  opening line. It comes back at the very end, drifts to centre and recedes.
-- **the calibration** — three rings beside the audit section that start out of
-  true and come into alignment as you scroll through it.
-- **the rails** — rungs streaming past at the edges of vision. They mean
-  nothing; they exist so the depth is legible while you read, and they fade out
-  wherever a real set piece is on screen.
-- **the trace** — two lines: the signal, and the signal as the instrument
-  reports it. They leave the hero almost coincident, running away into depth.
-  Across `[data-station="lie"]` they swing round to face the viewer and come
-  apart, with the residual drawn between them. That stage is deliberately empty
-  of copy; the legend is the fixed `.drift-hud`.
-- **the topology** — the redacted plates, flown through
-- **the field** — one point per run, crowding up under a ceiling they do not
-  pass, with hairlines from the ceiling to the ones that got closest. No axes
-  and no values, because there are none to show.
-
-## Colour
-
-Warm highlight, cool shadow. Brass and bone carry everything that matters; a
-desaturated petrol (`--cool`, and the cooler scene fog) sits in the shadows and
-the far distance. The cool tone never gets brighter than the warm one — its only
-job is to make the brass read warm by contrast. In the scene it also carries
-meaning: the true signal is cool, the instrument's reported signal is brass.
-
-## The hand-off
-
-The ignition does not cut to the site. It ends on a flat trace dropped below the
-middle of the screen; `js/world.js` picks that same pose up (`arrive`, driven
-from the `ignition:done` event), then swings the trace away into depth, pushes
-the camera in, shrinks the bezel into place and fades the gimbal up. Entrance
-animations are held until that event too, so the opening lines rise as the
-ignition dissolves instead of sitting fully formed behind it.
-
-If you retime the ignition, retime `arrive` with it, and check the trace does
-not sit across the headline on the way through.
-
-## Things that have broken before — do not undo these
-
-- **Entrances are driven from the frame loop, not `IntersectionObserver`.**
-  Observer callbacks are suspended in throttled and background tabs, which left
-  content permanently invisible on this site once. Anything already above the
-  fold counts as entered.
-- **Positions come from `getBoundingClientRect().top + scrollY`, never
-  `offsetTop`.** There are positioned ancestors here and `offsetTop` lies.
-- **The frame loop must not take the rAF timestamp as its own argument.** An
-  earlier version re-scheduled itself only when called with no argument, so the
-  timestamp silently killed the loop after a single tick and nothing moved.
-- **Point sizes need a real projection scale.** `gl_PointSize` is in device
-  pixels; sizing points with an arbitrary constant over distance made them
-  sub-pixel and the whole field rendered as an empty void.
-- **The fixed chrome carries its own scrim.** The atmosphere layer sits *behind*
-  the content, so it cannot stop body copy running under the nav.
-- **Set pieces scale down on narrow viewports** (`fit`, set in `resize()`).
-  A narrow window sees far less world width, and the topology otherwise
-  straddles both edges off-screen.
-- **Each set piece is bound to its own section's depth band**, not to distance
-  from a centre point. Distance alone let the ceiling field bleed three sections
-  backwards and read as debris behind the topology.
-- **Stations nest, and the tightest one wins.** The `lie` stage sits inside the
-  conviction section; picking the first match instead of the smallest meant its
-  band never became current and its legend never appeared.
-- **A line pointing at the camera is a dot.** The trace only reads as two
-  diverging curves once it has swung side-on — that is what the `lie` blend is
-  for, and why the pair is never simply slid toward the centre of the view.
+The full table is spec §5.4. Summary: most of the nine historical bugs are
+*moot by construction* under this architecture (per-section scenes instead of
+a shared depth corridor, `ScrollTrigger` instead of hand-rolled `offsetTop`
+math, `InstancedMesh` instead of `THREE.Points`). The two that remain real
+under any stack — fixed chrome needing its own scrim, and set pieces needing
+to scale on narrow viewports — are still handled explicitly in `chrome.css`
+and each piece's `fit(w, h)`.
 
 ## Before you push
 
-1. Grep the site for the red-list terms above. Zero hits.
-2. Look at screenshots — hero, each 3D station, and one narrow viewport. Every
-   visual bug this site has ever had was invisible in the code and obvious in an
-   image.
-3. Check the console at several scroll positions. It should be silent.
+`npm run verify`, then **open `shots/index.html` and look at the images** —
+not the terminal output. Every visual bug this site has ever shipped was
+invisible in code and obvious in a screenshot.

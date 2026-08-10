@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Type specimen — Fraunces vs. Instrument Serif</title>
+<meta name="robots" content="noindex" />
+<style>
+  @font-face {
+    font-family: 'Fraunces';
+    font-style: normal; font-weight: 100 900; font-display: swap;
+    src: url('/fonts/fraunces-latin.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Fraunces';
+    font-style: italic; font-weight: 100 900; font-display: swap;
+    src: url('/fonts/fraunces-italic-latin.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Instrument Serif';
+    src: url('/fonts/instrument-serif.woff2') format('woff2');
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Instrument Serif';
+    src: url('/fonts/instrument-serif-italic.woff2') format('woff2');
+    font-weight: 400; font-style: italic; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Space Grotesk';
+    src: url('/fonts/space-grotesk-latin.woff2') format('woff2');
+    font-weight: 300 700; font-display: swap;
+  }
+  @font-face {
+    font-family: 'JetBrains Mono';
+    src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+    font-weight: 400 500; font-display: swap;
+  }
+
+  :root {
+    --void: #06080a; --bone: #ece7de; --body: #b9b2a8; --faint: #8a8279;
+    --phosphor: #4fb0a8; --phosphor-hi: #9fe0d6; --phosphor-lo: #2c6b64;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--void); color: var(--bone);
+    font-family: 'Space Grotesk', sans-serif; font-weight: 400;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 4rem clamp(1.25rem, 5vw, 5rem); }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+    letter-spacing: 0.34em; text-transform: uppercase; color: var(--phosphor-lo);
+    margin: 0 0 1rem;
+  }
+  .panel { border-top: 1px solid rgba(214,224,226,0.17); padding: 3rem 0; }
+  .panel + .panel { border-top: 1px solid rgba(214,224,226,0.17); }
+  h1.spec-hero {
+    font-weight: 400; font-size: clamp(2.85rem, 7.6vw, 6.4rem);
+    line-height: 0.99; letter-spacing: -0.017em; margin: 0 0 1rem; max-width: 15ch;
+  }
+  h1.spec-hero em { color: var(--phosphor-hi); font-style: italic; }
+  .fraunces { font-family: 'Fraunces', serif; font-optical-sizing: auto; }
+  .instrument { font-family: 'Instrument Serif', serif; }
+  .section-title {
+    font-weight: 400; font-size: clamp(2.3rem, 5.6vw, 4.5rem);
+    line-height: 1.06; letter-spacing: -0.012em; margin: 0 0 1rem;
+  }
+  .lede { color: var(--body); font-size: 1.1rem; max-width: 56ch; margin: 0; }
+  .label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--faint); margin-bottom: 0.75rem; }
+  .idx-row { font-family: 'Fraunces', serif; font-size: 2rem; display: flex; gap: 2rem; align-items: baseline; }
+  .idx-row.instrument-row { font-family: 'Instrument Serif', serif; }
+  .idx-row span { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">type specimen · phase 0</p>
+  <p class="lede">Fraunces (variable, opsz/wght/SOFT/WONK) vs. Instrument Serif — spec §4.2. This page is a one-token revert: swap <code>--ff-display</code> in <code>src/styles/tokens.css</code> if Fraunces is rejected.</p>
+</div>
+
+<div class="panel">
+  <div class="wrap">
+    <p class="label">fraunces — hero set</p>
+    <h1 class="spec-hero fraunces">I build models for measurements that <em>drift</em>.</h1>
+    <p class="label" style="margin-top:2rem;">fraunces — section set</p>
+    <h2 class="section-title fraunces">Every instrument is <em>lying</em>.</h2>
+    <div class="idx-row"><span>01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span><span>08</span><span>09</span><span>10</span><span>11</span></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="wrap">
+    <p class="label">instrument serif — hero set</p>
+    <h1 class="spec-hero instrument">I build models for measurements that <em>drift</em>.</h1>
+    <p class="label" style="margin-top:2rem;">instrument serif — section set</p>
+    <h2 class="section-title instrument">Every instrument is <em>lying</em>.</h2>
+    <div class="idx-row instrument-row"><span>01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span><span>08</span><span>09</span><span>10</span><span>11</span></div>
+  </div>
+</div>
+</body>
+</html>

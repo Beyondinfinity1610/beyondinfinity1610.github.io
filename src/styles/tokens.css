@@ -1,0 +1,145 @@
+/* ============================================================
+   Palette: four semantic roles, nothing decorative. Spec §4.1.
+   Type: Fraunces (display) / Space Grotesk 400 (body) / JetBrains
+   Mono (instrument). Spec §4.2.
+
+   DEVIATION from spec §4.2: shipping Fraunces with only the opsz+wght
+   axes, not the full opsz/wght/SOFT/WONK. The full 4-axis variable file
+   is 118 KB gz on its own, which alone exceeds the 130 KB budget for all
+   three preloaded faces combined (spec §6.1). opsz+wght is 67 KB gz and
+   is what the spec's own rationale for choosing Fraunces actually rests
+   on ("genuine optical-size correctness") — SOFT/WONK are listed as
+   available axes but aren't the stated differentiator. Flagged for
+   Phase 12 sign-off alongside the Fraunces-vs-Instrument-Serif call.
+   ============================================================ */
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/fraunces-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/fraunces-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/fraunces-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/fraunces-italic-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/instrument-serif.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/instrument-serif-ext.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/instrument-serif-italic.woff2') format('woff2');
+  font-weight: 400; font-style: italic; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/instrument-serif-italic-ext.woff2') format('woff2');
+  font-weight: 400; font-style: italic; font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/space-grotesk-latin.woff2') format('woff2');
+  font-weight: 300 700; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/space-grotesk-latin-ext.woff2') format('woff2');
+  font-weight: 300 700; font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+  font-weight: 400 500; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-latin-ext.woff2') format('woff2');
+  font-weight: 400 500; font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  /* ground */
+  --void:    #06080a;
+  --raised:  #0c0f11;
+
+  /* truth / body text */
+  --bone:    #ece7de;
+  --body:    #b9b2a8;
+  --faint:   #8a8279;
+
+  /* the instrument — what is reported */
+  --phosphor:    #4fb0a8;
+  --phosphor-hi: #9fe0d6;
+  --phosphor-lo: #2c6b64;
+  /* Accessible variant of --phosphor-lo for small mono TEXT (eyebrows,
+     throughline/method-list/skills labels) — spec §8 Phase 9's done-test
+     ("axe-core zero serious/critical at all 11 movements"), which
+     mechanically caught what §4.1's own audit of --faint/--body missed:
+     --phosphor-lo is 3.24:1 on --void, below WCAG AA's 4.5:1 for text
+     under ~18px. Kept as a separate token rather than changing
+     --phosphor-lo itself, because that token also drives borders, the
+     scrollbar thumb and decorative gradients — non-text uses that only
+     need 3:1 (WCAG 1.4.11) and are unaffected by this.
+     Not tuned to the exact 4.5:1 boundary: axe-core measures actual
+     rendered pixels, and at 10px mono weight, anti-aliasing along glyph
+     edges blends enough background in to measure below a value's pure
+     sRGB ratio (confirmed directly — a boundary-tuned 4.51:1 value
+     measured 4.45:1 in a real run). This is deliberately ~5:1 on --void
+     for headroom against that gap. */
+  --phosphor-lo-text: #52938b;
+
+  /* failure. exactly two places on the whole site. */
+  --alarm: #d1533f;
+
+  --line:   rgba(214, 224, 226, 0.085);
+  --line-2: rgba(214, 224, 226, 0.17);
+
+  --ff-display: 'Fraunces', 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --ff-sans:    'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --ff-mono:    'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  --pad: clamp(1.25rem, 5vw, 5rem);
+  --max: 1180px;
+
+  /* motion/eases.ts defines the three CustomEase curves used everywhere in
+     JS-driven motion; this CSS fallback exists only for things that must
+     transition before JS has run (e.g. hover states). */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}

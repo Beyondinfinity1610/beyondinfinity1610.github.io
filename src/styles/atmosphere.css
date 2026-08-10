@@ -1,0 +1,34 @@
+/* Warm depth wash + top/bottom falloff, so nothing ever glares.
+   Vignette lives here as a CSS radial, not a composer pass — cheaper,
+   and it applies to the whole page (spec §4.5). */
+.atmos {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(78% 58% at 22% 12%, rgba(79,176,168,0.05) 0%, rgba(6,8,10,0) 62%),
+    radial-gradient(86% 62% at 86% 88%, rgba(79,176,168,0.04) 0%, rgba(6,8,10,0) 60%),
+    radial-gradient(120% 78% at 52% 46%, rgba(79,176,168,0.045) 0%, rgba(6,8,10,0) 58%),
+    radial-gradient(100% 62% at 50% 108%, rgba(6,8,10,0.92) 0%, rgba(6,8,10,0) 60%),
+    linear-gradient(180deg, rgba(6,8,10,0.86) 0%, rgba(6,8,10,0) 22%, rgba(6,8,10,0) 74%, rgba(6,8,10,0.72) 100%);
+}
+
+/* one 128² tiled noise, DOM layer, unanimated so it reads identical across
+   the WebGL canvas, the 2D instrument and the DOM (spec §4.5). Off on
+   mobile — real compositing cost. */
+.grain {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none;
+  opacity: 0.05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (max-width: 760px) { .grain { display: none; } }
+
+/* #world: the shared Canvas 2D surface (trace, instrument's debug
+   stand-ins, audit). #world-gl: the WebGL surface (topology, ceiling,
+   Phase 5+) — a separate element because a canvas is locked to whichever
+   context type first requests it; 2D and WebGL never share one. Both
+   Directors set visibility:hidden via JS (never CSS) when zero of their
+   pieces are active — spec §5.3. */
+#world,
+#world-gl {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 0; display: block;
+}

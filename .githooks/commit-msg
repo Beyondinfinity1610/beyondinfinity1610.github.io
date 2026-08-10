@@ -1,0 +1,11 @@
+#!/bin/sh
+# pre-commit can't see the commit message being written — that needs its
+# own hook. $1 is the path git gives us to the message file. Spec §7.3.
+node scripts/disclosure-check.mjs --commit-msg "$1"
+status=$?
+if [ $status -ne 0 ]; then
+  echo ""
+  echo "commit-msg: disclosure check failed on the commit message — see above."
+  exit $status
+fi
+exit 0

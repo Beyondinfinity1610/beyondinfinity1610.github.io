@@ -1,0 +1,47 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+/* No `scroll-behavior: smooth` — Lenis owns smooth scroll from Phase 1 on;
+   native smooth-scroll fights it (spec §5.4). */
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--bone);
+  font-family: var(--ff-sans);
+  font-weight: 400; /* not 300 — spec §4.2, the 300 read thin */
+  font-size: 17px;
+  line-height: 1.68;
+  letter-spacing: 0.002em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::selection { background: rgba(79, 176, 168, 0.28); color: var(--bone); }
+
+a { color: inherit; }
+
+html { scrollbar-color: var(--phosphor-lo) var(--void); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--phosphor-lo); border: 2px solid var(--void); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: var(--phosphor); }
+
+.skip {
+  position: fixed; top: -60px; left: var(--pad); z-index: 999;
+  background: var(--raised); color: var(--bone); border: 1px solid var(--line-2);
+  padding: 0.6rem 1rem; font-family: var(--ff-mono); font-size: 12px;
+  text-decoration: none; transition: top 0.2s;
+}
+.skip:focus { top: 1rem; }
+
+/* a 2px phosphor ring with a 2px void offset — visible, on-brand, never removed */
+:focus-visible { outline: 2px solid var(--phosphor); outline-offset: 2px; }
+
+/* tabular figures on every readout — non-negotiable, spec §4.2 */
+.tnum { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}

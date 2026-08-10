@@ -1,0 +1,66 @@
+/* ───────────────────── the instrument (movement 03) ─────────────────── */
+/* .instrument-mount's placeholder styling (layout.css) still applies until
+   piece.ts mounts and adds .instrument-live, which this overrides. */
+
+.instrument-mount.instrument-live {
+  text-align: left;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.instrument-transport {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.instrument-windowlen {
+  display: flex; gap: 0.4rem;
+}
+.instrument-windowlen button,
+.instrument-autopilot {
+  font-family: var(--ff-mono); font-size: 10px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--faint);
+  background: transparent; border: 1px solid var(--line);
+  padding: 0.4rem 0.7rem; cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.instrument-windowlen button:hover,
+.instrument-autopilot:hover { color: var(--bone); border-color: var(--line-2); }
+.instrument-windowlen button[aria-pressed="true"],
+.instrument-autopilot[aria-pressed="true"] {
+  color: var(--phosphor); border-color: var(--phosphor-lo);
+}
+
+.instrument-canvas {
+  display: block; width: 100%; height: clamp(220px, 32vw, 340px);
+  cursor: ns-resize;
+  touch-action: pan-y; /* coarse pointers keep vertical page scroll — spec §2.6 */
+}
+
+.instrument-readouts {
+  display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem;
+  margin: 0.9rem 0; font-family: var(--ff-mono); font-size: 11px;
+  color: var(--faint); letter-spacing: 0.04em;
+}
+.instrument-readouts b { color: var(--phosphor-hi); font-weight: 400; }
+
+.instrument-range-label {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.instrument-range {
+  width: 100%; margin: 0 0 1.2rem;
+  accent-color: var(--phosphor);
+  background: transparent;
+}
+
+.instrument-roc-inset {
+  display: none;
+  width: 100%; height: clamp(180px, 24vw, 260px);
+  margin-top: 1rem; border-top: 1px solid var(--line); padding-top: 1rem;
+}
+.instrument-revealed .instrument-roc-inset { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .instrument-windowlen button,
+  .instrument-autopilot { transition: none; }
+}

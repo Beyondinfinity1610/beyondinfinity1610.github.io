@@ -1,0 +1,14 @@
+/* Per-movement overrides that don't belong in the generic layout system.
+   The big empty-viewport spacing movements 04 and 06 need for their WebGL
+   scenes (spec's old `margin-top: clamp(34rem, 128vh, 78rem)` pattern) is
+   added in Phase 6/8 alongside the scenes themselves — adding it now would
+   just be a blank scroll gap with nothing in it. */
+
+.movement-foot p { color: var(--body); margin: 0 0 1.1rem; }
+.movement-foot em { color: var(--phosphor-hi); font-style: italic; }
+
+/* The trace's split/divergence stage (spec §3.1) — deliberately empty of
+   copy, so a fixed-viewport-percentage canvas position is safe for its
+   entire scroll distance regardless of exactly where within it the user
+   currently is. */
+.drift-stage { height: clamp(28rem, 110vh, 62rem); }

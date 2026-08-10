@@ -1,0 +1,31 @@
+# Exact permitted sentences containing near-miss vocabulary — spec §7.3.
+# Matches inside an allow-listed sentence are skipped by both the regex
+# and hash-ngram layers. Keep entries close to verbatim copy so they
+# actually match; the checker normalises (lowercase, strip punctuation,
+# collapse whitespace) before comparing, so exact capitalisation and
+# punctuation here do not matter.
+
+published human expert readers reach roughly 59% sensitivity on this modality
+fewer than two false alarms per day
+202541081235
+SeizeIT2 — behind-the-ear Sensor Dot, recorded in hospital
+125 patients, 2,912 recording-hours, seizure prevalence under 1%
+SeizeIT2 · behind-the-ear · 125 patients · 2,912 h
+line-length threshold (Esteller et al., 2001)
+detector: line-length threshold (Esteller et al., 2001)
+smoothed line length over a short window, a statistic published by Esteller and colleagues in 2001
+
+# "ablation design" is general-capability skills vocabulary, explicitly
+# green-listed by the README itself ("Method vocabulary in the skills
+# list ... is fine: that is capability, not a description of a specific
+# unpublished system").
+AUPRC and event-level scoring · bootstrap intervals · corrected hypothesis testing · ablation design · coverage-artifact detection
+
+# README.md policy language — the disclosure rule has to name the
+# categories it bans in order to state the rule. This is documentation
+# of the policy, not a violation of it.
+any of *his* metrics — AUROC, event-F1, sensitivity, false-alarm rate, precision
+the specific diagnostic findings, the ablation table, or the ceiling map
+CGPA, phone number, employer-internal detail
+its ablation campaign and its headline metrics
+ablation campaign
