@@ -39,7 +39,7 @@ function drawStruckBars(ctx: CanvasRenderingContext2D, x: number, y: number, w: 
 }
 
 function drawLegibleText(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void {
-  ctx.fillStyle = '#ece7de';
+  ctx.fillStyle = '#e9ede7';
   ctx.font = `${Math.round(h * 0.11)}px "JetBrains Mono", monospace`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -56,7 +56,7 @@ function drawCell(ctx: CanvasRenderingContext2D, index: number): void {
   const w = CELL_W;
   const h = CELL_H;
 
-  ctx.fillStyle = '#0c0f11';
+  ctx.fillStyle = '#0e100e';
   ctx.fillRect(x, y, w, h);
 
   ctx.strokeStyle = 'rgba(214, 224, 226, 0.22)';
@@ -79,7 +79,7 @@ export function drawPlateAtlas(canvas: HTMLCanvasElement): void {
   canvas.height = ATLAS_SIZE;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  ctx.fillStyle = '#06080a';
+  ctx.fillStyle = '#090a09';
   ctx.fillRect(0, 0, ATLAS_SIZE, ATLAS_SIZE);
   for (let i = 0; i < PLATE_COUNT; i++) drawCell(ctx, i);
 }

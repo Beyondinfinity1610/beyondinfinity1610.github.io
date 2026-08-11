@@ -18,7 +18,7 @@ body {
   overflow-x: hidden;
 }
 
-::selection { background: rgba(79, 176, 168, 0.28); color: var(--bone); }
+::selection { background: rgba(95, 174, 122, 0.28); color: var(--bone); }
 
 a { color: inherit; }
 

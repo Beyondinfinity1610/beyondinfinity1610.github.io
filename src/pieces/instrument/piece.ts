@@ -47,11 +47,11 @@ export class InstrumentInstance {
     this.state = createInitialState(buildRoc());
     this.lastDayPositionS = this.state.dayPositionS;
     this.colors = {
-      bone: cssVar('--bone', '#ece7de'),
-      body: cssVar('--body', '#b9b2a8'),
-      faint: cssVar('--faint', '#8a8279'),
-      phosphor: cssVar('--phosphor', '#4fb0a8'),
-      phosphorHi: cssVar('--phosphor-hi', '#9fe0d6'),
+      bone: cssVar('--bone', '#e9ede7'),
+      body: cssVar('--body', '#aab3a8'),
+      faint: cssVar('--faint', '#7d857c'),
+      phosphor: cssVar('--phosphor', '#5fae7a'),
+      phosphorHi: cssVar('--phosphor-hi', '#a8dfba'),
       alarm: cssVar('--alarm', '#d1533f'),
     };
 

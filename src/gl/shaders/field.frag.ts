@@ -20,6 +20,7 @@ uniform vec3 uNearMissColor;
 varying float vCategory;
 varying float vCloseness;
 varying float vAlpha;
+varying float vTextMask;
 varying vec2 vUv;
 
 void main() {
@@ -37,6 +38,14 @@ void main() {
   float shape = 1.0 - smoothstep(0.7, 1.0, d);
   if (shape <= 0.001) discard;
 
-  gl_FragColor = vec4(color, vAlpha * shape);
+  // vTextMask is 1 where this instance sits behind the live copy column
+  // (field.vert.ts). Masking multiplies color, not just alpha: alpha
+  // alone (tried first) measurably failed to suppress the rendered
+  // instances at runtime — verified by isolating each factor while
+  // building this — so color carries the real dimming, with a milder
+  // alpha reduction riding alongside it.
+  vec3 masked = color * mix(1.0, 0.05, vTextMask);
+  float maskedAlpha = vAlpha * shape * mix(1.0, 0.3, vTextMask);
+  gl_FragColor = vec4(masked, maskedAlpha);
 }
 `;

@@ -101,10 +101,30 @@ export interface AuditTestState {
   settled: boolean;
 }
 
+interface DocRect {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
 export class AuditPiece extends BasePiece {
   private w = 0;
   private h = 0;
   private settleT = 0;
+
+  // Document-space (not viewport-space) bounds of the section's own text
+  // column (#audit .col), captured on mount/resize — never per-frame,
+  // same "getBoundingClientRect() per frame is layout thrash" rule
+  // trace-piece.ts's own hero-foot measurement follows. Document space
+  // (rect + window.scrollY) rather than trace-piece's viewport-space
+  // snapshot because this section's copy genuinely scrolls past several
+  // viewport heights while the piece is active — a hero, by contrast,
+  // sits centered in a min-height:100vh block for its whole active
+  // window, so one viewport-space snapshot stays valid there. Combined
+  // with the live scroll position every frame in fadeForRow() below, this
+  // stays correct across the whole scroll range at zero extra layout cost.
+  private textRectDoc: DocRect | null = null;
 
   // The piece's own local progress, advanced every tick regardless of
   // canvas ownership — see simulate()'s doc comment for why this can't
@@ -126,9 +146,9 @@ export class AuditPiece extends BasePiece {
   private event: SignalEvent | null = null;
   private alarmFracs: number[] = []; // 0..1 positions within the window
 
-  private colorBone = '#ece7de';
-  private colorPhosphor = '#4fb0a8';
-  private colorPhosphorHi = '#9fe0d6';
+  private colorBone = '#e9ede7';
+  private colorPhosphor = '#5fae7a';
+  private colorPhosphorHi = '#a8dfba';
   private colorAlarm = '#d1533f';
 
   private hud: HTMLElement;
@@ -181,6 +201,44 @@ export class AuditPiece extends BasePiece {
     this.colorPhosphorHi = cssVar('--phosphor-hi', this.colorPhosphorHi);
     this.colorAlarm = cssVar('--alarm', this.colorAlarm);
     this.buildData();
+    this.measureTextBounds();
+  }
+
+  /** #audit's own copy column — the thing the drawn band must never sit
+   *  on top of. Document-space so fit()/frame-time math never needs a
+   *  fresh layout read (see textRectDoc's own comment). */
+  private measureTextBounds(): void {
+    const col = document.querySelector('#audit .col');
+    if (!col) {
+      this.textRectDoc = null;
+      return;
+    }
+    const rect = col.getBoundingClientRect();
+    const scrollY = window.scrollY;
+    this.textRectDoc = {
+      top: rect.top + scrollY,
+      bottom: rect.bottom + scrollY,
+      left: rect.left,
+      right: rect.right,
+    };
+  }
+
+  /** How much a given row should dim itself where it would otherwise sit
+   *  behind the live copy column — replaces the old fixed `w < 760`
+   *  guess (which the band's own screenshot review showed missing the
+   *  same collision at desktop widths) with the actual measured overlap,
+   *  at any viewport size. 1 = fully visible, near-0 = essentially hidden
+   *  behind text. Same "dimmed, not repositioned" tradeoff this piece
+   *  already made for mobile (see draw()'s own comment) — just applied
+   *  from real geometry instead of a breakpoint. */
+  private fadeForRow(row: RowRect, x0: number, x1: number): number {
+    if (!this.textRectDoc) return 1;
+    const scrollY = window.scrollY;
+    const textTop = this.textRectDoc.top - scrollY;
+    const textBottom = this.textRectDoc.bottom - scrollY;
+    const overlapsVertically = row.y0 < textBottom && row.y0 + row.height > textTop;
+    const overlapsHorizontally = x0 < this.textRectDoc.right && x1 > this.textRectDoc.left;
+    return overlapsVertically && overlapsHorizontally ? 0.12 : 1;
   }
 
   private buildData(): void {
@@ -227,6 +285,7 @@ export class AuditPiece extends BasePiece {
   fit(width: number, height: number): void {
     this.w = width;
     this.h = height;
+    this.measureTextBounds();
   }
 
   /** Explicit activation notification — spec §5.3's active flag is only
@@ -410,24 +469,16 @@ export class AuditPiece extends BasePiece {
     const rows = this.rows();
     const settled = this.settleT >= SETTLE_DURATION_S;
     const quiet = settled ? 0.55 : 1; // "settles on a quieter score" — amplitude, not a number
-    // Below ~760px the section's own prose reflows to occupy most of the
-    // viewport height (unlike desktop, where it clears rows.decisions'
-    // y0 = h*0.6 with room to spare), so the full-bleed band ends up
-    // drawn across body copy rather than beside it. trace-piece.ts avoids
-    // this by measuring and clamping around the hero's own rect; doing
-    // the same per-paragraph here (arbitrary prose length, not one fixed
-    // element) is real scope, so this reads as background texture behind
-    // the text instead — dimmed, not repositioned.
-    const mobileFade = this.w < 760 ? 0.4 : 1;
     ctx.save();
 
     // decisions — a bracket over the matched event's span
     const decisionsPresence = this.presence(0);
+    const decisionsFade = this.fadeForRow(rows.decisions, bandX0, bandX0 + bandWidth);
     if (decisionsPresence > 0.01 && this.event) {
       const row = rows.decisions;
       const x0 = bandX0 + bandWidth * clamp01((this.event.start - this.windowStart) / WINDOW_SECONDS);
       const x1 = bandX0 + bandWidth * clamp01((this.event.end - this.windowStart) / WINDOW_SECONDS);
-      ctx.globalAlpha = decisionsPresence * mobileFade;
+      ctx.globalAlpha = decisionsPresence * decisionsFade;
       ctx.strokeStyle = this.colorPhosphorHi;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -437,13 +488,14 @@ export class AuditPiece extends BasePiece {
       ctx.lineTo(Math.max(x0 + 2, x1), row.y0 + row.height);
       ctx.stroke();
     }
-    this.strikeIfPeeling(ctx, bandX0, bandX0 + bandWidth, rows.decisions, decisionsPresence, mobileFade);
+    this.strikeIfPeeling(ctx, bandX0, bandX0 + bandWidth, rows.decisions, decisionsPresence, decisionsFade);
 
     // alarms — tick marks
     const alarmsPresence = this.presence(1);
+    const alarmsFade = this.fadeForRow(rows.alarms, bandX0, bandX0 + bandWidth);
     if (alarmsPresence > 0.01) {
       const row = rows.alarms;
-      ctx.globalAlpha = alarmsPresence * mobileFade;
+      ctx.globalAlpha = alarmsPresence * alarmsFade;
       ctx.strokeStyle = this.colorPhosphor;
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -454,23 +506,28 @@ export class AuditPiece extends BasePiece {
       }
       ctx.stroke();
     }
-    this.strikeIfPeeling(ctx, bandX0, bandX0 + bandWidth, rows.alarms, alarmsPresence, mobileFade);
+    this.strikeIfPeeling(ctx, bandX0, bandX0 + bandWidth, rows.alarms, alarmsPresence, alarmsFade);
 
     // scores — the z-scored feature stream lane
     const scoresPresence = this.presence(2);
+    const scoresFade = this.fadeForRow(rows.scores, bandX0, bandX0 + bandWidth);
     if (scoresPresence > 0.01) {
       const row = rows.scores;
       const cols = Math.max(1, Math.floor(bandWidth));
       const path = minMaxEnvelopePath(this.zSlice, cols, bandX0, row.y0, row.height, this.zMin, this.zMax);
-      ctx.globalAlpha = scoresPresence * mobileFade;
+      ctx.globalAlpha = scoresPresence * scoresFade;
       ctx.strokeStyle = this.colorPhosphor;
       ctx.lineWidth = 1;
       ctx.stroke(path);
     }
-    this.strikeIfPeeling(ctx, bandX0, bandX0 + bandWidth, rows.scores, scoresPresence, mobileFade);
+    this.strikeIfPeeling(ctx, bandX0, bandX0 + bandWidth, rows.scores, scoresPresence, scoresFade);
 
-    // raw — eeg + ecg, the substrate. Always present; quieter once settled.
-    ctx.globalAlpha = quiet * mobileFade;
+    // raw — eeg + ecg, the substrate. Always present; quieter once settled,
+    // and dimmed same as every other row wherever it would sit behind the
+    // live copy column (fadeForRow, not a viewport-width guess — see its
+    // own comment for why this replaced the old `w < 760` special case).
+    const rawFade = Math.min(this.fadeForRow(rows.eeg, bandX0, bandX0 + bandWidth), this.fadeForRow(rows.ecg, bandX0, bandX0 + bandWidth));
+    ctx.globalAlpha = quiet * rawFade;
     ctx.strokeStyle = this.colorBone;
     ctx.lineWidth = 1;
     {

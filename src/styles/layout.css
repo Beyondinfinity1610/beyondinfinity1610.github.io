@@ -26,21 +26,26 @@ main { position: relative; z-index: 10; }
 }
 .eyebrow::before {
   content: ''; width: clamp(18px, 3vw, 42px); height: 1px; flex: none;
-  background: linear-gradient(90deg, rgba(44,107,100,0) 0%, var(--phosphor-lo) 100%);
+  background: linear-gradient(90deg, rgba(53,107,76,0) 0%, var(--phosphor-lo) 100%);
 }
 
 .display {
   font-family: var(--ff-display); font-weight: 400;
-  font-size: clamp(2.85rem, 7.6vw, 6.4rem);
-  line-height: 0.99; letter-spacing: -0.017em;
+  /* Sized down from the old serif's clamp — JetBrains Mono's fixed
+     advance width runs noticeably wider per character than Fraunces did
+     at the same size, so the old 6.4rem ceiling was overflowing/wrapping
+     awkwardly once the face changed. */
+  font-size: clamp(2.5rem, 6.6vw, 5.5rem);
+  line-height: 1.04; letter-spacing: -0.006em;
   margin: 0 0 clamp(1.6rem, 3.4vw, 2.6rem);
   color: var(--bone);
 }
-.d2 { font-size: clamp(2.3rem, 5.6vw, 4.5rem); }
+.d2 { font-size: clamp(2rem, 4.9vw, 3.9rem); }
 .display em {
+  font-family: var(--ff-accent);
   font-style: italic;
   color: var(--phosphor-hi);
-  background: linear-gradient(96deg, #57c2b8 0%, #a9ece2 42%, #3f9f96 100%);
+  background: linear-gradient(96deg, #6bbd85 0%, #b8ecc7 42%, #4a9268 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
   paint-order: stroke fill;
@@ -70,7 +75,7 @@ main { position: relative; z-index: 10; }
   background: rgba(12,15,17,0.35); backdrop-filter: blur(3px);
   transition: border-color 0.35s, color 0.35s;
 }
-.tag:hover { border-color: rgba(79,176,168,0.4); color: var(--body); }
+.tag:hover { border-color: rgba(95,174,122,0.4); color: var(--body); }
 
 .scroll-cue {
   position: absolute; left: 50%; bottom: 3.4rem; transform: translateX(-50%);
@@ -174,7 +179,7 @@ main { position: relative; z-index: 10; }
   display: inline-block; margin-top: 1.4rem;
   font-family: var(--ff-mono); font-size: 10.5px; letter-spacing: 0.2em;
   text-transform: uppercase; color: var(--phosphor);
-  text-decoration: none; border-bottom: 1px solid rgba(79,176,168,0.3);
+  text-decoration: none; border-bottom: 1px solid rgba(95,174,122,0.3);
   padding-bottom: 2px; transition: border-color 0.25s, color 0.25s;
 }
 .lnk:hover { color: var(--phosphor-hi); border-color: var(--phosphor-hi); }

@@ -25,8 +25,8 @@ export class Ceiling2DPiece extends BasePiece {
   private h = 0;
   private field: CeilingField;
 
-  private colorLo = '#4fb0a8';
-  private colorHi = '#ece7de';
+  private colorLo = '#5fae7a';
+  private colorHi = '#e9ede7';
   private colorNearMiss = '#c9824a'; // matches ceiling/piece.ts's NEAR_MISS_HEX — see that file's comment on why this isn't --alarm
 
   constructor(private director: Director) {

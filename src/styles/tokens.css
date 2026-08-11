@@ -95,24 +95,32 @@
 }
 
 :root {
-  /* ground */
-  --void:    #06080a;
-  --raised:  #0c0f11;
+  /* ground — neutral graphite, not blue-black: the instrument, not a
+     spaceship interior. 2026-08-11 Signal Lab direction (see repo docs/
+     the design pitch this was chosen from) replaces the teal/void pair
+     below entirely; kept as a straight token swap so every consumer of
+     --void/--phosphor/etc. picks the new palette up automatically. */
+  --void:    #090a09;
+  --raised:  #0e100e;
 
-  /* truth / body text */
-  --bone:    #ece7de;
-  --body:    #b9b2a8;
-  --faint:   #8a8279;
+  /* truth / body text — cool paper-white with a faint green cast instead
+     of the old warm cream, so it sits with the scope-green accent rather
+     than fighting it. */
+  --bone:    #e9ede7;
+  --body:    #aab3a8;
+  --faint:   #7d857c;
 
-  /* the instrument — what is reported */
-  --phosphor:    #4fb0a8;
-  --phosphor-hi: #9fe0d6;
-  --phosphor-lo: #2c6b64;
+  /* the instrument — what is reported. Muted scope/P31-phosphor green,
+     deliberately desaturated (not lime) to stay "elegant" per the
+     approved direction, not the harsher version of the same pitch. */
+  --phosphor:    #5fae7a;
+  --phosphor-hi: #a8dfba;
+  --phosphor-lo: #356b4c;
   /* Accessible variant of --phosphor-lo for small mono TEXT (eyebrows,
      throughline/method-list/skills labels) — spec §8 Phase 9's done-test
      ("axe-core zero serious/critical at all 11 movements"), which
      mechanically caught what §4.1's own audit of --faint/--body missed:
-     --phosphor-lo is 3.24:1 on --void, below WCAG AA's 4.5:1 for text
+     --phosphor-lo is ~3.2:1 on --void, below WCAG AA's 4.5:1 for text
      under ~18px. Kept as a separate token rather than changing
      --phosphor-lo itself, because that token also drives borders, the
      scrollbar thumb and decorative gradients — non-text uses that only
@@ -121,17 +129,23 @@
      rendered pixels, and at 10px mono weight, anti-aliasing along glyph
      edges blends enough background in to measure below a value's pure
      sRGB ratio (confirmed directly — a boundary-tuned 4.51:1 value
-     measured 4.45:1 in a real run). This is deliberately ~5:1 on --void
+     measured 4.45:1 in a real run). This is deliberately ~5.9:1 on --void
      for headroom against that gap. */
-  --phosphor-lo-text: #52938b;
+  --phosphor-lo-text: #549a6f;
 
   /* failure. exactly two places on the whole site. */
   --alarm: #d1533f;
 
-  --line:   rgba(214, 224, 226, 0.085);
-  --line-2: rgba(214, 224, 226, 0.17);
+  --line:   rgba(206, 216, 208, 0.085);
+  --line-2: rgba(206, 216, 208, 0.17);
 
-  --ff-display: 'Fraunces', 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  /* Mono now carries display/heading duty — the Signal Lab direction's
+     "reads as telemetry, not composed" cue. Fraunces stays loaded but
+     moves to --ff-accent: the one italic-emphasis-word treatment
+     (.display em), not the headline face — that's what keeps this
+     "elegant" instead of the pitch's colder all-mono variant. */
+  --ff-display: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --ff-accent:  'Fraunces', 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
   --ff-sans:    'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   --ff-mono:    'JetBrains Mono', ui-monospace, Menlo, monospace;
 

@@ -42,11 +42,15 @@ test.describe('contact sheet', () => {
       await page.goto('/');
       await page.waitForFunction(() => window.__ready === true, { timeout: 10_000 });
       await page.locator(`#${id}`).scrollIntoViewIfNeeded();
-      // Longest entrance is ~1.15s duration + up to ~4*0.07s stagger (spec
-      // §4.3) — wait it out so the contact sheet shows settled state, not
-      // mid-animation. True frame-perfect determinism via freeze()/tick()
-      // needs gsap.ticker's own clock mocked too (it uses wall time even
-      // under manual tick()) — revisit when a phase actually needs it.
+      // Longest entrance is ~0.85s duration + up to ~4*0.06s stagger (spec
+      // §4.3, tightened 2026-08-11 for the Signal Lab direction — see
+      // motion/eases.ts) — wait it out so the contact sheet shows settled
+      // state, not mid-animation. True frame-perfect determinism via
+      // freeze()/tick() needs gsap.ticker's own clock mocked too (it uses
+      // wall time even under manual tick()) — revisit when a phase
+      // actually needs it. The margin here also comfortably covers
+      // ignition's own ~1.3s cold-start, which already finished before
+      // __ready flips (main.ts awaits it before buildEntrances()).
       await page.waitForTimeout(1600);
 
       const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);

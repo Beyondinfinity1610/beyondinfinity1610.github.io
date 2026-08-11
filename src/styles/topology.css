@@ -11,7 +11,7 @@
   letter-spacing: 0.2em; text-transform: uppercase;
   opacity: 0; transition: opacity 0.6s ease;
   border-left: 1px solid var(--line-2); padding: 0.4rem 1.4rem 0.4rem 0.9rem;
-  background: linear-gradient(90deg, rgba(6,8,10,0.9) 0%, rgba(6,8,10,0.55) 60%, rgba(6,8,10,0) 100%);
+  background: linear-gradient(90deg, rgba(9,10,9,0.9) 0%, rgba(9,10,9,0.55) 60%, rgba(9,10,9,0) 100%);
 }
 .topology-caption.tc-on { opacity: 1; }
 .tc-row { display: flex; flex-direction: column; gap: 0.15rem; }
@@ -33,7 +33,7 @@
        scrolling body copy — a fade lets that copy show through right
        where the HUD's own text sits, muddling both. A flat opaque bar
        fully masks what's behind it instead. */
-    background: rgba(6, 8, 10, 0.96);
+    background: rgba(9, 10, 9, 0.96);
   }
   .tc-row { flex-direction: row; gap: 0.5rem; }
 }

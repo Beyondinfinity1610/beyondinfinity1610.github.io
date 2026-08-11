@@ -16,6 +16,7 @@ import { initViewport, onResize } from './core/viewport';
 import './core/test-api';
 import { splitDisplayLines } from './motion/split-lines';
 import { buildEntrances } from './motion/entrances';
+import { playIgnition } from './motion/ignition';
 import { Director } from './pieces/director';
 import { DebugPiece } from './pieces/debug-piece';
 import { TracePiece } from './pieces/trace/trace-piece';
@@ -579,6 +580,12 @@ async function boot(): Promise<void> {
   // trace-piece.ts measures for its collision margin — re-fit once metrics
   // are final, before anything else reads layout.
   fitAll(window.innerWidth, window.innerHeight);
+  // Cold-start: the instrument grid and the hero's own trace power on
+  // before any copy enters (motion/ignition.ts). Awaited here so
+  // buildEntrances()'s hero reveal — which is otherwise already visible
+  // above the fold at boot, per sweepAboveFold() — starts only once the
+  // instrument has actually switched on, not simultaneously with it.
+  await playIgnition();
   splitDisplayLines();
   buildEntrances();
   refresh();

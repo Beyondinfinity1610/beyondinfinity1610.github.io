@@ -32,7 +32,7 @@
 .topbar::before {
   content: ''; position: absolute; left: 0; right: 0; z-index: -1;
   top: 0; bottom: -3.5rem; pointer-events: none;
-  background: linear-gradient(180deg, rgba(6,8,10,0.95) 0%, rgba(6,8,10,0.75) 42%, rgba(6,8,10,0) 100%);
+  background: linear-gradient(180deg, rgba(9,10,9,0.95) 0%, rgba(9,10,9,0.75) 42%, rgba(9,10,9,0) 100%);
   backdrop-filter: blur(10px);
 }
 .mark {
