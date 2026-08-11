@@ -29,7 +29,7 @@ import '../src/core/test-api';
 // piece's own camera/instance-size math (closestInstanceScreenInfo), this
 // is belt-and-suspenders: math AND a real decoded screenshot must agree.
 
-const VOID_HEX = { r: 0x06, g: 0x08, b: 0x0a }; // --void, tokens.css
+const VOID_HEX = { r: 0x09, g: 0x0a, b: 0x09 }; // --void, tokens.css
 
 async function mountCeiling(page: import('@playwright/test').Page) {
   await page.goto('/');

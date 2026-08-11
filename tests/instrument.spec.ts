@@ -75,7 +75,7 @@ test.describe('the instrument — Phase 4a (rendering)', () => {
       const canvas = document.querySelector('.instrument-canvas') as HTMLCanvasElement;
       const ctx = canvas.getContext('2d')!;
       const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const isRuleColor = (r: number, g: number, b: number) => r > 130 && r < 190 && g > 210 && b > 190; // ~#9fe0d6
+      const isRuleColor = (r: number, g: number, b: number) => r > 140 && r < 200 && g > 205 && b > 165; // ~#a8dfba (--phosphor-hi, Signal Lab palette)
 
       let bestColumnHitRows = -1;
       for (let x = 0; x < canvas.width; x++) {
