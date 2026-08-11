@@ -46,8 +46,8 @@ export class TracePiece extends BasePiece {
   private h = 0;
   private truth: number[] = [];
   private reported: number[] = [];
-  private colorBone = '#ece7de';
-  private colorPhosphor = '#4fb0a8';
+  private colorBone = '#e9ede7';
+  private colorPhosphor = '#5fae7a';
   private bounds: TraceBounds = { left: 0, right: 0, top: 0, bottom: 0 };
   private centerYHero = 0;
   private centerYStage = 0;

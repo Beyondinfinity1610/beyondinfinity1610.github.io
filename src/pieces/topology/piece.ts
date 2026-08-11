@@ -70,15 +70,15 @@ export class TopologyPiece implements WebglPiece {
   private readonly mobile = isMobile();
 
   constructor(canvas: HTMLCanvasElement) {
-    const phosphor = cssVar('--phosphor', '#4fb0a8');
-    this.scene.fog = new FogExp2(0x06080a, 0.045);
+    const phosphor = cssVar('--phosphor', '#5fae7a');
+    this.scene.fog = new FogExp2(0x090a09, 0.045);
 
     const { group, plates } = buildPlates(this.atlasCanvas, this.mobile ? MOBILE_PLATE_COUNT : PLATE_COUNT);
     this.group = group;
     this.plates = plates;
     this.scene.add(this.group);
 
-    const { group: connectorGroup, connectors } = buildConnectors(plates, parseInt(phosphor.replace('#', '0x'), 16) || 0x4fb0a8);
+    const { group: connectorGroup, connectors } = buildConnectors(plates, parseInt(phosphor.replace('#', '0x'), 16) || 0x5fae7a);
     this.scene.add(connectorGroup);
     this.connectors = connectors;
 

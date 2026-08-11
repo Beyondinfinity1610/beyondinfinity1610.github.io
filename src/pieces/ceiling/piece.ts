@@ -20,6 +20,7 @@ import {
   FogExp2,
   Color,
   Vector3,
+  Vector4,
   DoubleSide,
   Matrix4,
   type WebGLRenderer,
@@ -40,7 +41,7 @@ import {
 } from './field';
 
 // Reads a CSS custom property straight into a THREE.Color, numeric fallback
-// only — tokens.css's own hex strings ('#4fb0a8' etc.) are exactly the
+// only — tokens.css's own hex strings ('#5fae7a' etc.) are exactly the
 // digit-bearing string literals spec §3.4/§8 Phase 8's grep bans from this
 // directory, so the fallback here is a numeric literal (never sub-6-hex-
 // digit-leading-zero for the three colours this piece actually uses, so no
@@ -105,11 +106,23 @@ export class CeilingPiece implements WebglPiece {
   private mesh!: InstancedMesh;
   private material!: ShaderMaterial;
 
-  constructor(_canvas: HTMLCanvasElement) {
-    const phosphor = themeColor('--phosphor', 0x4fb0a8);
-    const bone = themeColor('--bone', 0xece7de);
+  // Canvas CSS size — fit() only fed the camera's aspect ratio before this;
+  // needed here too, to turn the measured text rect's document-space
+  // coordinates into the 0..1 screen fractions uTextRect expects.
+  private w = 1;
+  private h = 1;
+  // Document-space union of #ceiling's two copy blocks (the header
+  // wrap-narrow and the movement-foot one) — same "measure once on
+  // mount/resize, combine with live scrollY every frame" pattern as
+  // audit/piece.ts's textRectDoc (see that field's own comment for why
+  // document-space beats a per-frame layout read).
+  private textRectDoc: { top: number; bottom: number; left: number; right: number } | null = null;
 
-    this.scene.fog = new FogExp2(0x06080a, 0.05);
+  constructor(_canvas: HTMLCanvasElement) {
+    const phosphor = themeColor('--phosphor', 0x5fae7a);
+    const bone = themeColor('--bone', 0xe9ede7);
+
+    this.scene.fog = new FogExp2(0x090a09, 0.05);
 
     const count = this.mobile ? CEILING_INSTANCE_COUNT_MOBILE : CEILING_INSTANCE_COUNT_HIGH;
     this.field = buildCeilingField(count);
@@ -117,6 +130,50 @@ export class CeilingPiece implements WebglPiece {
     this.buildInstances(this.field, phosphor, bone);
     this.buildCeilingGrid(bone);
     this.buildNearMissHairlines(this.field);
+    this.measureTextBounds();
+  }
+
+  /** Unions #ceiling's two copy blocks (the header wrap-narrow and the
+   *  movement-foot one) in document space. Called on construction and
+   *  fit() — never per-frame, matching audit/piece.ts's own reasoning for
+   *  the same measurement (see that file's textRectDoc comment). */
+  private measureTextBounds(): void {
+    const blocks = document.querySelectorAll('#ceiling .wrap-narrow');
+    if (blocks.length === 0) {
+      this.textRectDoc = null;
+      return;
+    }
+    const scrollY = window.scrollY;
+    let top = Infinity, bottom = -Infinity, left = Infinity, right = -Infinity;
+    blocks.forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      top = Math.min(top, rect.top + scrollY);
+      bottom = Math.max(bottom, rect.bottom + scrollY);
+      left = Math.min(left, rect.left);
+      right = Math.max(right, rect.right);
+    });
+    this.textRectDoc = { top, bottom, left, right };
+  }
+
+  /** Feeds the shader's uTextRect from textRectDoc + the live scroll
+   *  position — cheap arithmetic against a value already measured on
+   *  mount/resize, never a fresh layout read (frame() runs every tick). */
+  private updateTextRectUniform(): void {
+    const target = this.material.uniforms.uTextRect.value as Vector4;
+    if (!this.textRectDoc || this.w <= 0 || this.h <= 0) {
+      target.set(-1, -1, -1, -1);
+      return;
+    }
+    const scrollY = window.scrollY;
+    const top = (this.textRectDoc.top - scrollY) / this.h;
+    const bottom = (this.textRectDoc.bottom - scrollY) / this.h;
+    // Fully off-screen vertically — skip the masking work rather than feed
+    // a technically-correct but pointless rect every frame.
+    if (bottom < 0 || top > 1) {
+      target.set(-1, -1, -1, -1);
+      return;
+    }
+    target.set(this.textRectDoc.left / this.w, top, this.textRectDoc.right / this.w, bottom);
   }
 
   private buildInstances(field: CeilingField, phosphor: Color, bone: Color): void {
@@ -154,6 +211,10 @@ export class CeilingPiece implements WebglPiece {
         uColorLo: { value: phosphor },
         uColorHi: { value: bone },
         uNearMissColor: { value: new Color(NEAR_MISS_HEX) },
+        // Degenerate/off-screen by default (see field.vert.ts's own
+        // comment) — no masking until measureTextBounds() below finds a
+        // real rect and frame() starts feeding it live coordinates.
+        uTextRect: { value: new Vector4(-1, -1, -1, -1) },
       },
     });
 
@@ -223,8 +284,11 @@ export class CeilingPiece implements WebglPiece {
   }
 
   fit(width: number, height: number): void {
+    this.w = width;
+    this.h = height;
     this.camera.aspect = width / Math.max(1, height);
     this.camera.updateProjectionMatrix();
+    this.measureTextBounds();
   }
 
   /** Mobile gets a bounded, self-contained sweep instead of a continuous
@@ -265,6 +329,7 @@ export class CeilingPiece implements WebglPiece {
     this.p += (this.target - this.p) * (1 - Math.exp(-FOLLOW_RATE * dt));
     const progress = this.progressForFrame(dt);
     this.applyPose(progress);
+    this.updateTextRectUniform();
   }
 
   render(renderer: WebGLRenderer): void {
@@ -277,6 +342,7 @@ export class CeilingPiece implements WebglPiece {
     this.p = 1;
     this.mobileT = MOBILE_SCRIPT_SECONDS;
     this.applyPose(1);
+    this.updateTextRectUniform();
     renderer.render(this.scene, this.camera);
   }
 

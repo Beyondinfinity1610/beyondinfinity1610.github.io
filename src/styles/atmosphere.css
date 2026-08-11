@@ -4,12 +4,30 @@
 .atmos {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
   background:
-    radial-gradient(78% 58% at 22% 12%, rgba(79,176,168,0.05) 0%, rgba(6,8,10,0) 62%),
-    radial-gradient(86% 62% at 86% 88%, rgba(79,176,168,0.04) 0%, rgba(6,8,10,0) 60%),
-    radial-gradient(120% 78% at 52% 46%, rgba(79,176,168,0.045) 0%, rgba(6,8,10,0) 58%),
-    radial-gradient(100% 62% at 50% 108%, rgba(6,8,10,0.92) 0%, rgba(6,8,10,0) 60%),
-    linear-gradient(180deg, rgba(6,8,10,0.86) 0%, rgba(6,8,10,0) 22%, rgba(6,8,10,0) 74%, rgba(6,8,10,0.72) 100%);
+    radial-gradient(78% 58% at 22% 12%, rgba(95,174,122,0.05) 0%, rgba(9,10,9,0) 62%),
+    radial-gradient(86% 62% at 86% 88%, rgba(95,174,122,0.04) 0%, rgba(9,10,9,0) 60%),
+    radial-gradient(120% 78% at 52% 46%, rgba(95,174,122,0.045) 0%, rgba(9,10,9,0) 58%),
+    radial-gradient(100% 62% at 50% 108%, rgba(9,10,9,0.92) 0%, rgba(9,10,9,0) 60%),
+    linear-gradient(180deg, rgba(9,10,9,0.86) 0%, rgba(9,10,9,0) 22%, rgba(9,10,9,0) 74%, rgba(9,10,9,0.72) 100%);
 }
+
+/* Instrument grid — the "always present, like an oscilloscope's own
+   graticule" cue from the approved Signal Lab direction. A DOM layer
+   (not per-piece canvas geometry) so it reads sitewide, under the
+   vignette above (which keeps it from ever glaring) and behind the
+   grain. Deliberately faint: it's ambient texture, not a decoration
+   competing with the copy — same "restraint" rule as everything else on
+   this site. */
+.grid-field {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(95,174,122,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(95,174,122,0.055) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(120% 90% at 50% 30%, #000 0%, transparent 78%);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 30%, #000 0%, transparent 78%);
+}
+@media (max-width: 760px) { .grid-field { background-size: 34px 34px; } }
 
 /* one 128² tiled noise, DOM layer, unanimated so it reads identical across
    the WebGL canvas, the 2D instrument and the DOM (spec §4.5). Off on

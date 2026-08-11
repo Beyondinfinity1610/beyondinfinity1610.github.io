@@ -12,7 +12,7 @@ export function mountSignalDebug(): void {
   document.body.innerHTML = '';
   const container = document.createElement('div');
   container.style.cssText =
-    'position:fixed;inset:0;background:#06080a;z-index:9999;overflow:auto;padding:2rem;color:#ece7de;font-family:"JetBrains Mono",monospace;box-sizing:border-box;';
+    'position:fixed;inset:0;background:#090a09;z-index:9999;overflow:auto;padding:2rem;color:#e9ede7;font-family:"JetBrains Mono",monospace;box-sizing:border-box;';
   document.body.appendChild(container);
 
   const title = document.createElement('h1');
@@ -22,7 +22,7 @@ export function mountSignalDebug(): void {
 
   const rocLabel = document.createElement('p');
   rocLabel.textContent = 'ROC — sensitivity vs FA/day. Box = clinically-useful region (FA/day ≤ 2, sensitivity ≥ 59%).';
-  rocLabel.style.cssText = 'font-size:0.8rem;color:#8a8279;margin:0 0 0.5rem;';
+  rocLabel.style.cssText = 'font-size:0.8rem;color:#7d857c;margin:0 0 0.5rem;';
   container.appendChild(rocLabel);
 
   const rocCanvas = document.createElement('canvas');
@@ -34,7 +34,7 @@ export function mountSignalDebug(): void {
 
   const histLabel = document.createElement('p');
   histLabel.textContent = 'Peak z-score per event — teal = seizures (7), red = artefacts (400). The invariant: sortedArtefactPeaks[2] > max(truePeakScores).';
-  histLabel.style.cssText = 'font-size:0.8rem;color:#8a8279;margin:0 0 0.5rem;';
+  histLabel.style.cssText = 'font-size:0.8rem;color:#7d857c;margin:0 0 0.5rem;';
   container.appendChild(histLabel);
 
   const histCanvas = document.createElement('canvas');
@@ -46,7 +46,7 @@ export function mountSignalDebug(): void {
 
   const strongestSeizure = Math.max(...table.truePeakScores);
   const info = document.createElement('pre');
-  info.style.cssText = 'font-size:0.8rem;color:#b9b2a8;margin-top:1.5rem;white-space:pre-wrap;';
+  info.style.cssText = 'font-size:0.8rem;color:#aab3a8;margin-top:1.5rem;white-space:pre-wrap;';
   info.textContent = [
     `seizures: ${table.seizures.length}    artefacts: ${table.artefacts.length}`,
     `strongest seizure peak z:       ${strongestSeizure.toFixed(3)}`,
@@ -59,7 +59,7 @@ export function mountSignalDebug(): void {
 
 function drawRoc(canvas: HTMLCanvasElement, table: RocTable): void {
   const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = '#0c0f11';
+  ctx.fillStyle = '#0e100e';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const pad = 44;
@@ -76,7 +76,7 @@ function drawRoc(canvas: HTMLCanvasElement, table: RocTable): void {
   ctx.lineWidth = 1;
   ctx.strokeRect(boxX, boxY, boxW, boxH);
 
-  ctx.strokeStyle = '#ece7de';
+  ctx.strokeStyle = '#e9ede7';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   table.points.forEach((p, i) => {
@@ -87,7 +87,7 @@ function drawRoc(canvas: HTMLCanvasElement, table: RocTable): void {
   });
   ctx.stroke();
 
-  ctx.fillStyle = '#8a8279';
+  ctx.fillStyle = '#7d857c';
   ctx.font = '11px monospace';
   ctx.fillText(`FA/day → (0..${maxFA.toFixed(0)})`, pad, canvas.height - 12);
   ctx.save();
@@ -99,7 +99,7 @@ function drawRoc(canvas: HTMLCanvasElement, table: RocTable): void {
 
 function drawHistogram(canvas: HTMLCanvasElement, table: RocTable): void {
   const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = '#0c0f11';
+  ctx.fillStyle = '#0e100e';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const all = [...table.truePeakScores, ...table.sortedArtefactPeaks];
@@ -125,11 +125,11 @@ function drawHistogram(canvas: HTMLCanvasElement, table: RocTable): void {
   }
   for (let i = 0; i < bins; i++) {
     const sh = (seizureBins[i] / maxCount) * h;
-    ctx.fillStyle = '#4fb0a8';
+    ctx.fillStyle = '#5fae7a';
     ctx.fillRect(pad + i * bw, pad + h - sh, Math.max(2, bw - 1), sh);
   }
 
-  ctx.fillStyle = '#8a8279';
+  ctx.fillStyle = '#7d857c';
   ctx.font = '11px monospace';
   ctx.fillText(`peak z-score → (${min.toFixed(1)}..${max.toFixed(1)})`, pad, canvas.height - 12);
 }

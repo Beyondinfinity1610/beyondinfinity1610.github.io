@@ -39,21 +39,21 @@ function setInitialRise(el: Element): void {
 }
 function revealRise(el: Element): void {
   const lines = linesOf(el);
-  gsap.to(lines.length ? lines : [el], { yPercent: 0, duration: 1.15, ease: EASE_ENTRANCE, stagger: 0.09 });
+  gsap.to(lines.length ? lines : [el], { yPercent: 0, duration: 0.85, ease: EASE_ENTRANCE, stagger: 0.06 });
 }
 
 function setInitialSettle(el: Element): void {
   gsap.set(el, { opacity: 0, y: 12 });
 }
 function revealSettle(el: Element): void {
-  gsap.to(el, { opacity: 1, y: 0, duration: 1.05, ease: EASE_ENTRANCE });
+  gsap.to(el, { opacity: 1, y: 0, duration: 0.78, ease: EASE_ENTRANCE });
 }
 
 function setInitialDraw(el: Element): void {
   gsap.set(el, { scaleX: 0, transformOrigin: 'left center' });
 }
 function revealDraw(el: Element, i: number): void {
-  gsap.to(el, { scaleX: 1, duration: 1.05, ease: EASE_ENTRANCE, delay: i * 0.07 });
+  gsap.to(el, { scaleX: 1, duration: 0.8, ease: EASE_ENTRANCE, delay: i * 0.05 });
 }
 
 function setInitialLatch(el: Element): void {
@@ -69,7 +69,7 @@ function setInitialWake(el: Element): void {
   gsap.set(el, { x: -3, opacity: 0 });
 }
 function revealWake(el: Element, i: number): void {
-  gsap.to(el, { x: 0, opacity: 1, duration: 1.05, ease: EASE_ENTRANCE, delay: i * 0.07 });
+  gsap.to(el, { x: 0, opacity: 1, duration: 0.8, ease: EASE_ENTRANCE, delay: i * 0.05 });
 }
 
 const HANDLERS: Record<EntranceType, { init: (el: Element) => void; reveal: (el: Element, i: number) => void }> = {
