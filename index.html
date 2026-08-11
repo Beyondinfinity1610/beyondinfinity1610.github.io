@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Thejeshwaar Sathishkumar — models for measurements that drift</title>
 <meta name="description" content="Machine learning research on non-stationary biosignals. Wearable neurology, multimodal fusion, domain generalisation — held to a deployment bar rather than a leaderboard." />
-<meta name="theme-color" content="#06080a" />
+<meta name="theme-color" content="#0a0908" />
 <meta name="color-scheme" content="dark" />
 <link rel="canonical" href="https://beyondinfinity1610.github.io/" />
 <meta property="og:type" content="profile" />
@@ -14,10 +14,11 @@
 <meta property="og:url" content="https://beyondinfinity1610.github.io/" />
 <meta name="twitter:card" content="summary" />
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2306080a'/%3E%3Cpath d='M4 17h5l2.5-7 3 12 3-9 2 4 1.8-2H28' fill='none' stroke='%234fb0a8' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
-<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0908'/%3E%3Cpath d='M4 17h5l2.5-7 3 12 3-9 2 4 1.8-2H28' fill='none' stroke='%234fb0a8' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="preload" href="vendor/fonts/instrument-serif.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="vendor/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="vendor/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="css/main.css?v=20260803i" />
 
 <script type="application/ld+json">
 {
@@ -35,55 +36,61 @@
 </script>
 </head>
 
-<!-- COPY IS SOURCE OF TRUTH. Do not edit prose in this file as part of a code change. -->
 <body>
 
-<a class="skip" href="#lie">Skip to content</a>
+<a class="skip" href="#conviction">Skip to content</a>
 
+<!-- the single space everything happens inside -->
 <canvas id="world" aria-hidden="true"></canvas>
-<canvas id="world-gl" aria-hidden="true"></canvas>
 <div class="atmos" aria-hidden="true"></div>
-<div class="grid-field" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
-<div class="progress-rail" aria-hidden="true"><div class="progress-rail-fill" id="progress-rail-fill"></div></div>
+<!-- ignition -->
+<div class="ignition" id="ignition" aria-hidden="true">
+  <canvas id="ignition-canvas"></canvas>
+  <div class="ignition-read">
+    <span class="ig-line" id="ig-line">sensor bus</span>
+    <span class="ig-num" id="ig-num">0000</span>
+  </div>
+  <button type="button" class="ignition-skip" id="ignition-skip">skip</button>
+</div>
+
+<!-- instrument rail -->
+<div class="rail" aria-hidden="true">
+  <div class="rail-mark"><span class="rail-k">station</span><span class="rail-v" id="rail-station">ignition</span></div>
+  <div class="rail-bar"><i id="rail-fill"></i></div>
+  <div class="rail-mark rail-r"><span class="rail-k">depth</span><span class="rail-v" id="rail-depth">0.00</span></div>
+</div>
 
 <header class="topbar">
   <a class="mark" href="#top" aria-label="Thejeshwaar Sathishkumar — back to top">
     <svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true"><path d="M4 17h5l2.5-7 3 12 3-9 2 4 1.8-2H28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span>T·S</span>
   </a>
-  <nav class="topnav" aria-label="primary">
+  <nav class="topnav">
     <a href="#work">work</a>
     <a href="#method">method</a>
     <a href="#him">him</a>
     <a href="#contact" class="topnav-cta">contact</a>
-    <button type="button" id="audio-toggle" class="audio-toggle" aria-pressed="false" aria-label="sound">
-      <svg class="audio-toggle-icon" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
-        <path d="M4 10v4h4l5 5V5L8 10H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-        <path class="audio-toggle-wave" d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-      </svg>
-      <span class="audio-toggle-state tnum">off</span>
-    </button>
   </nav>
 </header>
 
 <main id="top">
 
-<!-- ═══════════════════════ 01 · DRIFT (hero) ═══════════════════════ -->
-<section id="drift" class="movement" data-movement="01" data-id="drift">
+<!-- ─────────────────────────────── HERO ─────────────────────────────── -->
+<section id="hero" class="stage" data-station="hero">
   <div class="wrap hero-wrap">
-    <p class="hero-kicker">Chennai · 21 · final-year B.Tech</p>
+    <p class="eyebrow rise">Chennai · 21 · final-year B.Tech</p>
     <h1 class="display hero-title">
-      <span data-d="1">I build models for</span>
-      <span data-d="2">measurements that <em>drift</em>.</span>
+      <span class="rise" data-d="1">I build models for</span>
+      <span class="rise" data-d="2">measurements that <em>drift</em>.</span>
     </h1>
-    <p class="lede" data-d="3">
+    <p class="lede rise" data-d="3">
       Brain, heart, muscle, motion — read through hardware that is itself moving.
       Most of my work lives in the gap between what a sensor reports and what is
       actually happening.
     </p>
-    <div class="hero-foot" data-d="4">
+    <div class="hero-foot rise" data-d="4">
       <span class="tag">Wearable neurology</span>
       <span class="tag">Non-stationary signal</span>
       <span class="tag">Domain shift</span>
@@ -92,14 +99,14 @@
   <div class="scroll-cue" aria-hidden="true"><span></span></div>
 </section>
 
-<!-- ═══════════════════════ 02 · LIE (conviction) ═══════════════════════ -->
-<section id="lie" class="movement" data-movement="02" data-id="lie">
+<!-- ──────────────────────────── CONVICTION ──────────────────────────── -->
+<section id="conviction" class="stage" data-station="drift">
   <div class="wrap">
-    <p class="eyebrow">02 · lie</p>
-    <h2 class="display d2">Every instrument is <em>lying</em>.</h2>
+    <p class="eyebrow rise">I · the conviction</p>
+    <h2 class="display d2 rise">Every instrument is <em>lying</em>.</h2>
 
     <div class="two">
-      <div class="col">
+      <div class="col rise">
         <p class="big">
           I came to signal processing sideways, through cars. What held my attention
           was that an engine control unit makes hundreds of decisions a second from
@@ -113,7 +120,7 @@
           whether a given vibration is detonation or a bad road surface.
         </p>
       </div>
-      <div class="col">
+      <div class="col rise" data-d="1">
         <p>
           An electrode is the same object. Impedance drifts with sweat. Skull
           thickness and cortical folding differ between people. The sensor is
@@ -127,16 +134,14 @@
         </p>
       </div>
     </div>
+
   </div>
 
-  <!-- Deliberately empty — the trace's split/divergence plays out here with
-       no competing copy (spec §3.1). A fixed-viewport-percentage canvas
-       position is safe for the whole scroll distance of this div because
-       there is nothing else in the viewport while it's in view. -->
-  <div class="drift-stage" aria-hidden="true"></div>
+  <!-- a clear stage: the same signal, and the same signal as reported -->
+  <div class="drift-stage" data-station="lie" aria-hidden="true"></div>
 
   <div class="wrap">
-    <ul class="throughline">
+    <ul class="throughline rise">
       <li><span class="tl-k">in hardware</span><span class="tl-v">the sensor corrects itself before the control loop ever sees the fault</span></li>
       <li><span class="tl-k">in wearable EEG</span><span class="tl-v">a second physiology tells you when to distrust the first</span></li>
       <li><span class="tl-k">in graph models</span><span class="tl-v">the network is penalised for recognising the person</span></li>
@@ -145,79 +150,87 @@
   </div>
 </section>
 
-<!-- ═══════════════════════ 03 · TRY (the instrument) ═══════════════════════ -->
-<section id="try" class="movement" data-movement="03" data-id="try">
-  <div class="wrap wrap-narrow">
-    <p class="eyebrow">03 · a demonstration, not a result</p>
-    <h2 class="display d2">Try it.</h2>
-
-    <div class="col">
-      <p class="big">
-        Two channels of EEG, from behind the ear, threaded through twenty-four hours
-        of an ordinary day — walking, eating, talking, sleeping. Seven seizures are
-        hidden in it. So is chewing. So is talking, and a walk up a flight of stairs,
-        and all three can look like a seizure to a threshold.
-      </p>
-      <p>
-        Below is a dashed line you can drag up and down that recording. Wherever the
-        signal crosses it, an alarm fires. Try to catch the seizures without spending
-        more than two false alarms a day — the bar a device has to clear before
-        anyone will keep wearing it.
-      </p>
-    </div>
-
-    <div class="instrument-mount" id="instrument-mount" aria-describedby="instrument-disclosure">
-      the playable instrument mounts here — Phase 4
-    </div>
-
-    <p class="disclosure-strip tnum" id="instrument-caption">
-      synthetic signal · generated in your browser from a fixed seed · detector: line-length threshold (Esteller et al., 2001) · not the method under review
-    </p>
-
-    <div class="col">
-      <p>
-        You will not manage it. Nobody does with a single threshold — published
-        human expert readers, trained to do exactly this, reach roughly 59%
-        sensitivity on this modality. The line above is driven by a fixed,
-        transparent detector: smoothed line length over a short window, a statistic
-        published by Esteller and colleagues in 2001, before I was born. It is not
-        mine, and failing with it proves something about the problem rather than
-        about a hidden method.
-      </p>
-      <p id="instrument-disclosure" class="disclosure-note">
-        <b>Nothing here is real.</b> The recording is generated in your browser from
-        a fixed seed — no patient data, synthetic from first sample to last. The
-        detector is a textbook one, attributed above. The method that actually closes
-        the gap between this threshold and a working device is the subject of a
-        manuscript currently in review, and is not demonstrated on this page.
-      </p>
-    </div>
+<!-- ────────────────────────── SELECTED WORK ─────────────────────────── -->
+<section id="work" class="stage" data-station="work">
+  <div class="wrap">
+    <p class="eyebrow rise">II · selected work</p>
+    <h2 class="display d2 rise">Weighted, not <em>catalogued</em>.</h2>
+    <p class="lede rise">Five things carry the weight. Everything else is listed further down, quietly, where it belongs.</p>
   </div>
+
+  <article class="entry entry-lead">
+    <div class="wrap">
+      <div class="entry-head rise">
+        <span class="idx">01</span>
+        <div>
+          <h3 class="h3">Wearable focal-seizure detection</h3>
+          <p class="role">Lead researcher · manuscript in preparation</p>
+        </div>
+      </div>
+
+      <div class="two">
+        <div class="col rise">
+          <p class="big">
+            Two channels of EEG from behind the ear, on people who walk, eat, talk
+            and sleep while wearing the device.
+          </p>
+          <p>
+            Chewing, speaking and walking all produce high-amplitude rhythmic
+            activity that is spectrally almost indistinguishable from an ictal
+            discharge. The clinically useful bar is fewer than two false alarms per
+            day — one bad recording can spend that budget before lunch. For scale
+            on how hard the signal is: published human expert readers reach
+            roughly 59% sensitivity reading this modality.
+          </p>
+        </div>
+        <div class="col rise" data-d="1">
+          <dl class="facts">
+            <div><dt>Dataset</dt><dd>SeizeIT2 — behind-the-ear Sensor Dot, recorded in hospital</dd></div>
+            <div><dt>Scale</dt><dd>125 patients · 2,912 recording-hours · seizure prevalence under 1%</dd></div>
+            <div><dt>Modalities</dt><dd>2-channel EEG, ECG, deltoid EMG, 3-axis accelerometer</dd></div>
+            <div><dt>Evaluation</dt><dd>Continuous stream, patient-level splits, event scoring</dd></div>
+            <div><dt>Status</dt><dd>In preparation — target ICASSP / EMBC</dd></div>
+          </dl>
+          <p class="hold">
+            Method and results are held pending peer review. What follows shows the
+            shape of the system and nothing that belongs to the manuscript.
+          </p>
+        </div>
+      </div>
+    </div>
+  </article>
 </section>
 
-<!-- ═══════════════════════ 04 · WITHHELD (redaction) ═══════════════════════ -->
-<section id="withheld" class="movement movement-tall" data-movement="04" data-id="withheld">
+<!-- ──────────────────── THE REDACTED ARCHITECTURE ───────────────────── -->
+<section id="redaction" class="stage stage-tall" data-station="redaction">
   <div class="wrap wrap-narrow">
-    <p class="eyebrow">04 · withheld</p>
-    <h2 class="display d2">You are looking at it. You are not <em>reading</em> it.</h2>
-    <p class="lede">
-      What you just tried to beat by hand is not what I actually built. What
-      replaces the threshold is real, multi-stage, and reviewed as a whole — and
-      every label on it is struck out until the manuscript is through.
-    </p>
-    <p class="lede">
+    <p class="eyebrow rise">the architecture</p>
+    <h2 class="display d2 rise">You are looking at it. You are not <em>reading</em> it.</h2>
+    <p class="lede rise">
       The topology is real — the stages, their order, the direction signal travels
       through them. Every label is struck out until the manuscript is through
       review.
     </p>
   </div>
 
-  <div class="wrap wrap-narrow movement-foot">
-    <p>
+  <div class="drift-hud" aria-hidden="true">
+  <div class="dh-row"><i class="dh-sw dh-true"></i><span>what is happening</span></div>
+  <div class="dh-row"><i class="dh-sw dh-meas"></i><span>what the instrument reports</span></div>
+  <div class="dh-note">the gap is the whole job</div>
+</div>
+
+<div class="redact-hud" aria-hidden="true">
+    <div class="rh-row"><span class="rh-k">document</span><span class="rh-v">system topology · rev 7</span></div>
+    <div class="rh-row"><span class="rh-k">classification</span><span class="rh-v rh-stamp">withheld pending peer review</span></div>
+    <div class="rh-row"><span class="rh-k">plate</span><span class="rh-v" id="rh-role">— hover a plate —</span></div>
+  </div>
+
+  <div class="wrap wrap-narrow redact-foot">
+    <p class="rise">
       Hovering a plate returns its <em>role</em> in the flow and nothing else. One
       plate is left legible — the public dataset, which was never mine to withhold.
     </p>
-    <p class="note">
+    <p class="note rise">
       This is not a tease. Two manuscripts are in preparation and the novelty
       claims are inside them. The diagram exists so you can see that there is a
       substantial multi-stage system here, and see equally that you are not being
@@ -226,16 +239,15 @@
   </div>
 </section>
 
-<!-- ═══════════════════════ 05 · AUDIT (diagnosis) ═══════════════════════ -->
-<section id="audit" class="movement movement-tall" data-movement="05" data-id="audit">
+<!-- ───────────────────────── THE DIAGNOSIS ──────────────────────────── -->
+<section id="diagnosis" class="stage" data-station="diagnosis">
   <div class="wrap wrap-narrow">
-    <p class="eyebrow">05 · audit</p>
-    <h2 class="display d2">It plateaued. I audited <em>myself</em>.</h2>
-    <div class="col">
+    <p class="eyebrow rise">the part I would want asked about</p>
+    <h2 class="display d2 rise">It plateaued. I stopped tuning and audited <em>myself</em>.</h2>
+    <div class="col rise">
       <p class="big">
-        The system behind the redacted diagram plateaued too. Twenty-eight tuning
-        experiments in, the numbers stopped moving. The temptation at that point is
-        another module.
+        Twenty-eight tuning experiments in, the numbers stopped moving. The
+        temptation at that point is another module.
       </p>
       <p>
         Instead I went looking for what the system was actually doing, and found
@@ -258,128 +270,49 @@
   </div>
 </section>
 
-<!-- ═══════════════════════ 06 · CEILING (field of runs) ═══════════════════════ -->
-<section id="ceiling" class="movement movement-tall" data-movement="06" data-id="ceiling">
+<!-- ─────────────────────── ABLATION CONSTELLATION ───────────────────── -->
+<section id="ceiling" class="stage stage-tall" data-station="ceiling">
   <div class="wrap wrap-narrow">
-    <p class="eyebrow">06 · ceiling</p>
-    <h2 class="display d2">I <em>stopped</em>.</h2>
-    <p class="lede">
-      Every point in the field that follows is one run. Data scale, fusion
-      strategy, ensembling, false-alarm filtering, persistence, hand-crafted
-      features, band selection — each lever pulled and the measured outcome
-      written down, including the ones that made it worse.
+    <p class="eyebrow rise">the ceiling map</p>
+    <h2 class="display d2 rise">You are standing inside the <em>search</em>.</h2>
+    <p class="lede rise">
+      Every point around you is one run. Data scale, fusion strategy, ensembling,
+      false-alarm filtering, persistence, hand-crafted features, band selection —
+      each lever pulled and the measured outcome written down, including the ones
+      that made it worse.
     </p>
   </div>
+  <div class="field-hud" aria-hidden="true">
+    <div class="fh-row"><i class="fh-dot"></i><span>data scale</span></div>
+    <div class="fh-row"><i class="fh-dot"></i><span>fusion strategy</span></div>
+    <div class="fh-row"><i class="fh-dot"></i><span>ensembling</span></div>
+    <div class="fh-row"><i class="fh-dot"></i><span>false-alarm filtering</span></div>
+    <div class="fh-row"><i class="fh-dot"></i><span>persistence</span></div>
+    <div class="fh-row"><i class="fh-dot"></i><span>hand-crafted features</span></div>
+    <div class="fh-row"><i class="fh-dot"></i><span>band selection</span></div>
+    <div class="fh-note">seven spokes, not seven scores</div>
+  </div>
 
-  <div class="wrap wrap-narrow movement-foot">
-    <p>
+  <div class="wrap wrap-narrow ceiling-foot">
+    <p class="rise">
       Unlabelled, no axes, no values — those belong to the manuscript. The
       conclusion does not: nothing raised sensitivity at a usable false-alarm rate
       without collapsing into degenerate near-continuous prediction. What that
       says is that the limit here belongs to the modality rather than to the
       model — which is itself a result, and it is the reason I stopped.
     </p>
-    <p class="note">
+    <p class="note rise">
       Knowing when to stop is the part nobody teaches. I would rather publish a
       measured ceiling than an unmeasured claim.
     </p>
   </div>
 </section>
 
-<!-- ═══════════════════════ 07 · METHOD ═══════════════════════ -->
-<section id="method" class="movement" data-movement="07" data-id="method">
+<!-- ─────────────────────────── MORE WORK ────────────────────────────── -->
+<section id="work-2" class="stage" data-station="work2">
   <div class="wrap">
-    <p class="eyebrow">07 · method</p>
-    <h2 class="display d2">Diagnostic before <em>architectural</em>.</h2>
-    <p class="lede">Six habits, in the order I actually apply them — now demonstrated above, not just asserted here.</p>
 
-    <ol class="method-list">
-      <li><span class="m-i">i</span>
-        <h3>Audit what the model is receiving.</h3>
-        <p>Before anything else, confirm the tensor reaching the network is the one you think you wrote. The largest single improvement I have ever measured came from reading my own data loader properly.</p>
-      </li>
-      <li><span class="m-i">ii</span>
-        <h3>Verify that what you assume is learning, learned.</h3>
-        <p>Open the checkpoint. Look at the weights. A component can appear in every diagram you have ever drawn and still be inert, and nothing in the loss curve will tell you.</p>
-      </li>
-      <li><span class="m-i">iii</span>
-        <h3>Distrust your own good numbers first.</h3>
-        <p>A result that looks excellent is a hypothesis about your evaluation, not about your model. Several of the most impressive numbers I have produced turned out to be measuring something else.</p>
-      </li>
-      <li><span class="m-i">iv</span>
-        <h3>Score it the way a practitioner would.</h3>
-        <p>Continuous stream, not curated windows. Patient-level splits, not random ones. Events, not frames. Alarms per day, because that is the number that decides whether anyone keeps wearing the device.</p>
-      </li>
-      <li><span class="m-i">v</span>
-        <h3>Reach for the physics before the parameters.</h3>
-        <p>Phase-based connectivity because it is immune to volume conduction. Phase-space embedding because it bypasses fragile peak detection. If a component has no physical justification, I remove it rather than tune it.</p>
-      </li>
-      <li><span class="m-i">vi</span>
-        <h3>Map the ceiling instead of assuming it.</h3>
-        <p>Pull every lever, write down what each one measured, then go and find what a trained human reaches on the same signal. Sometimes the honest finding is that the limit is the hardware, and that is a result worth reporting.</p>
-      </li>
-    </ol>
-  </div>
-</section>
-
-<!-- ═══════════════════════ 08 · WORK (other work, re-weighted) ═══════════════════════ -->
-<section id="work" class="movement" data-movement="08" data-id="work">
-  <div class="wrap">
-    <p class="eyebrow">08 · work</p>
-    <h2 class="display d2">Other work, <em>weighted</em>.</h2>
-    <p class="lede">The seizure work above is a whole case study now, not an entry in a list. What follows is unequal by design — four things, not catalogued evenly.</p>
-  </div>
-
-  <article class="entry entry-lead">
-    <div class="wrap">
-      <div class="entry-head">
-        <span class="idx">01</span>
-        <div>
-          <h3 class="h3">KYFR — synthetic population engine</h3>
-          <p class="role">Professional engagement · shipped</p>
-        </div>
-      </div>
-      <div class="two">
-        <div class="col">
-          <p class="big">
-            A generator that produces privacy-safe synthetic financial populations
-            with multi-year, event-labelled transaction histories — for training and
-            testing products where real customer data is regulated and the
-            interesting life events are rare.
-          </p>
-          <p>
-            What makes it a system rather than a data faker is the discipline around
-            it. The same seed reproduces the same dataset byte for byte. Generation
-            is three separable layers: population, timeline, transactions. An
-            adversarial quality harness must pass with zero critical findings before
-            any change counts as finished.
-          </p>
-          <p>
-            The idea I am most attached to is the certification gate: a change-point
-            detector has to recover the injected life events above a hard bar before
-            the data is allowed to certify. The detector is not the product — its job
-            is to prove the data is learnable, and not naively separable.
-          </p>
-          <p>
-            This is the one entry here I would point a hiring manager at first if
-            they wanted proof I ship, not just publish: it is a real service, with
-            real operators depending on its output, and it has to be right every
-            time rather than right on average.
-          </p>
-        </div>
-        <div class="col">
-          <dl class="facts">
-            <div><dt>Surface</dt><dd>FastAPI service, async job queue, OpenAPI export, HTML and PDF reporting, one-command Docker</dd></div>
-            <div><dt>Incremental modes</dt><dd>Extend, append, backfill, inject, resample — a cohort can grow forward, backward or sideways while carrying state</dd></div>
-            <div><dt>Documented limit</dt><dd>A detector's ranking transfers between populations; its threshold does not, because the cutoff is an absolute number on a probability scale set by the base rate it was fitted at</dd></div>
-          </dl>
-        </div>
-      </div>
-    </div>
-  </article>
-
-  <article class="entry">
-    <div class="wrap">
+    <article class="entry rise">
       <div class="entry-head">
         <span class="idx">02</span>
         <div>
@@ -414,13 +347,84 @@
           <a class="lnk" href="https://github.com/Beyondinfinity1610/ADHD-CLASSFiCATION-EEG" target="_blank" rel="noopener">public repository ↗</a>
         </div>
       </div>
-    </div>
-  </article>
+    </article>
 
-  <article class="entry">
-    <div class="wrap">
+    <article class="entry rise">
       <div class="entry-head">
         <span class="idx">03</span>
+        <div>
+          <h3 class="h3">Hardware-level self-healing sensing</h3>
+          <p class="role">Published patent · 202541081235</p>
+        </div>
+      </div>
+      <div class="two">
+        <div class="col">
+          <p>
+            A fault-detection and recovery layer that sits below the application. A
+            bad sensor reading is identified and corrected within 50 milliseconds —
+            before the next control-loop tick in most embedded systems — so the
+            logic above never observes it at all.
+          </p>
+          <p>
+            Embedded machine learning does the recalibration, which removes the
+            human from the loop in continuous monitoring deployments that never had
+            one to begin with. Same conviction as everything else here, implemented
+            in silicon rather than in a loss function.
+          </p>
+        </div>
+        <div class="col">
+          <dl class="facts">
+            <div><dt>Patent</dt><dd>202541081235 — published</dd></div>
+            <div><dt>Latency budget</dt><dd>Detect and correct inside 50 ms</dd></div>
+            <div><dt>Placement</dt><dd>Below the application layer — invisible upward</dd></div>
+          </dl>
+        </div>
+      </div>
+    </article>
+
+    <article class="entry rise">
+      <div class="entry-head">
+        <span class="idx">04</span>
+        <div>
+          <h3 class="h3">KYFR — synthetic population engine</h3>
+          <p class="role">Professional engagement · shipped</p>
+        </div>
+      </div>
+      <div class="two">
+        <div class="col">
+          <p>
+            A generator that produces privacy-safe synthetic financial populations
+            with multi-year, event-labelled transaction histories — for training and
+            testing products where real customer data is regulated and the
+            interesting life events are rare.
+          </p>
+          <p>
+            What makes it a system rather than a data faker is the discipline around
+            it. The same seed reproduces the same dataset byte for byte. Generation
+            is three separable layers: population, timeline, transactions. An
+            adversarial quality harness must pass with zero critical findings before
+            any change counts as finished.
+          </p>
+          <p>
+            The idea I am most attached to is the certification gate: a change-point
+            detector has to recover the injected life events above a hard bar before
+            the data is allowed to certify. The detector is not the product — its job
+            is to prove the data is learnable, and not naively separable.
+          </p>
+        </div>
+        <div class="col">
+          <dl class="facts">
+            <div><dt>Surface</dt><dd>FastAPI service, async job queue, OpenAPI export, HTML and PDF reporting, one-command Docker</dd></div>
+            <div><dt>Incremental modes</dt><dd>Extend, append, backfill, inject, resample — a cohort can grow forward, backward or sideways while carrying state</dd></div>
+            <div><dt>Documented limit</dt><dd>A detector's ranking transfers between populations; its threshold does not, because the cutoff is an absolute number on a probability scale set by the base rate it was fitted at</dd></div>
+          </dl>
+        </div>
+      </div>
+    </article>
+
+    <article class="entry rise">
+      <div class="entry-head">
+        <span class="idx">05</span>
         <div>
           <h3 class="h3">Quantum-Hilbert encoding for EEG</h3>
           <p class="role">Lead research intern, CADS · under review · with co-authors at VIT and Yonsei</p>
@@ -451,74 +455,82 @@
           </dl>
         </div>
       </div>
-    </div>
-  </article>
+    </article>
 
-  <article class="entry">
-    <div class="wrap">
-      <div class="entry-head">
-        <span class="idx">04</span>
-        <div>
-          <h3 class="h3">Hardware-level self-healing sensing</h3>
-          <p class="role">Published patent · 202541081235</p>
-        </div>
-      </div>
-      <div class="two">
-        <div class="col">
-          <p>
-            A fault-detection and recovery layer that sits below the application. A
-            bad sensor reading is identified and corrected within 50 milliseconds —
-            before the next control-loop tick in most embedded systems — so the
-            logic above never observes it at all.
-          </p>
-        </div>
-        <div class="col">
-          <dl class="facts">
-            <div><dt>Patent</dt><dd>202541081235 — published</dd></div>
-            <div><dt>Latency budget</dt><dd>Detect and correct inside 50 ms</dd></div>
-            <div><dt>Placement</dt><dd>Below the application layer — invisible upward</dd></div>
-          </dl>
-        </div>
-      </div>
-    </div>
-  </article>
+  </div>
 </section>
 
-<!-- ═══════════════════════ 09 · ELSE ═══════════════════════ -->
-<section id="else" class="movement" data-movement="09" data-id="else">
+<!-- ────────────────────────────── METHOD ────────────────────────────── -->
+<section id="method" class="stage" data-station="method">
   <div class="wrap">
-    <p class="eyebrow">09 · else</p>
-    <h2 class="display d2">Quietly, and in <em>proportion</em>.</h2>
+    <p class="eyebrow rise">III · how I work</p>
+    <h2 class="display d2 rise">Diagnostic before <em>architectural</em>.</h2>
+    <p class="lede rise">Six habits, in the order I actually apply them.</p>
+
+    <ol class="method-list">
+      <li class="rise"><span class="m-i">i</span>
+        <h3>Audit what the model is receiving.</h3>
+        <p>Before anything else, confirm the tensor reaching the network is the one you think you wrote. The largest single improvement I have ever measured came from reading my own data loader properly.</p>
+      </li>
+      <li class="rise"><span class="m-i">ii</span>
+        <h3>Verify that what you assume is learning, learned.</h3>
+        <p>Open the checkpoint. Look at the weights. A component can appear in every diagram you have ever drawn and still be inert, and nothing in the loss curve will tell you.</p>
+      </li>
+      <li class="rise"><span class="m-i">iii</span>
+        <h3>Distrust your own good numbers first.</h3>
+        <p>A result that looks excellent is a hypothesis about your evaluation, not about your model. Several of the most impressive numbers I have produced turned out to be measuring something else.</p>
+      </li>
+      <li class="rise"><span class="m-i">iv</span>
+        <h3>Score it the way a practitioner would.</h3>
+        <p>Continuous stream, not curated windows. Patient-level splits, not random ones. Events, not frames. Alarms per day, because that is the number that decides whether anyone keeps wearing the device.</p>
+      </li>
+      <li class="rise"><span class="m-i">v</span>
+        <h3>Reach for the physics before the parameters.</h3>
+        <p>Phase-based connectivity because it is immune to volume conduction. Phase-space embedding because it bypasses fragile peak detection. If a component has no physical justification, I remove it rather than tune it.</p>
+      </li>
+      <li class="rise"><span class="m-i">vi</span>
+        <h3>Map the ceiling instead of assuming it.</h3>
+        <p>Pull every lever, write down what each one measured, then go and find what a trained human reaches on the same signal. Sometimes the honest finding is that the limit is the hardware, and that is a result worth reporting.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ───────────────────────── EVERYTHING ELSE ────────────────────────── -->
+<section id="else" class="stage" data-station="else">
+  <div class="wrap">
+    <p class="eyebrow rise">IV · everything else</p>
+    <h2 class="display d2 rise">Quietly, and in <em>proportion</em>.</h2>
 
     <ul class="quiet">
-      <li><span class="q-n">Vista / CPMS</span><span class="q-d">Full-stack academic project-management platform — review cycles, panels, rubrics, scheduling, workload allocation, bulk import. Real institutional software with real users and the mess that comes with both.</span></li>
-      <li><span class="q-n">DMQS-EARIMS</span><span class="q-d">Federated multi-modal infrastructure monitoring. Ultrasonic, fibre-optic and vision streams fused across nodes that train locally, so raw sensor data never leaves the edge. Pre-publication system design.</span></li>
-      <li><span class="q-n">EEG motor imagery</span><span class="q-d">Deliberately classical — ERD/ERS features and an SVM, in MNE-Python. The project where I formed the belief that preprocessing decides the result and the classifier mostly reports it.</span></li>
-      <li><span class="q-n">Plate Vision AI</span><span class="q-d">Licence-plate detection and recognition from real footage: motion blur, oblique angles, bad light. The cars project.</span></li>
-      <li><span class="q-n">Code AI Plus</span><span class="q-d">Multi-language AI-assisted editor with sandboxed execution. The hard part was running untrusted code safely and returning a diagnosis rather than a decorated stack trace.</span></li>
-      <li><span class="q-n">Word-to-IEEE</span><span class="q-d">Automated conversion of manuscripts into IEEE two-column format — figures, tables, references, code. Ships with an MCP server so an assistant can drive it directly.</span></li>
+      <li class="rise"><span class="q-n">Vista / CPMS</span><span class="q-d">Full-stack academic project-management platform — review cycles, panels, rubrics, scheduling, workload allocation, bulk import. Real institutional software with real users and the mess that comes with both.</span></li>
+      <li class="rise"><span class="q-n">DMQS-EARIMS</span><span class="q-d">Federated multi-modal infrastructure monitoring. Ultrasonic, fibre-optic and vision streams fused across nodes that train locally, so raw sensor data never leaves the edge. Pre-publication system design.</span></li>
+      <li class="rise"><span class="q-n">EEG motor imagery</span><span class="q-d">Deliberately classical — ERD/ERS features and an SVM, in MNE-Python. The project where I formed the belief that preprocessing decides the result and the classifier mostly reports it.</span></li>
+      <li class="rise"><span class="q-n">Plate Vision AI</span><span class="q-d">Licence-plate detection and recognition from real footage: motion blur, oblique angles, bad light. The cars project.</span></li>
+      <li class="rise"><span class="q-n">Code AI Plus</span><span class="q-d">Multi-language AI-assisted editor with sandboxed execution. The hard part was running untrusted code safely and returning a diagnosis rather than a decorated stack trace.</span></li>
+      <li class="rise"><span class="q-n">Word-to-IEEE</span><span class="q-d">Automated conversion of manuscripts into IEEE two-column format — figures, tables, references, code. Ships with an MCP server so an assistant can drive it directly.</span></li>
     </ul>
 
-    <div class="skills">
+    <div class="skills rise">
       <div class="sk"><h4>Signal</h4><p>Variational mode decomposition · Hilbert transform and analytic signal · phase lag index and weighted PLI · Teager–Kaiser energy · phase-space embedding · ERD/ERS · multitaper PSD · filter design</p></div>
       <div class="sk"><h4>Learning</h4><p>1D CNNs · temporal convolutional networks · recurrent encoders · transformers and cross-attention · graph attention networks · domain-adversarial training with gradient reversal · masked autoencoders · variational quantum circuits</p></div>
       <div class="sk"><h4>Method</h4><p>Leave-one-subject-out and patient-level splitting · AUPRC and event-level scoring · bootstrap intervals · corrected hypothesis testing · ablation design · coverage-artifact detection · integrated-gradient attribution</p></div>
       <div class="sk"><h4>Engineering</h4><p>PyTorch · PyTorch Geometric · MNE-Python · scikit-learn · PennyLane · NumPy / SciPy · FastAPI · Docker · MERN · embedded ML for on-device calibration</p></div>
     </div>
 
-    <div class="creds">
+    <div class="creds rise">
       <p><b>B.Tech Computer Science</b> — Vellore Institute of Technology, Chennai. ABET-accredited, 2023–2027.</p>
       <p>Oracle Cloud Infrastructure 2025 Certified Generative AI Professional · Machine Learning Specialization, DeepLearning.AI · Biomedical AI &amp; Quantum ML, CADS VIT · NPTEL coursework.</p>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════ 10 · HIM ═══════════════════════ -->
-<section id="him" class="movement" data-movement="10" data-id="him">
+<!-- ─────────────────────────────── HIM ──────────────────────────────── -->
+<section id="him" class="stage" data-station="him">
   <div class="wrap wrap-narrow">
-    <p class="eyebrow">10 · him</p>
-    <h2 class="display d2">Twenty-one, final year, mostly <em>nocturnal</em>.</h2>
-    <div class="col">
+    <p class="eyebrow rise">V · him</p>
+    <h2 class="display d2 rise">Twenty-one, final year, mostly <em>nocturnal</em>.</h2>
+    <div class="col rise">
       <p class="big">
         Most of the research happens outside coursework, which in practice means
         long training runs overnight and a great deal of matplotlib at two in the
@@ -542,19 +554,19 @@
   </div>
 </section>
 
-<!-- ═══════════════════════ 11 · CONTACT ═══════════════════════ -->
-<section id="contact" class="movement" data-movement="11" data-id="contact">
+<!-- ───────────────────────────── CONTACT ────────────────────────────── -->
+<section id="contact" class="stage" data-station="contact">
   <div class="wrap wrap-narrow contact-wrap">
-    <p class="eyebrow">11 · contact</p>
-    <h2 class="display contact-title">
+    <p class="eyebrow rise">VI · contact</p>
+    <h2 class="display contact-title rise">
       If the instrument is unreliable,<br /><em>that is the interesting one</em>.
     </h2>
-    <p class="lede">
+    <p class="lede rise">
       I am looking for research groups and teams working on measurement that
       misbehaves — neurotechnology and medical devices, but equally wearables,
       industrial sensing, automotive. If your data drifts, we will get along.
     </p>
-    <div class="contact-links">
+    <div class="contact-links rise">
       <a class="clink" href="mailto:thejeshwaarsathishkumar@gmail.com">
         <span class="cl-k">email</span><span class="cl-v">thejeshwaarsathishkumar@gmail.com</span>
       </a>
@@ -565,11 +577,10 @@
         <span class="cl-k">academic</span><span class="cl-v">thejeshwaar.sathish2023@vitstudent.ac.in</span>
       </a>
     </div>
-    <p class="colophon">
-      Chennai, Tamil Nadu. Built with a build step but no third-party request —
-      nothing here calls a CDN, a font service or an analytics endpoint; every
-      asset is self-hosted. Two manuscripts in preparation — ask me about the
-      parts that are blacked out and I will tell you when they are through review.
+    <p class="colophon rise">
+      Chennai, Tamil Nadu. Built without a framework, a build step or a third-party
+      request. Two manuscripts in preparation — ask me about the parts that are
+      blacked out and I will tell you when they are through review.
     </p>
   </div>
 </section>
@@ -578,17 +589,13 @@
 
 <noscript>
   <div class="wrap noscript-note">
-    <p><b>This site uses JavaScript for its 3D scenes and entrance motion.</b> All of the
-    text is present and readable without it — the scenes are atmosphere, not content.</p>
-    <img
-      class="noscript-fallback-svg"
-      src="/fallback-instrument.svg"
-      width="640"
-      height="360"
-      alt="A sensitivity-versus-false-alarms curve, generated from the same synthetic recording as the playable instrument above, drawn entirely beneath a dashed rectangle marked fewer than two false alarms per day and the published 59% expert-reader sensitivity. The curve never enters the rectangle — the argument the instrument makes by letting you fail." />
+    <p><b>This site uses JavaScript for its 3D scene and entrance motion.</b> All of the
+    text is present and readable without it — the scene is atmosphere, not content.</p>
   </div>
 </noscript>
 
-<script type="module" src="/src/main.ts"></script>
+<script src="js/intro.js?v=20260803i"></script>
+<script src="js/main.js?v=20260803i"></script>
+<script type="module" src="js/world.js?v=20260803i"></script>
 </body>
 </html>

@@ -1,6 +1,0 @@
-node_modules/
-dist/
-shots/
-!shots/.gitkeep
-*.log
-.DS_Store

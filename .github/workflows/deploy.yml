@@ -1,8 +1,15 @@
 name: deploy
 
+# This is a static, no-build site at this point in its history (pre-Vite
+# rebuild) — the repo has no package.json to run "npm run build" against.
+# GitHub Pages here is configured with Source: GitHub Actions, so a
+# workflow still has to exist to publish anything; this just uploads the
+# repo root as-is instead of building it first.
+
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,50 +21,16 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-
-      - run: npm run check:disclosure
-
-      - run: npm run typecheck
-
-      - run: npm run test
-
-      - run: npm run build
-
-      - run: npm run check:size
-
-      - run: npx playwright install --with-deps chromium
-
-      - run: npm run shots:ci
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: shots
-          path: shots/
-          retention-days: 14
-
-      - run: npm run check:disclosure:dist
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
       - id: deployment
         uses: actions/deploy-pages@v4
