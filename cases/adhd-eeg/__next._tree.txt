@@ -1,6 +1,6 @@
-:HL["/_next/static/chunks/06gc9b1s5ies8.css","style"]
+:HL["/_next/static/chunks/2ieruhcyv9kbl.css","style"]
 :HL["/fonts/mona-sans-latin-standard-normal.woff2","font",{"crossOrigin":"anonymous","type":"font/woff2"}]
 3:[["children",{"s":"__PAGE__","h":160}]]
 2:[["children",{"s":{"n":"slug","t":"d","k":"adhd-eeg","s":[]},"h":65632,"c":"$Q3"}]]
-1:[["children",{"s":"cases","h":131168,"c":"$Q2"}]]
-0:{"b":"cMw8rSQobjehRogncV2UE","t":{"t":{"s":"","h":131152,"c":"$Q1"}}}
+1:[["children",{"s":"cases","h":131136,"c":"$Q2"}]]
+0:{"b":"Vocc9YWHqptvJu_2Mlqp-","t":{"t":{"s":"","h":131088,"c":"$Q1"}}}

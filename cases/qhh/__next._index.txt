@@ -1,0 +1,29 @@
+1:"$Sreact.fragment"
+3:"/_next/static/chunks/1idqw-v-5-qo5.js"
+4:"/_next/static/chunks/0m3alsllz0i6p.js"
+5:"/_next/static/chunks/2-e_4staa0e8w.js"
+6:"/_next/static/chunks/42yzcv-i2tz03.js"
+7:I[87832,["$3","$4","$5","$6"],"Header"]
+8:"/_next/static/chunks/42onvq6nokjl2.js"
+9:I[39756,["$8"],"default"]
+a:I[37457,["$8"],"default"]
+b:"/_next/static/chunks/3hf1a5-q08pfm.js"
+c:"/_next/static/chunks/1tvpda1ua-nv7.js"
+d:"/_next/static/chunks/2joc9dguz_m79.js"
+e:I[22016,["$3","$4","$5","$6","$b","$c","$d"],""]
+:HL["/_next/static/chunks/2ieruhcyv9kbl.css","style"]
+:HL["/fonts/mona-sans-latin-standard-normal.woff2","font",{"crossOrigin":"anonymous","type":"font/woff2"}]
+2:["$","style",null,{"children":"[data-reveal],[data-place],[data-anim]{opacity:1!important;transform:none!important}.letterbox{display:none!important}"}]
+14:X
+0:{"t":{"t":{"s":"","h":131088,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/2ieruhcyv9kbl.css","precedence":"next"}],["$","script","script-0",{"src":"/_next/static/chunks/1idqw-v-5-qo5.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/0m3alsllz0i6p.js","async":true}],["$","script","script-2",{"src":"/_next/static/chunks/2-e_4staa0e8w.js","async":true}],["$","script","script-3",{"src":"/_next/static/chunks/42yzcv-i2tz03.js","async":true}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"(function(){try{var d=document.documentElement;d.classList.add('js');var m=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;var c=navigator.connection;var sd=!!(c&&(c.saveData||/^(slow-2g|2g|3g)$/.test(c.effectiveType||'')));var p=location.pathname.replace(/\\/index\\.html$/,'/');if(p==='/'&&!m&&!sd&&!location.hash){var seen=false;try{seen=sessionStorage.getItem('intro')==='1'}catch(e){}if(!seen)d.setAttribute('data-intro','play')}}catch(e){}})();"}}],["$","link",null,{"rel":"preload","href":"/fonts/mona-sans-latin-standard-normal.woff2","as":"font","type":"font/woff2","crossOrigin":"anonymous"}],["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"Person\",\"name\":\"Thejeshwaar Sathishkumar\",\"jobTitle\":\"ML Researcher\",\"description\":\"I build models for noisy signals — then I find out whether to believe them.\",\"email\":\"mailto:thejeshwaarsathishkumar@gmail.com\",\"url\":\"https://beyondinfinity1610.github.io\",\"sameAs\":[\"https://github.com/Beyondinfinity1610\"],\"affiliation\":{\"@type\":\"CollegeOrUniversity\",\"name\":\"Vellore Institute of Technology, Chennai\"},\"knowsAbout\":[\"Machine learning\",\"EEG\",\"ECG\",\"EMG\",\"Seizure detection\",\"Multimodal fusion\",\"Leakage-aware evaluation\",\"Signal processing\"]}"}}],["$","noscript",null,{"children":"$2"}]]}],["$","body",null,{"children":[["$","div",null,{"id":"site-root","children":[["$","a",null,{"className":"skip","href":"#main","children":"Skip to content"}],["$","$L7",null,{"name":"Thejeshwaar Sathishkumar","email":"thejeshwaarsathishkumar@gmail.com","resume":"/Thejeshwaar_Sathishkumar_Resume.pdf"}],["$","$L9",null,{"parallelRouterKey":"children","template":["$","$La",null,{}],"notFound":[["$","main",null,{"id":"main","children":["$","div",null,{"className":"container","style":{"paddingBlock":"96px 64px"},"children":[["$","p",null,{"className":"label","children":"404"}],["$","h1",null,{"className":"lead","style":{"marginTop":16,"fontWeight":400},"children":"No signal on this channel."}],["$","p",null,{"className":"hero__actions","children":[["$","$Le",null,{"prefetch":false,"className":"btn","href":"/","children":"Home"}],["$","$Le",null,{"prefetch":false,"className":"btn","href":"/#cases","children":"Cases"}],["$","$Le",null,{"prefetch":false,"className":"btn","href":"/record","children":"Record"}]]}]]}]}],[]]}],["$","footer",null,{"className":"site-footer","children":[["$","div",null,{"className":"site-footer__grid edge","children":[["$","div",null,{"className":"site-footer__notes","children":[["$","p",null,{"children":"Manuscripts under review are described at a high level only."}],["$","p",null,{"children":"If you find a number here without its setting, that’s a bug. Tell me."}],["$","p",null,{"children":"Built with AI assistance. Every number comes from a typed registry, and the build fails if a number appears without its setting. The signals drawn on this site are synthetic."}]]}],["$","ul",null,{"className":"site-footer__links","aria-label":"Contact and links","children":[["$","li",null,{"children":["$","a",null,{"href":"mailto:thejeshwaarsathishkumar@gmail.com","children":"thejeshwaarsathishkumar@gmail.com"}]}],["$","li",null,{"children":["$","a",null,{"href":"https://github.com/Beyondinfinity1610","rel":"noopener noreferrer","children":"github.com/Beyondinfinity1610"}]}],["$","li",null,{"children":["$","a",null,{"href":"/Thejeshwaar_Sathishkumar_Resume.pdf","download":true,"children":"Résumé (PDF)"}]}],["$","li",null,{"children":"$Lf"}]]}]]}],"$L10"]}]]}],"$L11","$L12"]}]]}]]}],"p":"$@13","v":null,"s":"$14"}}},"a":"$@15","u":"$@16","b":"Vocc9YWHqptvJu_2Mlqp-"}
+17:I[9492,["$3","$4","$5","$6"],"SmoothScroll"]
+18:I[47872,["$3","$4","$5","$6"],"Enhance"]
+f:["$","$Le",null,{"prefetch":false,"href":"/method#disclosure","children":"AI-assistance disclosure"}]
+10:["$","p",null,{"className":"site-footer__name edge","aria-hidden":"true","children":"Thejeshwaar Sathishkumar"}]
+11:["$","$L17",null,{}]
+12:["$","$L18",null,{}]
+14:300
+16:true
+14:C
+15:0
+13:"$undefined"
