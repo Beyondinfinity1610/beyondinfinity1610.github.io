@@ -1,0 +1,5 @@
+:HL["/_next/static/chunks/06gc9b1s5ies8.css","style"]
+:HL["/fonts/mona-sans-latin-standard-normal.woff2","font",{"crossOrigin":"anonymous","type":"font/woff2"}]
+2:[["children",{"s":"__PAGE__","h":160}]]
+1:[["children",{"s":"/_not-found","h":96,"c":"$Q2"}]]
+0:{"b":"cMw8rSQobjehRogncV2UE","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
