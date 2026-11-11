@@ -1,0 +1,38 @@
+WEBVTT
+
+00:00:00.200 --> 00:00:05.900
+Thejeshwaar Sathishkumar
+I build models for noisy signals.
+
+00:00:06.200 --> 00:00:11.900
+From outside, a wearable records four signals.
+Brain, heart, muscle and movement. The obvious plan: fuse them.
+
+00:00:12.200 --> 00:00:18.900
+Three of them counted for nothing.
+I looked inside the model. The fusion weights on heart, muscle and movement were 0.000. Exactly zero.
+
+00:00:19.200 --> 00:00:24.900
+And it was barely looking.
+It was reading 2 s of each 17 s window.
+
+00:00:25.200 --> 00:00:32.900
+So I rebuilt it, one stage at a time.
+Then tested it on patients it never saw in training. Under review at npj Digital Medicine.
+
+00:00:33.200 --> 00:00:39.900
+Then I audited my own best number.
+An ADHD classifier of mine had scored this. The epoch had been chosen on the test fold.
+
+00:00:40.200 --> 00:00:47.900
+A stopwatch beat chance.
+Recording length alone, with no EEG in it, beat chance. So I rebuilt the evaluation, subject-independent.
+
+00:00:48.200 --> 00:00:53.900
+Two more cases, held to the same standard.
+A detector that had to beat “always yes” first. Synthetic transactions with scripted life events: F1 above 0.75 on 3 of 4 rare events, on synthetic data.
+Can phase survive a quantum circuit? Exploratory, under review at Frontiers in AI. No quantum advantage claimed.
+
+00:00:54.200 --> 00:01:01.900
+Every result gets the same treatment.
+I build models for noisy signals. Then I find out whether to believe them.
